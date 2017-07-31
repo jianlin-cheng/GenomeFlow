@@ -1,3 +1,5 @@
+The project uses JUnit for testing and Maven to manage dependencies and builds. It can be imported into Eclipse as a Maven project.
+
 # Requirements
 * Maven: manage builds and dependencies. <br>
 If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to be installed to compile the code. 
@@ -12,3 +14,5 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 
 # Compiling 
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
+
+
