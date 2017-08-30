@@ -370,6 +370,11 @@ public class Token {
   final static int zoom                = scriptCommand | 72;
   final static int zoomTo              = scriptCommand | 74;
 
+  //Tuan added for 3D genome functions
+  public final static int pdb2gss = scriptCommand | 75 | deprecatedparam;
+  public final static int lorDG = scriptCommand | 76 | deprecatedparam;
+  //end
+  
   // shapes:
   
   public final static int axes         = shapeCommand | 2 | deprecatedparam | defaultON;
@@ -382,7 +387,7 @@ public class Token {
   public final static int scales       = shapeCommand | 10 | deprecatedparam | defaultON;
   public final static int frank        = shapeCommand | 12 | deprecatedparam | defaultON;  
   //modified end -hcf
-
+  
   public final static int isosurface   = shapeCommand | 12;
   public final static int lcaocartoon  = shapeCommand | 14;
   public final static int measurements = shapeCommand | 16 | setparam;
@@ -397,7 +402,7 @@ public class Token {
   public final static int wireframe    = shapeCommand | 32 | defaultON;
 
 
-  
+
 
   //
   // atom expression terms
@@ -1485,8 +1490,6 @@ public class Token {
 
     Object[] arrayPairs  = {
 
-    // atom expressions
-
       "(",            tokenLeftParen,
       ")",            tokenRightParen,
       "and",          tokenAnd,
@@ -1642,6 +1645,7 @@ public class Token {
       "getseqLocal",       new Token(getseqLocal),
       "extractPDB",        new Token(extractPDB),
       //modified end -hcf
+      
       "log",               new Token(log),
       "loop",              new Token(loop),
       "measure",           new Token(measure),
@@ -2466,6 +2470,13 @@ public class Token {
       "zoomEnabled",                              new Token(zoomenabled),
       "zoomLarge",                                new Token(zoomlarge),
       "zShade",                                   new Token(zshade),
+      
+      
+      //Tuan added for 3D genome function
+      "pdb2GSS", 		   new Token(pdb2gss),
+      "lorDG", new Token(lorDG),
+      //end
+
 
     };
 

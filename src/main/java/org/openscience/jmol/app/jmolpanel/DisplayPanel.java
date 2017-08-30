@@ -167,6 +167,7 @@ public void componentShown(java.awt.event.ComponentEvent e) {
 
   @Override
   public void paint(Graphics g) {
+	  System.out.printf("----Class: %s, method name: %s\n",Thread.currentThread().getStackTrace()[1].getClassName(),Thread.currentThread().getStackTrace()[1].getMethodName());
     if (showPaintTime)
       startPaintClock();
     if (dimSize.width == 0)

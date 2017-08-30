@@ -111,7 +111,7 @@ synchronized public void repaintDone() {
   
   @Override
 synchronized public void requestRepaintAndWait() {
-    //System.out.println("RM requestRepaintAndWait() " + (test++));
+    //System.out.println("RM requestRepaintAndWait() " + (test++));	  
     viewer.repaint();
     try {
       //System.out.println("repaintManager requestRepaintAndWait I am waiting for a repaint: thread=" + Thread.currentThread().getName());

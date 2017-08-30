@@ -2555,6 +2555,7 @@ public void callExtractPDB(String fileName) {
   private Object getAtomSetCollection(String fileName, boolean isAppend,
                                       Map<String, Object> htParams,
                                       StringBuffer loadScript, int currentSelectedScale, int currentSelectedUnit, int[] selectedPath, String downOrUp, Atom[] currentUnits) {
+
     if (fileName == null)
       return null;
     if (fileName.indexOf("[]") >= 0) {
@@ -4867,6 +4868,7 @@ public void fillAtomData(AtomData atomData, int mode) {
      * repaintManager.repaintDone()<-- which sets repaintPending false and does
      * notify();
      */
+
     renderScreenImage(g, null, width, height);
   }
 
@@ -4926,6 +4928,7 @@ public void fillAtomData(AtomData atomData, int mode) {
   }
 
   private void render1(Object graphic, Object img, int x, int y) {
+
     if (graphic != null && img != null) {
       try {
         apiPlatform.drawImage(graphic, img, x, y, dimScreen.width,
@@ -4939,6 +4942,7 @@ public void fillAtomData(AtomData atomData, int mode) {
 
   @Override
   public Object getScreenImage(Object graphic) {
+
     boolean mergeImages = (graphic == null && isStereoDouble());
   
     Object image = (transformManager.stereoMode.isBiColor() ? getStereoImage(transformManager.stereoMode)
@@ -5246,7 +5250,8 @@ public void fillAtomData(AtomData atomData, int mode) {
                                            String statusList,
                                            boolean isScriptFile,
                                            boolean isQuiet, boolean isQueued) {
-    // from the scriptManager or scriptWait()
+
+	  // from the scriptManager or scriptWait()
     if (strScript == null)
       return null;
     String str = checkScriptExecution(strScript, false);
@@ -10204,8 +10209,9 @@ public void fillAtomData(AtomData atomData, int mode) {
   }
 
   public void repaint() {
+
     // from RepaintManager
-    if (haveDisplay)
+    if (haveDisplay)    	
       apiPlatform.repaint(display);
   }
 

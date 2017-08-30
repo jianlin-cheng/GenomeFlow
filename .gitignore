@@ -1,0 +1,10 @@
+target/
+.settings/
+.classpath
+.project
+pdb2gss/
+human_with_seq/
+make_dependencies.py
+*.txt
+*.pdb
+*.gss

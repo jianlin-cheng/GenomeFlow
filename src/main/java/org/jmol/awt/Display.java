@@ -7,6 +7,8 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.MemoryImageSource;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -45,6 +47,22 @@ class Display {
   }
 
   static void repaint(Object display) {
+	  //Tuan added to debug
+//	  PrintWriter log = null;
+//	  try{
+//		  log = new PrintWriter(new FileWriter("log.txt",true));
+//		  log.println();
+//		  for (int i = 1; i < Thread.currentThread().getStackTrace().length; i++){
+//			  //System.out.printf("----Class: %s, method name: %s\n",Thread.currentThread().getStackTrace()[i].getClassName(),Thread.currentThread().getStackTrace()[i].getMethodName());
+//			  //System.out.println(Thread.currentThread().getStackTrace()[i].getClassName() + "\t" + Thread.currentThread().getStackTrace()[i].getMethodName());
+//			  log.println(Thread.currentThread().getStackTrace()[i].getClassName() + "\t" + Thread.currentThread().getStackTrace()[i].getMethodName());
+//		  }
+//	  }catch(Exception ex){
+//		  
+//	  }finally{
+//		  if (log != null) log.close();
+//	  }
+	  
     ((Component) display).repaint();
   }
 

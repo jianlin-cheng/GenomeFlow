@@ -28,6 +28,9 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
@@ -62,6 +65,7 @@ import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -69,6 +73,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
@@ -100,6 +105,8 @@ import org.openscience.jmol.app.jsonkiosk.JsonNioServer;
 import org.openscience.jmol.app.jsonkiosk.KioskFrame;
 import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
+
+import edu.missouri.chenglab.gmol.Constants;
 //added -hcf
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
@@ -139,7 +146,9 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   protected JToolBar toolbar;//privat->protected changed -hcf
 
   // --- action implementations -----------------------------------
-
+  private ConvertPDB2GSSAction pdb2GSSAction = new ConvertPDB2GSSAction(); //Tuan added
+  private LorDG3DModeller lorDGModellerAction = new LorDG3DModeller(); //Tuan added
+  
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
   private extractPDBAction extractPDBAction = new extractPDBAction();//added -hcf
@@ -173,7 +182,9 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   // these correlate with items xxx in GuiMap.java 
   // that have no associated xxxScript property listed
   // in org.openscience.jmol.Properties.Jmol-resources.properties
-
+  private static final String convertPDB2GSSAction = "PDB2GSS";//Tuan added
+  private static final String lorDG3DModellerAction = "LorDG";//Tuan added
+  
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
   private static final String scaleDownAction = "scaleDown";//added -hcf
@@ -675,6 +686,10 @@ public void showStatus(String message) {
       mi.setHorizontalTextPosition(SwingConstants.RIGHT);
       mi.setIcon(f);
     }
+    
+    if (cmd.contains("3D")){
+    	System.out.println();
+    }
 
     if (cmd.endsWith("Script")) {
       mi.setActionCommand(JmolResourceHandler.getStringX(cmd));
@@ -758,7 +773,7 @@ public void showStatus(String message) {
    * @return Button
    */
   protected AbstractButton createToolbarButton(String key) {
-
+	  
     ImageIcon ii = JmolResourceHandler.getIconX(key + "Image");
     boolean isHoldButton = (key.startsWith("animatePrev") || key.startsWith("animateNext"));
     AbstractButton b = (isHoldButton ? new AnimButton(ii, JmolResourceHandler.getStringX(key)) : new JButton(ii));    
@@ -979,7 +994,7 @@ public void showStatus(String message) {
       } else if (item.endsWith("Menu")) {
         menu.add(createMenu(item));
       } else {
-        JMenuItem mi = createMenuItem(item);
+        JMenuItem mi = createMenuItem(item);        
         menu.add(mi);
       }
     }
@@ -1058,7 +1073,7 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction}//last four added -hcf
+      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1296,6 +1311,301 @@ public void showStatus(String message) {
   
   //added end -hcf
 
+  /*
+   * Tuan created a new button to convert PDB format file to GSS
+   */
+  class ConvertPDB2GSSAction extends NewAction {
+	  ConvertPDB2GSSAction() {
+		  super(convertPDB2GSSAction);
+	  }
+	  
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+	    	//script = "pdb2GSS";
+	    	//viewer.script(script);
+	    	
+	    	
+	        JTextField pdbFileField = new JTextField();	        
+	        
+	        
+	        JTextField mappingFileField = new JTextField();
+	        //mappingFileField.setPreferredSize(new Dimension(400, 20));
+	        
+	        JTextField gssFileField = new JTextField();
+	        //gssFileField.setPreferredSize(new Dimension(400, 20));
+	        	        
+	        JButton openPDBFileButton = new JButton("Browse File");
+	        //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
+	        
+	        openPDBFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					pdbFileField.setText(fileName);
+					gssFileField.setText(fileName.replace(".pdb", ".gss"));
+				}
+			});
+	        
+	        
+	        JButton openMappingFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        openMappingFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					mappingFileField.setText(fileName);
+				}
+			});
+	        
+	        
+	        
+	        JButton openGSSFileButton = new JButton("Browse File");
+	        //openGSSFileButton.setPreferredSize(new Dimension(40, 20));
+	        openGSSFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					gssFileField.setText(fileName);
+				}
+			});
+	        	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(600, 120);
+	            }	       
+	        };
+	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        	        
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;	                
+	        panel.add(new JLabel("Input PDB file:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = 0;
+	        pdbFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(pdbFileField, gbc);
+	        	        
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 0;	        
+	        panel.add(openPDBFileButton, gbc);
+	        	        
+	       	
+	        gbc.gridx = 0;
+	        gbc.gridy = 1;	        	        
+	        panel.add(new JLabel("Input mapping file:"), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = 1;
+	        mappingFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(mappingFileField, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 1;	
+	        panel.add(openMappingFileButton, gbc);
+	        
+
+	        gbc.gridx = 0;
+	        gbc.gridy = 2;	
+	        panel.add(new JLabel("Output GSS file:"), gbc);
+	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = 2;
+	        gssFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(gssFileField, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 2;
+	        gbc.gridwidth = 1;	
+	        panel.add(openGSSFileButton, gbc);
+	        
+	        
+	        	
+	        int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
+	            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
+	        
+	        if (result == JOptionPane.OK_OPTION) {
+	            	        	
+	        	viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
+	        	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
+	        	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
+	        	
+	        	script = "pdb2GSS";
+		    	viewer.script(script);	        	
+	            
+	        } 
+	    }
+  }
+
+  /*
+   * Tuan created a new button to convert PDB format file to GSS
+   */
+  class LorDG3DModeller extends NewAction {
+	  LorDG3DModeller() {
+		  super(lorDG3DModellerAction);
+	  }
+	  
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+	    	//script = "pdb2GSS";
+	    	//viewer.script(script);
+	    	
+	    	
+	        JTextField inputContactFileField = new JTextField();	        
+	        
+	        
+	        JTextField outputGSSFileField = new JTextField();
+	        //gssFileField.setPreferredSize(new Dimension(400, 20));
+	        	        
+	        JButton openContactFileButton = new JButton("Browse File");
+	        //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
+	        
+	        openContactFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField.setText(fileName);
+					outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+				}
+			});
+	        
+	        
+	        JButton outputGSSFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputGSSFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputGSSFileField.setText(fileName);
+				}
+			});
+	        
+	        	        	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(300, 120);
+	            }	       
+	        };
+	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        	        
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;	                
+	        panel.add(new JLabel("Input contact file:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = 0;
+	        inputContactFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField, gbc);
+	        	        
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 0;	        
+	        panel.add(openContactFileButton, gbc);
+	        	        
+	       	
+	        gbc.gridx = 0;
+	        gbc.gridy = 1;	        	        
+	        panel.add(new JLabel("Output 3D model file:"), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = 1;
+	        outputGSSFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputGSSFileField, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 1;	
+	        panel.add(outputGSSFileButton, gbc);
+	        
+	        
+	        JButton runButton = new JButton("Run");
+	        JButton stopButton = new JButton("Stop");
+	        JButton exitButton = new JButton("Exit");
+	        	        
+	        gbc.gridx = 0;
+	        gbc.gridy = 2;
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = 2;
+	        panel.add(stopButton, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = 2;
+	        panel.add(exitButton, gbc);
+	        
+	        
+	        Frame lorDGFrame = new JFrame();
+	        lorDGFrame.setSize(new Dimension(600, 300));
+	        lorDGFrame.setLocation(400, 400);
+	        
+	        lorDGFrame.add(panel);
+	        lorDGFrame.setVisible(true);
+	        
+	        
+	        
+	        
+	        runButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
+		        	viewer.setStringProperty(Constants.OUTPUT3DFile, outputGSSFileField.getText());
+		        	
+		        	script = "lorDG";
+			    	viewer.script(script);	 
+					
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+			});
+	        
+	        
+	        exitButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					
+				}
+			});
+	            
+	    }
+  }
+
+ 
+//end
+  
   class OpenUrlAction extends NewAction {
 
     String title;

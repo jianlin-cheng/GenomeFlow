@@ -238,6 +238,16 @@ public class GuiMap {
     labels.put("extractPDBTip", "Click to generate PDB format file");
     //added end -hcf
     
+    //Tuan added
+    labels.put("convertPDB2GSSTip", "Click to convert PDB structure to GSS structure");
+    labels.put("PDB2GSS", GT._("PDB to GSS"));
+    labels.put("1Dtools", GT._("1D-Tools"));
+    labels.put("2Dtools", GT._("2D-Tools"));
+    labels.put("3Dtools", GT._("3D-Tools"));
+    labels.put("LorDG", GT._("LorDG-3D Modeller"));
+    labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
+    //end
+    
   }
 
   String getLabel(String key) {

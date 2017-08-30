@@ -118,9 +118,8 @@ import org.jmol.viewer.StateManager;
 import org.jmol.viewer.Viewer;
 import org.jmol.viewer.Viewer.ACCESS;
 
-
-
-
+import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
 //for gene sequence
 import uk.ac.roslin.ensembl.config.DBConnection.DataSource;
 import uk.ac.roslin.ensembl.dao.database.DBRegistry;
@@ -290,6 +289,8 @@ public class ScriptEvaluator {
 	public void evaluateCompiledScript(boolean isCmdLine_c_or_C_Option,
 			boolean isCmdLine_C_Option, boolean historyDisabled,
 			boolean listCommands, StringBuffer outputBuffer) {
+
+
 		boolean tempOpen = this.isCmdLine_C_Option;
 		this.isCmdLine_C_Option = isCmdLine_C_Option;
 		viewer.pushHoldRepaint("runEval");
@@ -5888,6 +5889,15 @@ public class ScriptEvaluator {
 				case Token.zoomTo:
 					zoom(true);
 					break;
+				//Tuan added for 3D genome functions
+				case Token.pdb2gss:
+					convertPDB2GSS();
+					break;
+				
+				case Token.lorDG:
+					lorDG3DModeller();
+					break;
+				//end
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
@@ -5899,6 +5909,34 @@ public class ScriptEvaluator {
 		}
 	}
 
+	/**
+	 * @author Tuan
+	 * To convert a pdb format file to a gss format file
+	 */
+	private void convertPDB2GSS(){
+		String pdbFile = (String) viewer.getParameter(Constants.INPUTPDBFILE);
+		String mappingFile = (String) viewer.getParameter(Constants.INPUTMAPPINGFILE);
+		String gssFile = (String) viewer.getParameter(Constants.OUTPUTGSSFILE);
+		
+		ConvertPDB2GSS pdb2GSSConverter = new ConvertPDB2GSS();
+    	pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+    	
+	}
+	/**
+	 * @author Tuan
+	 * To reconstruct 3D model using LorDG
+	 */
+	private void lorDG3DModeller(){
+		String pdbFile = (String) viewer.getParameter(Constants.INPUTPDBFILE);
+		String mappingFile = (String) viewer.getParameter(Constants.INPUTMAPPINGFILE);
+		String gssFile = (String) viewer.getParameter(Constants.OUTPUTGSSFILE);
+		
+		ConvertPDB2GSS pdb2GSSConverter = new ConvertPDB2GSS();
+    	pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+    	
+	}
+	
+	///
 	private void cache() throws ScriptException {
 		checkLength(3);
 		int tok = tokAt(1);
@@ -11016,28 +11054,34 @@ public class ScriptEvaluator {
 		}
 		setCursorWait(true);
 
-		// modified -hcf
-		// errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
-		// isAppend, htParams, loadScript, tokType);
+		//tuan changed on 08/23/2017 to visualize pdb file
+		if (filename.endsWith(".pdb")){
+		errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
+		 isAppend, htParams, loadScript, tokType);
+		
+		}else{
+		
 
-		Atom[] currentUnits = viewer.getModelSet().atoms;
 
-		// first load
-		int loadInfo = toCheckAndFind(filename);
-		if (loadInfo > 0) {
-			errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
-					isAppend, htParams, loadScript, tokType, loadInfo, 0,
-					selectedPath, true, "none", currentUnits);
-		} else if (loadInfo == 0) {
-			errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
-					isAppend, htParams, loadScript, tokType);
-		} else if (loadInfo == -1) {
-			error(ERROR_gssWrongFileName);
-		} else if (loadInfo == -2) {
-			error(ERROR_gpdbWrongFileName);
+			Atom[] currentUnits = viewer.getModelSet().atoms;
+	
+			// first load
+			int loadInfo = toCheckAndFind(filename);
+			if (loadInfo > 0) {
+				errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
+						isAppend, htParams, loadScript, tokType, loadInfo, 0,
+						selectedPath, true, "none", currentUnits);
+			} else if (loadInfo == 0) {
+				errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
+						isAppend, htParams, loadScript, tokType);
+			} else if (loadInfo == -1) {
+				error(ERROR_gssWrongFileName);
+			} else if (loadInfo == -2) {
+				error(ERROR_gpdbWrongFileName);
+			}
+			// modified end -hcf		
 		}
-
-		// modified end -hcf
+		
 		if (os != null)
 			try {
 				viewer.setFileInfo(new String[] { localName, localName,
@@ -11110,12 +11154,12 @@ public class ScriptEvaluator {
 
 	// added -hcf
 	private int toCheckAndFind(String fileName) {
-		int currentScale = 0;
+		int currentScale = 2;//tuan debug
 		Pattern patternGss = Pattern.compile("\\.([a-z]+s)(\\.gss)$");
 		Matcher gssMatcher = patternGss.matcher(fileName);
 
-		//Pattern patternGpdb = Pattern.compile("\\.([a-z]+s)(\\.pdb)$");
-		//Matcher gpdbMatcher = patternGpdb.matcher(fileName);
+		Pattern patternGpdb = Pattern.compile("([a-z]+s)(\\.pdb)$");
+		Matcher gpdbMatcher = patternGpdb.matcher(fileName);
 
 		if (gssMatcher.find()) {
 			String scaleInfo = gssMatcher.group(1);
@@ -11156,7 +11200,7 @@ public class ScriptEvaluator {
 				currentScale = -1;
 			}
 		} 
-		/*else if (gpdbMatcher.find()) {
+		else if (gpdbMatcher.find()) {
 			String scaleInfo = gssMatcher.group(1);
 			Pattern patternCrs = Pattern
 					.compile("(\\.chr)(\\d+)(\\.[a-z]+s)(\\.pdb)$");
@@ -11191,7 +11235,7 @@ public class ScriptEvaluator {
 				currentScale = -2;
 			}
 		}
-		*/
+		
 		return currentScale;
 	}
 

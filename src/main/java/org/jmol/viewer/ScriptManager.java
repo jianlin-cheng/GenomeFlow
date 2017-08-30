@@ -166,6 +166,7 @@ class ScriptManager {
            System.out.println("running: " + scriptQueueRunning[0] + " "  + queueThreads[0]);
            System.out.println("running: " + scriptQueueRunning[1] + " "  + queueThreads[1]);
            */
+
           if (!runNextScript())
             try {
               Thread.sleep(100); //cycle for the command watcher thread
@@ -186,6 +187,7 @@ class ScriptManager {
     }
 
     private boolean runNextScript() {
+
       if (scriptQueue.size() == 0)
         return false;
       //Logger.info("SCRIPT QUEUE BUSY" +  scriptQueue.size());
@@ -193,6 +195,8 @@ class ScriptManager {
       if (scriptItem == null)
         return false;
       String script = (String) scriptItem.get(0);
+      
+     
       String statusList = (String) scriptItem.get(1);
       String returnType = (String) scriptItem.get(2);
       boolean isScriptFile = ((Boolean) scriptItem.get(3)).booleanValue();
@@ -215,6 +219,7 @@ class ScriptManager {
     private void runScript(String returnType, String strScript,
                            String statusList, boolean isScriptFile,
                            boolean isQuiet) {
+    	
       //System.out.println("runScript evalstrngwait " + strScript);
       viewer.evalStringWaitStatus(returnType, strScript, statusList,
           isScriptFile, isQuiet, true);
