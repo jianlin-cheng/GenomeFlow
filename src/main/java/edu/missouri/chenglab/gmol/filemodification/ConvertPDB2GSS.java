@@ -35,6 +35,7 @@ public class ConvertPDB2GSS {
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
+		
 	}
 	
 	/**
