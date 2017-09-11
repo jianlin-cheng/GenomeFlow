@@ -18,8 +18,24 @@ public class ScalesRenderer extends ShapeRenderer {
     float imageFontScaling = viewer.getImageFontScaling();
     scales.getFont(imageFontScaling);
 
+    //Tuan added
+    if (modelSet.message != null){
+    	for(int i = 0; i < modelSet.message.length; i++){	    	
+	    	int width = scales.font3d.stringWidth(modelSet.message[i]) + 10;
+	    	int dx = (int) (width + Scales.margin * imageFontScaling);
+	        int dy = scales.ascent;
+	    	g3d.drawStringNoSlab(modelSet.message[i], scales.font3d, g3d.getRenderWidth() - dx, (i+3)*dy, 0);    	
+    	}
+    }
+    //End
+    
     for (int i = 0; i <= 4; i++){
     	String ii = scaleString[i];
+    	
+    	//Tuan fixed bug
+    	if (ii == null) continue;
+    	//End
+    	
         int width = scales.font3d.stringWidth(ii);
         int dx = (int) (width + Scales.margin * imageFontScaling);
         int dy = scales.ascent;
@@ -31,6 +47,7 @@ public class ScalesRenderer extends ShapeRenderer {
        //   g3d.fillRect(0, 0, 0, 0, dy * 2, dx * 3 / 2);      
     //    }
     }
+    
 
   }
 
@@ -87,6 +104,7 @@ public class ScalesRenderer extends ShapeRenderer {
 	  if (checkScale) {
 		  scaleStrings[0] = currentScaleInfo;
 	  }
+	  
 	  
 	  return scaleStrings;
   }

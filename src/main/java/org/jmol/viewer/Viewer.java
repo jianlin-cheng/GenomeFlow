@@ -38,6 +38,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -88,6 +89,7 @@ import org.jmol.constant.EnumFileStatus;
 import org.jmol.constant.EnumStereoMode;
 import org.jmol.constant.EnumStructure;
 import org.jmol.constant.EnumVdw;
+import org.jmol.g3d.Graphics3D;
 import org.jmol.i18n.GT;
 import org.jmol.modelset.Atom;
 import org.jmol.modelset.AtomCollection;
@@ -132,6 +134,9 @@ import org.jmol.util.TempArray;
 import org.jmol.util.TextFormat;
 import org.jmol.viewer.StateManager.Orientation;
 import org.jmol.viewer.binding.Binding;
+import org.openscience.jmol.app.jmolpanel.DisplayPanel;
+
+import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 /*
  * 
@@ -284,8 +289,20 @@ public void setEventListener(ScaleEventListener e) {
   private SelectionManager selectionManager;
   private StateManager stateManager;
   private StateManager.GlobalSettings global;
+  
+  //Tuan add to control LorDG
+  	private InputParameters input3DModeller = null;  
+	public InputParameters getInput3DModeller() {
+		return input3DModeller;
+	}
+	
+	public void setInput3DModeller(InputParameters input3dModeller) {
+		input3DModeller = input3dModeller;
+	}
+	//end
+	
 
-  StateManager.GlobalSettings getGlobalSettings() {
+StateManager.GlobalSettings getGlobalSettings() {
     return global;
   }
 
@@ -2106,6 +2123,55 @@ public void callExtractPDB(String fileName) {
   
 //added -hcf
 
+  
+  /**
+   * @author Tuan add the method to visualize model on the fly
+   * @param fileName
+   */
+  public void loadNewModel(String fileName, String... msg){
+		//zap(true);
+		Map<String, Object> htParams = new HashMap<String, Object>();
+		StringBuffer loadScript = new StringBuffer("load /*file*/$FILENAME$");
+		htParams.put("loadScript", loadScript);
+		int[] selectedPath = { 1, 0, 0, 0, 0 };
+		Atom[] currentUnits = getModelSet().atoms;
+		
+//		if (msg.length > 0){
+//			Graphics3D g3d = (Graphics3D) gdata;
+//			byte defaultFontId  = gdata.getFont3D(JmolConstants.DEFAULT_FONTFACE,JmolConstants.DEFAULT_FONTSTYLE, JmolConstants.LABEL_DEFAULT_FONTSIZE).fid;
+//			g3d.drawStringNoSlab("Ttestestsetstsetsetestset", JmolFont.getFont3D(defaultFontId),  g3d.getRenderWidth() - 120, 50, 0);
+//		
+//		
+//			DisplayPanel display = (DisplayPanel)getDisplay();
+//			display.repaint();
+//		}
+		
+		
+		loadModelFromFile(null, fileName, null, null,
+								false, htParams, loadScript, 0, 2, 0,
+								selectedPath, true, "none", currentUnits);
+		
+		//modelSet.message = new String[]{"Conversion: 1.0", "Correlation: 0.8"};
+		if (msg.length > 0){
+			modelSet.message = msg;
+			render();
+		}else modelSet.message = null;
+		
+		
+		//renderScreenImage(gdata, width, height);
+		
+		evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe on;color atomsequence;", "",false, true, true, true);
+		
+		//repaint();
+		
+		
+  }
+
+  
+		
+		
+  
+ 
   /**
    * Used by the ScriptEvaluator LOAD command to open one or more files. Now
    * necessary for EVERY load of a file, as loadScript must be passed to the
@@ -5246,10 +5312,12 @@ public void fillAtomData(AtomData atomData, int mode) {
   int scriptIndex;
   boolean isScriptQueued = true;
 
-  synchronized Object evalStringWaitStatus(String returnType, String strScript,
+  //Tuan added options parameter
+  
+synchronized Object evalStringWaitStatus(String returnType, String strScript,
                                            String statusList,
                                            boolean isScriptFile,
-                                           boolean isQuiet, boolean isQueued) {
+                                           boolean isQuiet, boolean isQueued, boolean ...isRepaint) {
 
 	  // from the scriptManager or scriptWait()
     if (strScript == null)
@@ -5284,7 +5352,7 @@ public void fillAtomData(AtomData atomData, int mode) {
       if (!isQuiet)
         scriptStatus(null, strScript, -2 - (++scriptIndex), null);
       eval.evaluateCompiledScript(isSyntaxCheck, isSyntaxAndFileCheck,
-          historyDisabled, listCommands, outputBuffer);
+          historyDisabled, listCommands, outputBuffer, isRepaint);
       setErrorMessage(strErrorMessage = eval.getErrorMessage(),
           strErrorMessageUntranslated = eval.getErrorMessageUntranslated());
       if (!isQuiet)
@@ -5319,6 +5387,7 @@ public void fillAtomData(AtomData atomData, int mode) {
     return info;
   }
 
+  
   public void exitJmol() {
     if (isApplet)
       return;
@@ -10209,7 +10278,7 @@ public void fillAtomData(AtomData atomData, int mode) {
   }
 
   public void repaint() {
-
+  
     // from RepaintManager
     if (haveDisplay)    	
       apiPlatform.repaint(display);

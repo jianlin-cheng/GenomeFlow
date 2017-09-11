@@ -25,13 +25,8 @@ package org.jmol.script;
 
 import static org.biojava3.ws.alignment.qblast.BlastOutputParameterEnum.FORMAT_TYPE;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -120,6 +115,9 @@ import org.jmol.viewer.Viewer.ACCESS;
 
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
+import edu.missouri.chenglab.lordg.noisy_mds.StructureGeneratorLorentz_HierarchicalModeling;
+import edu.missouri.chenglab.lordg.utility.Helper;
+import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 //for gene sequence
 import uk.ac.roslin.ensembl.config.DBConnection.DataSource;
 import uk.ac.roslin.ensembl.dao.database.DBRegistry;
@@ -286,14 +284,19 @@ public class ScriptEvaluator {
 		return compileScriptFileInternal(filename, null, null, null);
 	}
 
+	//Tuan changed to repaint only
 	public void evaluateCompiledScript(boolean isCmdLine_c_or_C_Option,
 			boolean isCmdLine_C_Option, boolean historyDisabled,
-			boolean listCommands, StringBuffer outputBuffer) {
+			boolean listCommands, StringBuffer outputBuffer, boolean...isRepaint) {
 
 
 		boolean tempOpen = this.isCmdLine_C_Option;
 		this.isCmdLine_C_Option = isCmdLine_C_Option;
-		viewer.pushHoldRepaint("runEval");
+		
+		//Tuan changed
+		if (isRepaint == null || isRepaint.length == 0)
+			viewer.pushHoldRepaint("runEval");
+		
 		interruptExecution = executionPaused = false;
 		executionStepping = false;
 		isExecuting = true;
@@ -334,8 +337,66 @@ public class ScriptEvaluator {
 		else if (!tQuiet && !isSyntaxCheck)
 			viewer.scriptStatus(SCRIPT_COMPLETED);
 		isExecuting = isSyntaxCheck = isCmdLine_c_or_C_Option = historyDisabled = false;
-		viewer.setTainted(true);
-		viewer.popHoldRepaint("runEval");
+		
+		if (isRepaint == null || isRepaint.length == 0){
+			viewer.setTainted(true);
+			viewer.popHoldRepaint("runEval");
+		}else{
+			viewer.repaint();
+		}
+	}
+	//Tuan added to test
+	public void evaluateCompiledScript1(boolean isCmdLine_c_or_C_Option,
+			boolean isCmdLine_C_Option, boolean historyDisabled,
+			boolean listCommands, StringBuffer outputBuffer) {
+
+
+		boolean tempOpen = this.isCmdLine_C_Option;
+		this.isCmdLine_C_Option = isCmdLine_C_Option;
+		//viewer.pushHoldRepaint("runEval");
+		interruptExecution = executionPaused = false;
+		executionStepping = false;
+		isExecuting = true;
+		currentThread = Thread.currentThread();
+		isSyntaxCheck = this.isCmdLine_c_or_C_Option = isCmdLine_c_or_C_Option;
+		timeBeginExecution = System.currentTimeMillis();
+		this.historyDisabled = historyDisabled;
+		this.outputBuffer = outputBuffer;
+		setErrorMessage(null);
+		try {
+			try {
+				setScriptExtensions();
+				instructionDispatchLoop(listCommands);
+				String script = viewer.getInterruptScript();
+				if (script != "")
+					runScript(script, null);
+			} catch (Error er) {
+				viewer.handleError(er, false);
+				setErrorMessage("" + er + " " + viewer.getShapeErrorState());
+				errorMessageUntranslated = "" + er;
+				scriptStatusOrBuffer(errorMessage);
+			}
+		} catch (ScriptException e) {
+			setErrorMessage(e.toString());
+			errorMessageUntranslated = e.getErrorMessageUntranslated();
+			scriptStatusOrBuffer(errorMessage);
+			viewer.notifyError(
+					(errorMessage != null
+							&& errorMessage
+									.indexOf("java.lang.OutOfMemoryError") >= 0 ? "Error"
+							: "ScriptException"), errorMessage,
+					errorMessageUntranslated);
+		}
+		timeEndExecution = System.currentTimeMillis();
+		this.isCmdLine_C_Option = tempOpen;
+		if (errorMessage == null && interruptExecution)
+			setErrorMessage("execution interrupted");
+		else if (!tQuiet && !isSyntaxCheck)
+			viewer.scriptStatus(SCRIPT_COMPLETED);
+		isExecuting = isSyntaxCheck = isCmdLine_c_or_C_Option = historyDisabled = false;
+		//viewer.setTainted(true);
+		//viewer.popHoldRepaint("runEval");
+		viewer.repaint();
 	}
 
 	/**
@@ -5927,12 +5988,81 @@ public class ScriptEvaluator {
 	 * To reconstruct 3D model using LorDG
 	 */
 	private void lorDG3DModeller(){
-		String pdbFile = (String) viewer.getParameter(Constants.INPUTPDBFILE);
-		String mappingFile = (String) viewer.getParameter(Constants.INPUTMAPPINGFILE);
-		String gssFile = (String) viewer.getParameter(Constants.OUTPUTGSSFILE);
 		
-		ConvertPDB2GSS pdb2GSSConverter = new ConvertPDB2GSS();
-    	pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+		String contactFile = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
+		String outputFolder = (String) viewer.getParameter(Constants.OUTPUT3DFILE);
+		
+		double conversionFactor = Double.parseDouble((String)viewer.getParameter(Constants.CONVERSIONFACTOR));
+		double learningRate = Double.parseDouble((String)viewer.getParameter(Constants.LEARNINGRATE));
+		int maxIteration = Integer.parseInt((String)viewer.getParameter(Constants.MAXITERATION));
+		
+		InputParameters inputParameter = new InputParameters();
+		
+		String[] st;
+		
+		String chromLen = (String) viewer.getParameter(Constants.CHROMOSOMELEN);
+		if (chromLen != null && chromLen.length() > 0){
+			st = chromLen.split("[\\s,]");
+			int[] chrLen = new int[st.length];
+			for(int i = 0; i < st.length; i++){
+				chrLen[i] = Integer.parseInt(st[i]);
+			}
+			
+			if (chrLen.length > 1) inputParameter.setChr_lens(chrLen);
+		}
+		
+		
+		inputParameter.setNum(1);
+		inputParameter.setOutput_folder(outputFolder);
+		inputParameter.setInput_file(contactFile);
+		inputParameter.setLearning_rate(learningRate);
+		inputParameter.setNumber_threads(1);
+		if (conversionFactor > 0) inputParameter.setConvert_factor(conversionFactor);
+		inputParameter.setMax_iteration(maxIteration);
+		
+		
+		
+		inputParameter.setVerbose(false);
+		
+		st = contactFile.split("[\\/\\.\\\\]");
+		
+		if (contactFile.contains(".")){
+			inputParameter.setFile_prefix(st[st.length - 2]);
+		}else{
+			inputParameter.setFile_prefix(st[st.length - 1]);
+		}
+		
+		inputParameter.setViewer(viewer);
+		inputParameter.setTmpFolder(outputFolder + "/tmp/");
+		
+		Helper helper = Helper.getHelperInstance();
+		if (!helper.isExist(inputParameter.getTmpFolder())){
+			try {
+				helper.make_folder(inputParameter.getTmpFolder());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+		
+		viewer.setInput3DModeller(inputParameter);
+		
+		StructureGeneratorLorentz_HierarchicalModeling generator = new StructureGeneratorLorentz_HierarchicalModeling(inputParameter);
+		try{
+			generator.generateStructure();
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+		
+		
+//		String inputFolder = "C:/Users/Tuan/workspace/Gmol/output/tmp/";
+//		File file = new File(inputFolder);
+//		for(File f : file.listFiles()){
+//			if (f.getName().endsWith(".gss")){
+//				//viewer.openFileAsynchronously(f.getAbsolutePath());
+//				viewer.loadNewModel(f.getAbsolutePath());			
+//			}
+//		}
+    	
     	
 	}
 	
@@ -11056,6 +11186,7 @@ public class ScriptEvaluator {
 
 		//tuan changed on 08/23/2017 to visualize pdb file
 		if (filename.endsWith(".pdb")){
+			
 		errMsg = viewer.loadModelFromFile(null, filename, filenames, null,
 		 isAppend, htParams, loadScript, tokType);
 		
@@ -13242,10 +13373,10 @@ public class ScriptEvaluator {
 
 		return selectedUnits;
 	}
-
+	
 	// added end -hcf
 	private void select(int i) throws ScriptException {
-		// NOTE this is called by restrict()
+		// NOTE this is called by restrict()		
 		if (statementLength == 1) {
 			viewer.select(null, false, null, tQuiet
 					|| scriptLevel > scriptReportingLevel);

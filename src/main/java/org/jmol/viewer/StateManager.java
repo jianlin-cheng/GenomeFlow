@@ -1060,7 +1060,7 @@ public class StateManager {
       appendCmd(str, "set appletProxy " + Escape.escapeStr(appletProxy));
       appendCmd(str, "set applySymmetryToBonds " + applySymmetryToBonds);
       if (atomTypes.length() > 0)
-        appendCmd(str, "set atomTypes " + Escape.escapeStr(atomTypes));
+      appendCmd(str, "set atomTypes " + Escape.escapeStr(atomTypes));
       appendCmd(str, "set autoBond " + autoBond);
 //      appendCmd(str, "set autoLoadOrientation " + autoLoadOrientation);
       if (axesOrientationRasmol)
@@ -1099,6 +1099,9 @@ public class StateManager {
       appendCmd(str, "set percentVdwAtom " + percentVdwAtom);
       appendCmd(str, "set smallMoleculeMaxAtoms " + smallMoleculeMaxAtoms);
       appendCmd(str, "set smartAromatic " + smartAromatic);
+      
+
+      
       if (zeroBasedXyzRasmol)
         appendCmd(str, "set zeroBasedXyzRasmol true");
       return str.toString();

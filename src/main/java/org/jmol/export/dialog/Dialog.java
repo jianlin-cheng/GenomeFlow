@@ -57,6 +57,8 @@ import org.jmol.util.Logger;
 import org.jmol.viewer.FileManager;
 import org.jmol.viewer.Viewer;
 
+import edu.missouri.chenglab.gmol.Constants;
+
 public class Dialog extends JPanel implements JmolDialogInterface {
 
   String[] extensions = new String[10];
@@ -112,7 +114,15 @@ public String getOpenFileNameFromDialog(Map<String, Object> viewerOptions,
       if (loc != null)
         openChooser.setDialogLocation(loc);
     }
-
+    
+    //Tuan added to choose folder only
+    if(viewerOptions.containsKey(Constants.ISCHOOSINGFOLDER) && (boolean)viewerOptions.get(Constants.ISCHOOSINGFOLDER) == true){
+    	openChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    }else{
+    	openChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+    }
+    //end
+    
     openChooser.resetChoosableFileFilters();
     openPreview.setPreviewOptions(allowAppend);
 

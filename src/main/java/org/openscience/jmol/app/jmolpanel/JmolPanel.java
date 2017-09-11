@@ -37,6 +37,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -63,7 +65,10 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -78,6 +83,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
@@ -1481,7 +1488,7 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					inputContactFileField.setText(fileName);
-					outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
 				}
 			});
 	        
@@ -1491,10 +1498,12 @@ public void showStatus(String message) {
 	        outputGSSFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					outputGSSFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
 				}
 			});
 	        
@@ -1506,58 +1515,229 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(300, 120);
+	                return new Dimension(450, 350);
 	            }	       
-	        };
-	                
+	        };	                
 	        
 	        panel.setLayout(new GridBagLayout());  	        
-	        	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
-	        gbc.gridy = 0;	                
+	        gbc.gridy = y;	                
 	        panel.add(new JLabel("Input contact file:"), gbc);
 	        
 	        gbc.gridx = 1;
-	        gbc.gridy = 0;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
 	        inputContactFileField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(inputContactFileField, gbc);
 	        	        
 	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 0;	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
 	        panel.add(openContactFileButton, gbc);
 	        	        
-	       	
+	       	////////////////////////////////////////////////
+	        y++;
 	        gbc.gridx = 0;
-	        gbc.gridy = 1;	        	        
-	        panel.add(new JLabel("Output 3D model file:"), gbc);	        
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output 3D model folder:"), gbc);	        
 	
 	        gbc.gridx = 1;
-	        gbc.gridy = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
 	        outputGSSFileField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(outputGSSFileField, gbc);
 	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 1;	
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
 	        panel.add(outputGSSFileButton, gbc);
-	        
-	        
-	        JButton runButton = new JButton("Run");
-	        JButton stopButton = new JButton("Stop");
-	        JButton exitButton = new JButton("Exit");
-	        	        
+	        ///////////////////////////////////////////////
+	        y++;	        
 	        gbc.gridx = 0;
-	        gbc.gridy = 2;
-	        panel.add(runButton, gbc);
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Conversion Factor:"), gbc);	        
+	        
+	        JTextField conversionFactorField = new JTextField("1.0"); 
+	        
+	        conversionFactorField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = conversionFactorField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in number only");
+						
+						conversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
 	        
 	        gbc.gridx = 1;
-	        gbc.gridy = 2;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        conversionFactorField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(conversionFactorField, gbc);
+	        
+	        ///////////////////////////////////////////////	  
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Learning rate:"), gbc);	        
+	        
+	        JTextField learningRateField = new JTextField("0.1"); 
+	        
+	        learningRateField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = learningRateField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in number only");
+						
+						learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        learningRateField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(learningRateField, gbc);
+	        
+	        ///////////////////////////////////////////////	
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
+	      	        
+	        JTextField maxIterationField = new JTextField("1000"); 	
+	        maxIterationField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = maxIterationField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+			});
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        maxIterationField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(maxIterationField, gbc);
+	        
+			///////////////////////////////////////////
+				        
+			
+			y++;
+			JCheckBox isMultipleChrom = new JCheckBox("Is Multiple-Chromosomes Structure?");
+			gbc.gridx = 0;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			panel.add(isMultipleChrom, gbc);
+			
+			JLabel chromLenLabel = new JLabel("Length of chromosomes:");
+			JTextField chromLengthField = new JTextField("100,200");
+			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			isMultipleChrom.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (isMultipleChrom.isSelected()){
+						chromLenLabel.setVisible(true);
+						chromLengthField.setVisible(true);
+						chromLenNoteLabel.setVisible(true);
+					}else{
+						chromLenLabel.setVisible(false);
+						chromLengthField.setVisible(false);
+						chromLenNoteLabel.setVisible(false);
+					}
+					
+				}
+			});
+
+	        ///////////////////////////////////////////	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        chromLenLabel.setVisible(false);
+	        panel.add(chromLenLabel, gbc);	
+	        
+	        
+	        chromLengthField.setPreferredSize(new Dimension(300, 21));
+	        
+	        chromLengthField.addKeyListener(new KeyAdapter() {
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = chromLengthField.getText();	        		
+					char chr = currentTxt.charAt(currentTxt.length() - 1);
+					if (!Character.isDigit(chr) && chr != ','){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						chromLengthField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+			});
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 2;
+	        panel.add(chromLengthField, gbc);
+	        
+	        chromLengthField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        chromLenNoteLabel.setVisible(false);
+	        panel.add(chromLenNoteLabel, gbc);		 
+	        
+
+	        
+	        ///////////////////////////////////////////////
+	        y++;
+	        JButton runButton = new JButton("Run");
+	        JButton stopButton = new JButton("Stop");
+	       
+	        	     
+	        gbc.gridx = 1;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        runButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        stopButton.setHorizontalAlignment(JLabel.CENTER);
 	        panel.add(stopButton, gbc);
-	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 2;
-	        panel.add(exitButton, gbc);
-	        
+	        	        	        
 	        
 	        Frame lorDGFrame = new JFrame();
 	        lorDGFrame.setSize(new Dimension(600, 300));
@@ -1572,12 +1752,33 @@ public void showStatus(String message) {
 	        runButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					
+					int maxIteration = Integer.parseInt(maxIterationField.getText());
+					if (maxIteration > 1e9){
+						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!");
+						maxIterationField.setText("1000");
+						return;
+					}
+					
+					double conversion = Double.parseDouble(conversionFactorField.getText());
+					if (conversion < 0.2 && conversion > 3.5){
+						JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
+						conversionFactorField.setText("1.0");
+						return;
+					}
+					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
-		        	viewer.setStringProperty(Constants.OUTPUT3DFile, outputGSSFileField.getText());
+		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
+		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText());
+		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
+		        	
+		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        	
+		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
 		        	
 		        	script = "lorDG";
 			    	viewer.script(script);	 
-					
+			    	
 				}
 			});
 	        
@@ -1585,20 +1786,16 @@ public void showStatus(String message) {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					// TODO Auto-generated method stub
+					
+					if (viewer.getInput3DModeller() != null){
+						viewer.getInput3DModeller().setStopRunning(true);
+					}
 					
 				}
 			});
 	        
 	        
-	        exitButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					
-					
-				}
-			});
+	        
 	            
 	    }
   }

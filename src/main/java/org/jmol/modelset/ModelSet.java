@@ -128,6 +128,9 @@ import org.jmol.viewer.Viewer;
   }
   //added end -hcf
   
+  //Tuan added
+  public String[] message = null;
+  //End
   
   
   

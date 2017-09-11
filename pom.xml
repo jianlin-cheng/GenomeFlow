@@ -37,18 +37,32 @@
 	    <scope>test</scope>
 	</dependency>
 	
+	  
 	<dependency>
 	    <groupId>org.apache.commons</groupId>
 	    <artifactId>commons-math3</artifactId>
-	    <version>3.6.1</version>
+	    <version>3.3</version>
 	</dependency>
-
+	
+	<!-- 
+		<dependency> 
+		<groupId>commons-math3-3.5</groupId> 
+		<artifactId>commons-math3-3.5</artifactId> 
+		<scope>system</scope> 
+		<version>1.0</version>
+		<systemPath>${basedir}\lib\commons-math3-3.5.jar</systemPath> 
+	</dependency>
+	
+	 -->	
 	<dependency>
 	    <groupId>log4j</groupId>
 	    <artifactId>log4j</artifactId>
 	    <version>1.2.17</version>
 	</dependency>
 
+  
+  
+  
   
 	<dependency> 
 		<groupId>Acme</groupId> 

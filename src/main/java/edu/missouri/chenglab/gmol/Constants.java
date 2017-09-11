@@ -6,6 +6,13 @@ public interface Constants {
 	String OUTPUTGSSFILE = "outputGSSFile";
 	
 	String INPUTCONTACTFILE = "inputContactFile";
-	String OUTPUT3DFile = "output3DFile";
+	String OUTPUT3DFILE = "output3DFile";
+	String CONVERSIONFACTOR = "conversionFactor";
+	String MAXITERATION = "maxIteration";
+	String CHROMOSOMELEN = "chromLength";
+	String LEARNINGRATE = "learningRate";
+	
+	
+	String ISCHOOSINGFOLDER = "isChoosingFolder";
 	
 }

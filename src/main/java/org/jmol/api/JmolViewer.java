@@ -41,6 +41,8 @@ import org.jmol.script.Token;
 import org.jmol.util.BoxInfo;
 import org.jmol.viewer.Viewer;
 
+import edu.missouri.chenglab.lordg.valueObject.InputParameters;
+
 /**
  * This is the high-level API for the JmolViewer for simple access.
  * <p>
@@ -630,10 +632,17 @@ abstract public class JmolViewer {
    */
   abstract public Object getProperty(String returnType, String infoType, Object paramInfo);
 
-public void setEventListener(ScaleEventListener scaleButtonListener) {
-	// TODO Auto-generated method stub
+	public void setEventListener(ScaleEventListener scaleButtonListener) {
+		// TODO Auto-generated method stub
+		
+	}
 	
-}
+	
+	//Tuan added
+	abstract public void loadNewModel(String fileName, String ...msg);
+	abstract public InputParameters getInput3DModeller();	
+	abstract public void setInput3DModeller(InputParameters input3dModeller);
+	//end
 
 }
 
