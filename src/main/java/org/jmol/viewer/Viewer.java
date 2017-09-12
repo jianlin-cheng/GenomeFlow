@@ -2136,17 +2136,6 @@ public void callExtractPDB(String fileName) {
 		int[] selectedPath = { 1, 0, 0, 0, 0 };
 		Atom[] currentUnits = getModelSet().atoms;
 		
-//		if (msg.length > 0){
-//			Graphics3D g3d = (Graphics3D) gdata;
-//			byte defaultFontId  = gdata.getFont3D(JmolConstants.DEFAULT_FONTFACE,JmolConstants.DEFAULT_FONTSTYLE, JmolConstants.LABEL_DEFAULT_FONTSIZE).fid;
-//			g3d.drawStringNoSlab("Ttestestsetstsetsetestset", JmolFont.getFont3D(defaultFontId),  g3d.getRenderWidth() - 120, 50, 0);
-//		
-//		
-//			DisplayPanel display = (DisplayPanel)getDisplay();
-//			display.repaint();
-//		}
-		
-		
 		loadModelFromFile(null, fileName, null, null,
 								false, htParams, loadScript, 0, 2, 0,
 								selectedPath, true, "none", currentUnits);
@@ -2154,21 +2143,23 @@ public void callExtractPDB(String fileName) {
 		//modelSet.message = new String[]{"Conversion: 1.0", "Correlation: 0.8"};
 		if (msg.length > 0){
 			modelSet.message = msg;
-			render();
+			//render();
 		}else modelSet.message = null;
-		
-		
-		//renderScreenImage(gdata, width, height);
 		
 		evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe on;color atomsequence;", "",false, true, true, true);
 		
 		//repaint();
-		
-		
   }
-
   
-		
+  public void displayMessage(String[] msg){
+	  int[] selectedPath = { 1, 0, 0, 0, 0 };
+	  //createModelSetAndReturnError((Object)msg[0], false, new StringBuffer(""), 2, selectedPath, true);
+	  createModelSetAndReturnError((Object)"", false, new StringBuffer(""), 2, selectedPath, true);
+	  modelSet.message = msg;
+	  repaint();
+	  //evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe on;color atomsequence;", "",false, true, true, true);
+  }
+	
 		
   
  

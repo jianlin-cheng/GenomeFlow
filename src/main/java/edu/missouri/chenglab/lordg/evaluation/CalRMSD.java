@@ -7,6 +7,7 @@ import java.util.Map;
 
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.Constraint;
+import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 /**
  * To calculate RMSD of a reconstructed structure and wish distances
@@ -26,7 +27,9 @@ public class CalRMSD {
 		
 		double[][] str = helper.loadPDBStructure(strFile);
 		List<Integer> lstPos = new ArrayList<Integer>();
-		List<Constraint> lstCons = helper.readContactList(contactFile, lstPos);
+		InputParameters inputPara = new InputParameters();
+		inputPara.setInput_file(contactFile);
+		List<Constraint> lstCons = helper.readContactList(inputPara, lstPos);
 		//List<Constraint> lstCons = helper.readContactMatrixAsList(contactFile);
 		
 		Map<Integer,Integer> mapPosToID = new HashMap<Integer,Integer>();

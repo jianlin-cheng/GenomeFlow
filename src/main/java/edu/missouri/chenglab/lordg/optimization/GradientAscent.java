@@ -174,11 +174,12 @@ public class GradientAscent {
 						inputPara.getViewer().loadNewModel(tmpFile);
 					}else{*/
 						
-						String msg = "Conversion factor:" + String.format("%.2f", inputPara.getConvert_factor());
+						String msg = "Conversion factor: " + String.format("%.2f", inputPara.getConvert_factor());
+						String msgObj = "Objective function: " + String.format("%.3f",objectiveFn);
 						if (inputPara.isSearchingConversionFactor()){
-							inputPara.getViewer().loadNewModel(tmpFile, new String[]{"Searching conversion factor...",msg});
+							inputPara.getViewer().loadNewModel(tmpFile, new String[]{"Searching conversion factor...",msg, msgObj});
 						}else{
-							inputPara.getViewer().loadNewModel(tmpFile, msg);
+							inputPara.getViewer().loadNewModel(tmpFile, msg, msgObj);
 						}
 						
 						

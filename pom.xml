@@ -23,6 +23,11 @@
             <configuration>
                 <source>1.8</source>
                 <target>1.8</target>
+                <archive>
+					<manifest>						
+						<mainClass>org.openscience.jmol.app.Jmol</mainClass>						           
+					</manifest>
+				</archive>					
             </configuration>
         </plugin>
     </plugins>

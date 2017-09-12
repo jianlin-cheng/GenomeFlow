@@ -114,7 +114,7 @@ public class StructureGeneratorLorentz implements OptimizedObject{
 		
 		lstPos = new ArrayList<Integer>();
 		
-		lstCons = helper.readContactList(inputParameters.getInput_file(), lstPos,inputParameters.getContact_thres());
+		lstCons = helper.readContactList(inputParameters, lstPos,inputParameters.getContact_thres());
 		//lstCons = helper.readContactMatrixAsList(INPUT_FILE);
 		//n = helper.determineNbrOfPoints(INPUT_FILE);
 		

@@ -112,10 +112,15 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 	 */
 	private void readInput() throws Exception{
 		
+		//helper.writeStructureGSS(inputParameters.getOutput_folder() + "/tmp.gss", null, null, null);
+		//inputParameters.getViewer().loadNewModel(inputParameters.getOutput_folder() + "/tmp.gss", new String[]{"Reading input data ..."});
+		//helper.delete_file(inputParameters.getOutput_folder() + "/tmp.gss");
+		
+		inputParameters.getViewer().displayMessage(new String[]{"Reading input data ..."});
 		
 		lstPos = new ArrayList<Integer>();
 		
-		lstCons = helper.readContactList(inputParameters.getInput_file(), lstPos,inputParameters.getContact_thres());
+		lstCons = helper.readContactList(inputParameters, lstPos,inputParameters.getContact_thres());
 		//lstCons = helper.readContactMatrixAsList(INPUT_FILE);
 		//n = helper.determineNbrOfPoints(INPUT_FILE);
 		
@@ -604,6 +609,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 					inputParameters.setConvert_factor(convertFactor);
 					cor = run();  
 					if (inputParameters.isStopRunning()){
+						inputParameters.setStopRunning(false);
 						break;
 					}
 				} catch (Exception e) {					
@@ -631,6 +637,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			//generate models after searching for best factor
 			convertFactor = bestConvertFactor;
 			inputParameters.setConvert_factor(convertFactor);
+			inputParameters.setSearchingConversionFactor(false);
+			
 			return run();
 			
 			
@@ -730,8 +738,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				helper.writeStructureGSS(outputFile, helper.zoomStructure(str, str_scale), lstPos, idToChr);
 				
 				if (inputParameters.getViewer() != null){
-					inputParameters.getViewer().loadNewModel(outputFile, new String[]{"Conversion Factor:" + String.format("%.2f", inputParameters.getConvert_factor()), 
-							"Correlation:" + String.format("%.2f", cor)});
+					inputParameters.getViewer().loadNewModel(outputFile, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
+							"Correlation: " + String.format("%.2f", cor)});
 				}
 				
 				
