@@ -114,7 +114,9 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 //added -hcf
+import edu.missouri.chenglab.lordg.utility.Helper;
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -155,6 +157,8 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   // --- action implementations -----------------------------------
   private ConvertPDB2GSSAction pdb2GSSAction = new ConvertPDB2GSSAction(); //Tuan added
   private LorDG3DModeller lorDGModellerAction = new LorDG3DModeller(); //Tuan added
+  private LoopDetectorAction loopDetectAction = new LoopDetectorAction(); //Tuan added
+  
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -191,6 +195,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   // in org.openscience.jmol.Properties.Jmol-resources.properties
   private static final String convertPDB2GSSAction = "PDB2GSS";//Tuan added
   private static final String lorDG3DModellerAction = "LorDG";//Tuan added
+  private static final String loopDetectorAction = "LoopDetector";//Tuan added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1080,7 +1085,7 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1461,6 +1466,28 @@ public void showStatus(String message) {
   /*
    * Tuan created a new button to convert PDB format file to GSS
    */
+  class LoopDetectorAction extends NewAction {
+	  LoopDetectorAction() {
+		  super(loopDetectorAction);
+	  }
+	  
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+	        	
+	    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+	    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+	    		return;
+	    	}
+        	script = "loopDetector";        	
+	    	viewer.script(script);
+	         
+	    }
+  }
+
+  
+  /*
+   * Tuan created a new button to convert PDB format file to GSS
+   */
   class LorDG3DModeller extends NewAction {
 	  LorDG3DModeller() {
 		  super(lorDG3DModellerAction);
@@ -1660,7 +1687,7 @@ public void showStatus(String message) {
 			panel.add(isMultipleChrom, gbc);
 			
 			JLabel chromLenLabel = new JLabel("Length of chromosomes:");
-			JTextField chromLengthField = new JTextField("100,200");
+			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
 			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
 			
 			isMultipleChrom.addChangeListener(new ChangeListener() {
@@ -1764,6 +1791,15 @@ public void showStatus(String message) {
 					if (conversion < 0.2 && conversion > 3.5){
 						JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
 						conversionFactorField.setText("1.0");
+						return;
+					}
+					
+					if (!CommonFunctions.isFile(inputContactFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify a contact file as input");
+						return;
+					}
+					if (!CommonFunctions.isFolder(outputGSSFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify an out folder");
 						return;
 					}
 					

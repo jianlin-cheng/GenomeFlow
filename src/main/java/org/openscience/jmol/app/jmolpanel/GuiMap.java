@@ -246,6 +246,8 @@ public class GuiMap {
     labels.put("3Dtools", GT._("3D-Tools"));
     labels.put("LorDG", GT._("LorDG-3D Modeller"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
+    labels.put("LoopDetector", GT._("Detect Loop"));
+    labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
     //end
     
   }

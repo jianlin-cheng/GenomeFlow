@@ -705,7 +705,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		for(int i = 0; i < run_nbr; i++) {		
 			initializeStructure();
 			
-			GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder());
+			GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder(), idToChr);
 			if (inputParameters.getLearning_rate() != 0){
 				gradientAscent.setInitialLearingRate(inputParameters.getLearning_rate());
 			}
@@ -714,7 +714,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			
 			String currentTimeMillis = System.currentTimeMillis() + "";
 						
-			fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis + ".gss" ;			
+			fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis ;			
 			
 			rmsd = CalRMSD.rmse(str, lstCons);
 			interval = 0;
@@ -734,11 +734,13 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			if (inputParameters.isPrintOutStr()){				
 				
 				String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
-				//helper.writeStructure(inputParameters.getOutput_folder() + "/" + fileName,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
-				helper.writeStructureGSS(outputFile, helper.zoomStructure(str, str_scale), lstPos, idToChr);
+				String outputFileGSS = outputFile + ".gss";
+				String outputFilePDB = outputFile + ".pdb";
+				helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
+				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr);
 				
 				if (inputParameters.getViewer() != null){
-					inputParameters.getViewer().loadNewModel(outputFile, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
+					inputParameters.getViewer().loadNewModel(outputFilePDB, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
 							"Correlation: " + String.format("%.2f", cor)});
 				}
 				

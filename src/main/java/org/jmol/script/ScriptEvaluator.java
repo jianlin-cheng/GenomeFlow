@@ -115,6 +115,8 @@ import org.jmol.viewer.Viewer.ACCESS;
 
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
+import edu.missouri.chenglab.loopdetection.Detector;
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.noisy_mds.StructureGeneratorLorentz_HierarchicalModeling;
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
@@ -344,59 +346,6 @@ public class ScriptEvaluator {
 		}else{
 			viewer.repaint();
 		}
-	}
-	//Tuan added to test
-	public void evaluateCompiledScript1(boolean isCmdLine_c_or_C_Option,
-			boolean isCmdLine_C_Option, boolean historyDisabled,
-			boolean listCommands, StringBuffer outputBuffer) {
-
-
-		boolean tempOpen = this.isCmdLine_C_Option;
-		this.isCmdLine_C_Option = isCmdLine_C_Option;
-		//viewer.pushHoldRepaint("runEval");
-		interruptExecution = executionPaused = false;
-		executionStepping = false;
-		isExecuting = true;
-		currentThread = Thread.currentThread();
-		isSyntaxCheck = this.isCmdLine_c_or_C_Option = isCmdLine_c_or_C_Option;
-		timeBeginExecution = System.currentTimeMillis();
-		this.historyDisabled = historyDisabled;
-		this.outputBuffer = outputBuffer;
-		setErrorMessage(null);
-		try {
-			try {
-				setScriptExtensions();
-				instructionDispatchLoop(listCommands);
-				String script = viewer.getInterruptScript();
-				if (script != "")
-					runScript(script, null);
-			} catch (Error er) {
-				viewer.handleError(er, false);
-				setErrorMessage("" + er + " " + viewer.getShapeErrorState());
-				errorMessageUntranslated = "" + er;
-				scriptStatusOrBuffer(errorMessage);
-			}
-		} catch (ScriptException e) {
-			setErrorMessage(e.toString());
-			errorMessageUntranslated = e.getErrorMessageUntranslated();
-			scriptStatusOrBuffer(errorMessage);
-			viewer.notifyError(
-					(errorMessage != null
-							&& errorMessage
-									.indexOf("java.lang.OutOfMemoryError") >= 0 ? "Error"
-							: "ScriptException"), errorMessage,
-					errorMessageUntranslated);
-		}
-		timeEndExecution = System.currentTimeMillis();
-		this.isCmdLine_C_Option = tempOpen;
-		if (errorMessage == null && interruptExecution)
-			setErrorMessage("execution interrupted");
-		else if (!tQuiet && !isSyntaxCheck)
-			viewer.scriptStatus(SCRIPT_COMPLETED);
-		isExecuting = isSyntaxCheck = isCmdLine_c_or_C_Option = historyDisabled = false;
-		//viewer.setTainted(true);
-		//viewer.popHoldRepaint("runEval");
-		viewer.repaint();
 	}
 
 	/**
@@ -5958,7 +5907,11 @@ public class ScriptEvaluator {
 				case Token.lorDG:
 					lorDG3DModeller();
 					break;
-				//end
+				
+				case Token.loopDetector:
+					loopIdentifier();
+					break;
+				//end				
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
@@ -5980,8 +5933,22 @@ public class ScriptEvaluator {
 		String gssFile = (String) viewer.getParameter(Constants.OUTPUTGSSFILE);
 		
 		ConvertPDB2GSS pdb2GSSConverter = new ConvertPDB2GSS();
-    	pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+		try{
+			pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+		}catch(Exception ex){
+			viewer.displayMessage(new String[]{ex.getMessage()});
+			ex.printStackTrace();
+		}
     	
+	}
+	
+	private void loopIdentifier(){
+		Detector loopDetector = new Detector();
+		try{
+			loopDetector.identifyLoop(viewer.getModelSet().atoms, viewer);
+		}catch(Exception ex){
+			viewer.displayMessage(new String[]{ex.getMessage()});
+		}
 	}
 	/**
 	 * @author Tuan
@@ -6050,6 +6017,7 @@ public class ScriptEvaluator {
 		try{
 			generator.generateStructure();
 		}catch(Exception ex){
+			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
 		
@@ -11278,9 +11246,23 @@ public class ScriptEvaluator {
 				.remove("sitescript"));
 		if (siteScript != null)
 			script = siteScript + ";" + script;
-		if (script.length() > 0 && !isCmdLine_c_or_C_Option)
+		
+		//Tuan added to visualize pdb file 
+		if (filename.endsWith(".pdb") || filename.endsWith(".gss")){
+			if (script.length() > 0) script += ";wireframe 5;";
+			else script += "restrict bonds not selected;select not selected;wireframe 5;";
+			
+			int numberOfChain = CommonFunctions.countChain(viewer.getModelSet());
+			if (numberOfChain > 1) script += "color chain;";
+			
+		}
+		//End 
+		if (script.length() > 0 && !isCmdLine_c_or_C_Option){
+
 			// NOT checking embedded scripts in some cases
+
 			runScript(script);
+		}
 	}
 
 	// added -hcf
