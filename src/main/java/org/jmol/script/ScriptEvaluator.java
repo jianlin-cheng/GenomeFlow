@@ -5911,6 +5911,9 @@ public class ScriptEvaluator {
 				case Token.loopDetector:
 					loopIdentifier();
 					break;
+				case Token.annotate:
+					annotate();
+					break;
 				//end				
 				default:
 					error(ERROR_unrecognizedCommand);
@@ -5923,6 +5926,12 @@ public class ScriptEvaluator {
 		}
 	}
 
+	/**
+	 * @author Tuan
+	 */
+	private void annotate(){
+		
+	}
 	/**
 	 * @author Tuan
 	 * To convert a pdb format file to a gss format file
@@ -5942,6 +5951,9 @@ public class ScriptEvaluator {
     	
 	}
 	
+	/**
+	 * @author Tuan
+	 */
 	private void loopIdentifier(){
 		Detector loopDetector = new Detector();
 		try{

@@ -374,6 +374,7 @@ public class Token {
   public final static int pdb2gss = scriptCommand | 75 | deprecatedparam;
   public final static int lorDG = scriptCommand | 76 | deprecatedparam;
   public final static int loopDetector = scriptCommand | 77 | deprecatedparam;
+  public final static int annotate = scriptCommand | 78 | deprecatedparam;
   //end
   
   // shapes:
@@ -2477,6 +2478,7 @@ public class Token {
       "pdb2GSS", 		   new Token(pdb2gss),
       "lorDG", new Token(lorDG),
       "loopDetector", new Token(loopDetector),
+      "annotate", new Token(annotate),
       //end
 
 

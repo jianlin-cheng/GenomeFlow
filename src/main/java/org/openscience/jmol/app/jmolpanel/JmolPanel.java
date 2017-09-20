@@ -114,6 +114,7 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.annotation.Annotator;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 //added -hcf
 import edu.missouri.chenglab.lordg.utility.Helper;
@@ -158,6 +159,8 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private ConvertPDB2GSSAction pdb2GSSAction = new ConvertPDB2GSSAction(); //Tuan added
   private LorDG3DModeller lorDGModellerAction = new LorDG3DModeller(); //Tuan added
   private LoopDetectorAction loopDetectAction = new LoopDetectorAction(); //Tuan added
+  private AnnotationAction annotationAction = new AnnotationAction(); //Tuan added
+  
   
   
   private ExportAction exportAction = new ExportAction();
@@ -196,6 +199,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String convertPDB2GSSAction = "PDB2GSS";//Tuan added
   private static final String lorDG3DModellerAction = "LorDG";//Tuan added
   private static final String loopDetectorAction = "LoopDetector";//Tuan added
+  private static final String annotateAction = "Annotate";//Tuan added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1085,7 +1089,7 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1322,6 +1326,110 @@ public void showStatus(String message) {
   
   
   //added end -hcf
+  
+  class AnnotationAction extends NewAction{
+	  AnnotationAction(){
+		  super(annotateAction);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		
+		  
+	    	JTextField trackNameField = new JTextField();
+	    	
+	    	
+	    	JTextField trackFileField = new JTextField();
+	    	
+	    	JButton openTrackFileButton = new JButton("Browse File");		    
+		    
+	    	openTrackFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					trackFileField.setText(fileName);					
+				}
+			});
+		    
+	    	JButton runButton = new JButton("Annotate");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					String script = "annotate";
+					viewer.script(script);
+					
+					Annotator annotator = new Annotator();
+					try{
+						annotator.annotate("test", "C:/Users/Tuan/workspace/Gmol/chr1_10kb_gm12878_list_0mb_10mb_1483058775167_loop.bed", "red", 15, (Viewer)viewer);
+					}catch(Exception ex){
+						ex.printStackTrace();
+					}
+					
+				}
+			});
+	    	
+	    	GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(600, 120);
+	            }	       
+	        };
+	        panel.setLayout(new GridBagLayout());  
+	        
+	        int y = 0;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Track name:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        trackNameField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(trackNameField, gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Track file:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        trackFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(trackFileField, gbc);
+	        
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(openTrackFileButton, gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        panel.add(runButton, gbc);
+	        
+	        Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setLocation(400, 400);
+	        
+	        subFrame.add(panel);
+	        subFrame.setVisible(true);
+	
+	        
+	  }
+  }
+  
 
   /*
    * Tuan created a new button to convert PDB format file to GSS
@@ -1331,25 +1439,25 @@ public void showStatus(String message) {
 		  super(convertPDB2GSSAction);
 	  }
 	  
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-	    	//script = "pdb2GSS";
-	    	//viewer.script(script);
-	    	
-	    	
-	        JTextField pdbFileField = new JTextField();	        
-	        
-	        
-	        JTextField mappingFileField = new JTextField();
-	        //mappingFileField.setPreferredSize(new Dimension(400, 20));
-	        
-	        JTextField gssFileField = new JTextField();
-	        //gssFileField.setPreferredSize(new Dimension(400, 20));
-	        	        
-	        JButton openPDBFileButton = new JButton("Browse File");
-	        //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
-	        
-	        openPDBFileButton.addActionListener(new ActionListener() {				
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//script = "pdb2GSS";
+			//viewer.script(script);
+			
+			
+		    JTextField pdbFileField = new JTextField();	        
+		    
+		    
+		    JTextField mappingFileField = new JTextField();
+		    //mappingFileField.setPreferredSize(new Dimension(400, 20));
+		    
+		    JTextField gssFileField = new JTextField();
+		    //gssFileField.setPreferredSize(new Dimension(400, 20));
+		    	        
+		    JButton openPDBFileButton = new JButton("Browse File");
+		    //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
+		    
+		    openPDBFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1359,11 +1467,11 @@ public void showStatus(String message) {
 					gssFileField.setText(fileName.replace(".pdb", ".gss"));
 				}
 			});
-	        
-	        
-	        JButton openMappingFileButton = new JButton("Browse File");
-	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
-	        openMappingFileButton.addActionListener(new ActionListener() {				
+		    
+		    
+		    JButton openMappingFileButton = new JButton("Browse File");
+		    //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+		    openMappingFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1372,12 +1480,12 @@ public void showStatus(String message) {
 					mappingFileField.setText(fileName);
 				}
 			});
-	        
-	        
-	        
-	        JButton openGSSFileButton = new JButton("Browse File");
-	        //openGSSFileButton.setPreferredSize(new Dimension(40, 20));
-	        openGSSFileButton.addActionListener(new ActionListener() {				
+		    
+		    
+		    
+		    JButton openGSSFileButton = new JButton("Browse File");
+		    //openGSSFileButton.setPreferredSize(new Dimension(40, 20));
+		    openGSSFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1386,81 +1494,79 @@ public void showStatus(String message) {
 					gssFileField.setText(fileName);
 				}
 			});
-	        	        
-	        
-	        GridBagConstraints gbc = new GridBagConstraints();
-	        gbc.insets = new Insets(5, 5, 5, 5);
-	        
-	        JPanel panel = new JPanel(){
-	        	@Override
-	            public Dimension getPreferredSize() {
-	                return new Dimension(600, 120);
-	            }	       
-	        };
-	                
-	        
-	        panel.setLayout(new GridBagLayout());  	        
-	        	        
-	        gbc.gridx = 0;
-	        gbc.gridy = 0;	                
-	        panel.add(new JLabel("Input PDB file:"), gbc);
-	        
-	        gbc.gridx = 1;
-	        gbc.gridy = 0;
-	        pdbFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(pdbFileField, gbc);
-	        	        
-	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 0;	        
-	        panel.add(openPDBFileButton, gbc);
-	        	        
-	       	
-	        gbc.gridx = 0;
-	        gbc.gridy = 1;	        	        
-	        panel.add(new JLabel("Input mapping file:"), gbc);	        
-	
-	        gbc.gridx = 1;
-	        gbc.gridy = 1;
-	        mappingFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(mappingFileField, gbc);
-	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 1;	
-	        panel.add(openMappingFileButton, gbc);
-	        
-
-	        gbc.gridx = 0;
-	        gbc.gridy = 2;	
-	        panel.add(new JLabel("Output GSS file:"), gbc);
-	        
-	
-	        gbc.gridx = 1;
-	        gbc.gridy = 2;
-	        gssFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(gssFileField, gbc);
-	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 2;
-	        gbc.gridwidth = 1;	
-	        panel.add(openGSSFileButton, gbc);
-	        
-	        
-	        	
-	        int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
-	            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
-	        
-	        if (result == JOptionPane.OK_OPTION) {
-	            	        	
-	        	viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
-	        	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
-	        	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
-	        	
-	        	script = "pdb2GSS";
+		    	        
+		    
+		    GridBagConstraints gbc = new GridBagConstraints();
+		    gbc.insets = new Insets(5, 5, 5, 5);
+		    
+		    JPanel panel = new JPanel(){
+		    	@Override
+		        public Dimension getPreferredSize() {
+		            return new Dimension(600, 120);
+		        }	       
+		    };
+		            
+		    
+		    panel.setLayout(new GridBagLayout());  	        
+		    	        
+		    gbc.gridx = 0;
+		    gbc.gridy = 0;	                
+		    panel.add(new JLabel("Input PDB file:"), gbc);
+		    
+		    gbc.gridx = 1;
+		    gbc.gridy = 0;
+		    pdbFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(pdbFileField, gbc);
+		    	        
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = 0;	        
+		    panel.add(openPDBFileButton, gbc);
+		    	        
+		   	
+		    gbc.gridx = 0;
+		    gbc.gridy = 1;	        	        
+		    panel.add(new JLabel("Input mapping file:"), gbc);	        
+		
+		    gbc.gridx = 1;
+		    gbc.gridy = 1;
+		    mappingFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(mappingFileField, gbc);
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = 1;	
+		    panel.add(openMappingFileButton, gbc);
+		    
+		
+		    gbc.gridx = 0;
+		    gbc.gridy = 2;	
+		    panel.add(new JLabel("Output GSS file:"), gbc);
+		    
+		
+		    gbc.gridx = 1;
+		    gbc.gridy = 2;
+		    gssFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(gssFileField, gbc);
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = 2;
+		    gbc.gridwidth = 1;	
+		    panel.add(openGSSFileButton, gbc);
+		    	
+		    int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
+		        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
+		    
+		    if (result == JOptionPane.OK_OPTION) {
+		        	        	
+		    	viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
+		    	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
+		    	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
+		    	
+		    	script = "pdb2GSS";
 		    	viewer.script(script);	        	
-	            
-	        } 
-	    }
+		        
+		    } 
+		}
   }
 
   /*
@@ -1474,12 +1580,78 @@ public void showStatus(String message) {
 	    @Override
 	    public void actionPerformed(ActionEvent e) {
 	        	
-	    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
-	    		JOptionPane.showMessageDialog(null, "Please load a model first!");
-	    		return;
-	    	}
-        	script = "loopDetector";        	
-	    	viewer.script(script);
+
+	    	
+	    	JTextField outputFileField = new JTextField();
+	    	JButton runButton = new JButton("Identify loops");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		return;
+			    	}
+			    	
+			    	viewer.setStringProperty(Constants.OUTPUTLOOPFILE, outputFileField.getText());
+			    	
+		        	script = "loopDetector";        	
+			    	viewer.script(script);
+					
+				}
+			});
+	    	
+	    	GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(600, 120);
+	            }	       
+	        };
+	        panel.setLayout(new GridBagLayout());  
+	        
+	        gbc.gridx = 0;
+	        gbc.gridy = 0;	                
+	        panel.add(new JLabel("Output file(optional):"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = 0;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = 0;
+	        gbc.gridwidth = 1;
+	        JButton openFileButton = new JButton("Browse File");	        
+	        openFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+				}
+			});
+	        panel.add(openFileButton, gbc);
+	        
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = 1;
+	        //gbc.gridwidth
+	        panel.add(runButton, gbc);
+	        
+	        Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setLocation(400, 400);
+	        
+	        subFrame.add(panel);
+	        subFrame.setVisible(true);
+	        
 	         
 	    }
   }

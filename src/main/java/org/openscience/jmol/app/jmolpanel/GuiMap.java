@@ -239,7 +239,7 @@ public class GuiMap {
     //added end -hcf
     
     //Tuan added
-    labels.put("convertPDB2GSSTip", "Click to convert PDB structure to GSS structure");
+    labels.put("PDB2GSSTip", "Click to convert PDB structure to GSS structure");
     labels.put("PDB2GSS", GT._("PDB to GSS"));
     labels.put("1Dtools", GT._("1D-Tools"));
     labels.put("2Dtools", GT._("2D-Tools"));
@@ -248,6 +248,8 @@ public class GuiMap {
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
     labels.put("LoopDetector", GT._("Detect Loop"));
     labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
+    labels.put("Annotate", "Annotation");
+    labels.put("AnnotateTip", "Click to add annotation to the 3D model");
     //end
     
   }

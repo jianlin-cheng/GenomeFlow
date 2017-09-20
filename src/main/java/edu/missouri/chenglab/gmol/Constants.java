@@ -12,6 +12,7 @@ public interface Constants {
 	String CHROMOSOMELEN = "chromLength";
 	String LEARNINGRATE = "learningRate";
 	
+	String OUTPUTLOOPFILE = "outputLoopFile";
 	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 	

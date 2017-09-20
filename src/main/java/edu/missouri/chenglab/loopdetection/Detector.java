@@ -1,5 +1,7 @@
 package edu.missouri.chenglab.loopdetection;
 
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +10,7 @@ import org.apache.commons.math3.stat.inference.TTest;
 import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
 
+import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.lordg.utility.Helper;
 
 public class Detector {
@@ -53,6 +56,21 @@ public class Detector {
 			viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 10; color group;", loop.atomBeg.index + 1, loop.atomEnd.index + 1));
 		}
 		viewer.evalString(String.format("select all;"));
+		String outputFile = (String) viewer.getParameter(Constants.OUTPUTLOOPFILE);	
+		if (outputFile != null && outputFile.length() > 0){
+			PrintWriter pw = null;
+			try {
+				pw = new PrintWriter(outputFile);
+				for(Loop loop : resultLoop){
+					pw.println("chr" + loop.atomBeg.chrID + "\t" + loop.atomBeg.fromPos + "\t" + loop.atomEnd.endPos);
+				}
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}finally{			
+				if (pw != null) pw.close();
+			}
+		}
+		
 	}
 	
 	private Atom[] convertListToArray(List<Atom> lst){

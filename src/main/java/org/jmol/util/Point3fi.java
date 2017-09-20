@@ -23,6 +23,9 @@
  */
 
 package org.jmol.util;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.vecmath.Point3f;
 import javax.vecmath.Point3i;
 
@@ -62,6 +65,9 @@ public class Point3fi extends Point3f {
   public String lcChr;
   //added end -hcf
   
+  //Tuan added
+  public Map<String,String> labels = new HashMap<String, String>();
+  //End
   
   /* (non-Javadoc)
    * @see java.lang.Object#equals(java.lang.Object)
