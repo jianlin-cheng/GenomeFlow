@@ -791,34 +791,57 @@ public class Helper {
 		pw.println("<sp>some_species</sp>");
 		
 		
+		int id, n = 0, start=0, end=0, chrID = 1;
+		double radius = 1.0;
 		
-		if (structure != null){
-			int id, n = structure.length/3;
+		//for each chromosome
+		pw.println("<ens-chr>1</ens-chr>");
+		pw.println("<lc-seq>unknown</lc-seq>");
+		pw.println("<cs>" + 1);
+		
+		for(int i = 3; i < structure.length; i += 3){
+			id = i / 3;
 			
-			//for each chromosome
-			pw.println("<ens-chr>1</ens-chr>");
-			pw.println("<lc-seq>unknown</lc-seq>");
-			pw.println("<cs>1");
+			if (idToChr.get(id) == idToChr.get(id - 1)) continue;
 			
+			end = id  - 1;
+			n = end - start + 1;
 			pw.printf("<lt>%d</lt>\n", n);
-			double radius = 1.0;
 			
+			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);
 			
-			for(int i = 0; i < structure.length; i += 3){
-				id = i / 3;
-				pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
-						id+1, structure[i], structure[i + 1], structure[i + 2], radius, lstPos.get(id), (id + 1 < lstPos.size() ? lstPos.get(id + 1) - 1 : lstPos.get(id) + 1));
-			}		
-		}else{
-			pw.println("<ens-chr>1</ens-chr>");
-			pw.println("<lc-seq>unknown</lc-seq>");
-			pw.println("<cs>1");
+			pw.println("</cs>");
+			
+			start = id;
+			
+			if (i < structure.length){
+				chrID = idToChr.get(id) + 1;
+				pw.println("<ens-chr>" + chrID + "</ens-chr>");
+				pw.println("<lc-seq>unknown</lc-seq>");
+				pw.println("<cs>" + chrID);
+			}			
 		}
 		
-		pw.println("</cs>");
-		pw.close();
+		end = structure.length / 3 - 1;
+		n = end - start + 1;
+		if (end > start){
+			pw.printf("<lt>%d</lt>\n", n);		
+			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);		
+			pw.println("</cs>");
+		}
 		
 		
+		pw.close();			
+	}
+	
+	public void writeStructureGSS(PrintWriter pw, double[] a,List<Integer> lstPos, double radius, int start, int end){ // start, end are included
+		int id;
+		for(int i = start; i <= end; i += 3){
+			id = i / 3;
+			pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
+					id+1, a[i], a[i + 1], a[i + 2], radius, lstPos.get(id), (id + 1 < lstPos.size() ? lstPos.get(id + 1) - 1 : lstPos.get(id) + 1));
+			
+		}
 	}
 	
 
