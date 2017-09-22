@@ -57,6 +57,7 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractAction;
@@ -68,6 +69,7 @@ import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -1089,7 +1091,7 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1327,7 +1329,13 @@ public void showStatus(String message) {
   
   //added end -hcf
   
+  /**
+   * 
+   * @author Tuan
+   *
+   */
   class AnnotationAction extends NewAction{
+	  
 	  AnnotationAction(){
 		  super(annotateAction);
 	  }
@@ -1335,7 +1343,13 @@ public void showStatus(String message) {
 	  @Override
 	  public void actionPerformed(ActionEvent e) {
 		  
-		
+		  	Random rd = new Random();
+		  	Color defaulColor = new Color(rd.nextInt(256), rd.nextInt(256), rd.nextInt(256));		  	
+		  	JLabel colorDisplay = new JLabel("Color to highlight");
+		  	colorDisplay.setBackground(defaulColor);
+		  	colorDisplay.setForeground(defaulColor);	
+		  	
+	        //colorDisplay.setEnabled(false);
 		  
 	    	JTextField trackNameField = new JTextField();
 	    	
@@ -1353,6 +1367,8 @@ public void showStatus(String message) {
 					trackFileField.setText(fileName);					
 				}
 			});
+	    	
+	    	
 		    
 	    	JButton runButton = new JButton("Annotate");
 	    	runButton.addActionListener(new ActionListener() {
@@ -1360,15 +1376,30 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
+					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		return;
+			    	}
+					
+					if (trackFileField.getText().length() == 0){
+						JOptionPane.showMessageDialog(null, "Please specify the track file!");
+			    		return;
+					}
+					if (trackNameField.getText().length() == 0){
+						JOptionPane.showMessageDialog(null, "Please specify track name!");
+			    		return;
+					}
+					
+					Color color = colorDisplay.getBackground();
+							
+					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());
+			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
+			    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+					
 					String script = "annotate";
 					viewer.script(script);
 					
-					Annotator annotator = new Annotator();
-					try{
-						annotator.annotate("test", "C:/Users/Tuan/workspace/Gmol/chr1_10kb_gm12878_list_0mb_10mb_1483058775167_loop.bed", "red", 15, (Viewer)viewer);
-					}catch(Exception ex){
-						ex.printStackTrace();
-					}
+					
 					
 				}
 			});
@@ -1398,7 +1429,8 @@ public void showStatus(String message) {
 	        
 	        y++;
 	        gbc.gridx = 0;
-	        gbc.gridy = y;	                
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
 	        panel.add(new JLabel("Track file:"), gbc);
 	        
 	        gbc.gridx = 1;
@@ -1413,10 +1445,33 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;	        
 	        panel.add(openTrackFileButton, gbc);
 	        
+	        y++;
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(colorDisplay, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        
+	        JButton colorChooserButton = new JButton("Choose color");
+	        colorChooserButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Color color = JColorChooser.showDialog(null, "Choose color to highlight", defaulColor);	
+					colorDisplay.setBackground(color);
+					colorDisplay.setForeground(color);
+				}
+			});
+	        panel.add(colorChooserButton, gbc);
+	        
 	        
 	        y++;
 	        gbc.gridx = 1;
-	        gbc.gridy = y;
+	        gbc.gridy = y;	        
 	        panel.add(runButton, gbc);
 	        
 	        Frame subFrame = new JFrame();
@@ -1570,7 +1625,7 @@ public void showStatus(String message) {
   }
 
   /*
-   * Tuan created a new button to convert PDB format file to GSS
+   * Tuan created a new button to identify loops
    */
   class LoopDetectorAction extends NewAction {
 	  LoopDetectorAction() {

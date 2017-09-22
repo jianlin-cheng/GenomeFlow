@@ -14,6 +14,10 @@ public interface Constants {
 	
 	String OUTPUTLOOPFILE = "outputLoopFile";
 	
+	String TRACKNAME = "trackName";
+	String TRACKFILENAME = "trackFileName";
+	String ANNOTATIONCOLOR = "annotationColor";
+	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 	
 }

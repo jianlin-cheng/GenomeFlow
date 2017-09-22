@@ -114,6 +114,7 @@ import org.jmol.viewer.Viewer;
 import org.jmol.viewer.Viewer.ACCESS;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.annotation.Annotator;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
 import edu.missouri.chenglab.loopdetection.Detector;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
@@ -5930,7 +5931,18 @@ public class ScriptEvaluator {
 	 * @author Tuan
 	 */
 	private void annotate(){
-		
+		Annotator annotator = new Annotator();
+		try{
+			
+			String trackName = (String) viewer.getParameter(Constants.TRACKNAME);
+			String trackFileName = (String) viewer.getParameter(Constants.TRACKFILENAME);
+			String color = (String) viewer.getParameter(Constants.ANNOTATIONCOLOR);
+			
+			annotator.annotate(trackName, trackFileName, color, 15, (Viewer)viewer);
+			
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
 	}
 	/**
 	 * @author Tuan

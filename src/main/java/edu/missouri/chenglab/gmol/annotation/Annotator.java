@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
@@ -28,8 +30,7 @@ public class Annotator {
 			boolean isLabel = false;
 			for(Region reg : regions){
 				if (isOverlap(reg, atom)){
-					if (reg.getName() != null && reg.getName().length() > 0) atom.labels.put(trackName, reg.getName());
-					else atom.labels.put(trackName, trackName);
+					if (reg.getName() != null && reg.getName().length() > 0) atom.labels.put(trackName, reg.getName());					
 					isLabel = true;
 				}
 			}
@@ -39,6 +40,8 @@ public class Annotator {
 					if (label.length() > 0) label.append(",");
 					label.append(atom.labels.get(k));
 				}
+				//if (label.length() == 0) label.append(trackName);
+				
 				StringBuffer script = new StringBuffer();
 				script.append("select " + atom.index + ";wireframe " + radius + ";color " + color + ";");
 				
@@ -60,30 +63,36 @@ public class Annotator {
 	
 	private List<Region> readRegions(String trackFile) throws Exception{
 		
+		Pattern genePattern = Pattern.compile("^(.+?)(\\s+)chr(\\d+)(\\s+)([+-])(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(.*)");
+		Pattern bedPattern = Pattern.compile("^chr(\\d+)(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(.+?)(\\s+)(.*)");
+		
+		
 		List<Region> rs = new ArrayList<Region>();
 		
 		File f = new File(trackFile);
 		FileReader fr = new FileReader(f);
 		BufferedReader br = new BufferedReader(fr);
-		String ln, name="", st[];		
+		String ln, name="";		
 		int chrID, start, end;
 		
 		while((ln = br.readLine()) != null){
 			if (ln.startsWith("#")) continue;
-			st = ln.split("\\s+");
-			if (st.length < 3) continue;
-			if (st[0].startsWith("chr")){
-				chrID = Integer.parseInt(st[0].replace("chr", ""));
+			
+			Matcher geneMatcher = genePattern.matcher(ln);
+			Matcher bedMatcher = bedPattern.matcher(ln);
+			
+			if (geneMatcher.find()){
+				chrID = Integer.parseInt(geneMatcher.group(3));
+				start = Integer.parseInt(geneMatcher.group(7));
+				end = Integer.parseInt(geneMatcher.group(9));
+				name = geneMatcher.group(1);
+			}else if (bedMatcher.find()){
+				chrID = Integer.parseInt(bedMatcher.group(1));
+				start = Integer.parseInt(bedMatcher.group(3));
+				end = Integer.parseInt(bedMatcher.group(5));
+				name = bedMatcher.group(7);
 			}else{
-				chrID = Integer.parseInt(st[0]);
-			}
-			start = Integer.parseInt(st[1]);
-			end = Integer.parseInt(st[2]);
-			name = "";
-			if (st.length > 3){
-				for(int i = 3; i < st.length; i++){
-					name += st[i];
-				}
+				continue;
 			}
 			
 			rs.add(new Region(chrID, start, end, name));
