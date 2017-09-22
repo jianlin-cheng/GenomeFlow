@@ -65,12 +65,11 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -116,10 +115,7 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
-import edu.missouri.chenglab.gmol.annotation.Annotator;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
-//added -hcf
-import edu.missouri.chenglab.lordg.utility.Helper;
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -1091,7 +1087,7 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1335,6 +1331,7 @@ public void showStatus(String message) {
    *
    */
   class AnnotationAction extends NewAction{
+	  int y = 0;
 	  
 	  AnnotationAction(){
 		  super(annotateAction);
@@ -1343,6 +1340,32 @@ public void showStatus(String message) {
 	  @Override
 	  public void actionPerformed(ActionEvent e) {
 		  
+		  
+		  	//List<JCheckBox> trackCheckBoxes = new ArrayList<JCheckBox>();
+		  	List<String> trackNames = new ArrayList<String>();
+		  	List<String> trackFileNames = new ArrayList<String>();
+		  	
+		  	
+	    	GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(600, 800);
+	            }	       
+	        };
+	        panel.setLayout(new GridBagLayout());  
+	        
+	        
+	        JScrollPane scrollpane = new JScrollPane(panel);
+	        scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+	        
+	        Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 400));
+	        subFrame.setLocation(400, 400);
+	        
+	        
 		  	Random rd = new Random();
 		  	Color defaulColor = new Color(rd.nextInt(256), rd.nextInt(256), rd.nextInt(256));		  	
 		  	JLabel colorDisplay = new JLabel("Color to highlight");
@@ -1400,22 +1423,45 @@ public void showStatus(String message) {
 					viewer.script(script);
 					
 					
+					trackNames.add(trackNameField.getText());
+					trackFileNames.add(trackFileField.getText());
+					
+					JCheckBox newCheckBox = new JCheckBox(trackNameField.getText());
+					//newCheckBox.setBackground(color);
+					newCheckBox.setForeground(color);
+					newCheckBox.setSelected(true);
+					
+					newCheckBox.addActionListener(new ActionListener() {
+						
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							
+							
+						}
+					});
+					
+					y++;
+					gbc.gridx = 0;
+					gbc.gridy = y;
+					gbc.gridwidth = 1;
+					panel.add(newCheckBox, gbc);
+					
+					//subFrame.setPreferredSize(preferredSize);
+					
+					subFrame.validate();
+					subFrame.repaint();
+					
+					//trackCheckBoxes.add(newCheckBox);
+					
+					
+					
 					
 				}
 			});
 	    	
-	    	GridBagConstraints gbc = new GridBagConstraints();
-	        gbc.insets = new Insets(5, 5, 5, 5);
+
 	        
-	        JPanel panel = new JPanel(){
-	        	@Override
-	            public Dimension getPreferredSize() {
-	                return new Dimension(600, 120);
-	            }	       
-	        };
-	        panel.setLayout(new GridBagLayout());  
 	        
-	        int y = 0;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
 	        panel.add(new JLabel("Track name:"), gbc);
@@ -1474,11 +1520,16 @@ public void showStatus(String message) {
 	        gbc.gridy = y;	        
 	        panel.add(runButton, gbc);
 	        
-	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(600, 200));
-	        subFrame.setLocation(400, 400);
 	        
-	        subFrame.add(panel);
+	        //////////////////////////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 4;
+	        panel.add(new JLabel("------------------------------------------------ Highlighted tracks ------------------------------------------------"), gbc);
+	                
+	        
+	        subFrame.add(scrollpane, BorderLayout.CENTER);
 	        subFrame.setVisible(true);
 	
 	        
@@ -1713,7 +1764,7 @@ public void showStatus(String message) {
 
   
   /*
-   * Tuan created a new button to convert PDB format file to GSS
+   * Tuan created a new button for LorDG function
    */
   class LorDG3DModeller extends NewAction {
 	  LorDG3DModeller() {

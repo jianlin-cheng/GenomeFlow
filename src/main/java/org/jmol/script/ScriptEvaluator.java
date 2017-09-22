@@ -5983,7 +5983,13 @@ public class ScriptEvaluator {
 		String contactFile = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
 		String outputFolder = (String) viewer.getParameter(Constants.OUTPUT3DFILE);
 		
-		double conversionFactor = Double.parseDouble((String)viewer.getParameter(Constants.CONVERSIONFACTOR));
+		
+		
+		double conversionFactor = 0;
+		String conversionFactorStr = (String)viewer.getParameter(Constants.CONVERSIONFACTOR);
+		if (conversionFactorStr.length() > 0){
+			Double.parseDouble(conversionFactorStr);
+		}
 		double learningRate = Double.parseDouble((String)viewer.getParameter(Constants.LEARNINGRATE));
 		int maxIteration = Integer.parseInt((String)viewer.getParameter(Constants.MAXITERATION));
 		
