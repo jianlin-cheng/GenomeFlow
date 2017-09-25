@@ -67,6 +67,7 @@ public class Point3fi extends Point3f {
   
   //Tuan added
   public Map<String,String> labels = new HashMap<String, String>();
+  public String currentColor = "";
   //End
   
   /* (non-Javadoc)

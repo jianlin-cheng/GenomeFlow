@@ -43,6 +43,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
@@ -53,6 +54,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +67,6 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -1340,11 +1341,9 @@ public void showStatus(String message) {
 	  @Override
 	  public void actionPerformed(ActionEvent e) {
 		  
-		  
-		  	//List<JCheckBox> trackCheckBoxes = new ArrayList<JCheckBox>();
-		  	List<String> trackNames = new ArrayList<String>();
-		  	List<String> trackFileNames = new ArrayList<String>();
-		  	
+		  	Map<String, Color> trackColorMap = new HashMap<String, Color>();
+		  	Map<String, String> trackFileNameMap = new HashMap<String, String>();
+		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
 		  	
 	    	GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
@@ -1352,7 +1351,7 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(600, 800);
+	                return new Dimension(600, 300);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -1411,32 +1410,87 @@ public void showStatus(String message) {
 					if (trackNameField.getText().length() == 0){
 						JOptionPane.showMessageDialog(null, "Please specify track name!");
 			    		return;
+					}else if (trackColorMap.keySet().contains(trackNameField.getText())){
+						JOptionPane.showMessageDialog(null, trackNameField.getText() + " is already used, please specify a different track name!");
+						return;
 					}
 					
+					
 					Color color = colorDisplay.getBackground();
-							
+					
+					
+					if (trackColorMap.values().contains(color)){
+						JOptionPane.showMessageDialog(null, "This color is already used, please choose a different color!");
+						return;
+					}
+					
+					
+					trackColorMap.put(trackNameField.getText(), color);
+					trackFileNameMap.put(trackNameField.getText(), trackFileField.getText());					
+					trackStatusMap.put(trackNameField.getText(), true);
+										
 					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
 			    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+			    	
 					
 					String script = "annotate";
 					viewer.script(script);
 					
 					
-					trackNames.add(trackNameField.getText());
-					trackFileNames.add(trackFileField.getText());
 					
 					JCheckBox newCheckBox = new JCheckBox(trackNameField.getText());
-					//newCheckBox.setBackground(color);
-					newCheckBox.setForeground(color);
+					newCheckBox.setBackground(color);
+					//newCheckBox.setForeground(color);
 					newCheckBox.setSelected(true);
 					
 					newCheckBox.addActionListener(new ActionListener() {
 						
 						@Override
 						public void actionPerformed(ActionEvent e) {
-							
-							
+							String track = e.getActionCommand();
+							String script = "annotate";
+							if (newCheckBox.isSelected() && !trackStatusMap.get(track)){																
+								
+								trackStatusMap.put(track, true);
+								
+								String trackFile = trackFileNameMap.get(track);
+								Color color = trackColorMap.get(track);
+								
+								viewer.setStringProperty(Constants.TRACKNAME, track);
+						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+						    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");						    	
+								viewer.script(script);
+								
+							}else{
+								
+								trackStatusMap.put(track, false);
+								viewer.setStringProperty(Constants.TRACKNAME, "");
+								viewer.script(script);
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e1) {
+									e1.printStackTrace();
+								}
+								
+								for(String trackName : trackFileNameMap.keySet()){
+									if (trackStatusMap.get(trackName)){
+										String trackFile = trackFileNameMap.get(trackName);
+										Color color = trackColorMap.get(trackName);
+										
+										viewer.setStringProperty(Constants.TRACKNAME, trackName);
+								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+								    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");							    	
+										viewer.script(script);
+										
+										try {
+											Thread.sleep(500);
+										} catch (InterruptedException e1) {											
+											e1.printStackTrace();
+										}
+									}
+								}								
+							}
 						}
 					});
 					
@@ -1444,6 +1498,7 @@ public void showStatus(String message) {
 					gbc.gridx = 0;
 					gbc.gridy = y;
 					gbc.gridwidth = 1;
+					gbc.anchor = GridBagConstraints.WEST;
 					panel.add(newCheckBox, gbc);
 					
 					//subFrame.setPreferredSize(preferredSize);
@@ -1531,7 +1586,19 @@ public void showStatus(String message) {
 	        
 	        subFrame.add(scrollpane, BorderLayout.CENTER);
 	        subFrame.setVisible(true);
-	
+	        
+	        subFrame.addWindowListener(new WindowAdapter() {
+				
+				
+				@Override
+				public void windowClosing(WindowEvent e) {
+					viewer.setStringProperty(Constants.TRACKNAME, "");
+					String script = "annotate";
+					viewer.script(script);
+					
+				}				
+				
+			});
 	        
 	  }
   }

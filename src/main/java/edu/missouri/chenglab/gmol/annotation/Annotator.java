@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
 
+import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.valueobjects.Region;
 
 public class Annotator {
@@ -45,6 +46,7 @@ public class Annotator {
 				StringBuffer script = new StringBuffer();
 				script.append("select " + atom.index + ";wireframe " + radius + ";color " + color + ";");
 				
+				atom.currentColor = color;
 				
 				if (label.length() > 0) script.append("label " + label.toString() + ";select all;");
 				
@@ -53,6 +55,21 @@ public class Annotator {
 		}
 		
 	}
+	
+	
+	/**
+	 * Clear all labels
+	 * @param viewer
+	 * @throws Exception
+	 */
+	public void deannotate(Viewer viewer) throws Exception{
+
+		StringBuffer script = new StringBuffer();
+		script.append("select all;label \"\";wireframe " + Constants.DEFAULTWIREFRAME  + ";color structure;");
+		viewer.script(script.toString());
+	}
+
+	
 	
 	private boolean isOverlap(Region reg, Atom atom){
 		if (reg.getChrID() != atom.chrID) return false;

@@ -5934,6 +5934,11 @@ public class ScriptEvaluator {
 		Annotator annotator = new Annotator();
 		try{
 			
+			if (viewer.getParameter(Constants.TRACKNAME) == null || ((String)viewer.getParameter(Constants.TRACKNAME)).length() == 0){
+				annotator.deannotate((Viewer)viewer);
+				return;
+			}
+			
 			String trackName = (String) viewer.getParameter(Constants.TRACKNAME);
 			String trackFileName = (String) viewer.getParameter(Constants.TRACKFILENAME);
 			String color = (String) viewer.getParameter(Constants.ANNOTATIONCOLOR);

@@ -20,4 +20,8 @@ public interface Constants {
 	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 	
+	int DEFAULTWIREFRAME = 5;
+	int DEFAULTHIGHLIGHTWIREFRAME = 10;
+	String DEFAULTCOLOR = " structure";
+	
 }

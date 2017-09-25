@@ -136,6 +136,7 @@ import org.jmol.viewer.StateManager.Orientation;
 import org.jmol.viewer.binding.Binding;
 import org.openscience.jmol.app.jmolpanel.DisplayPanel;
 
+import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
@@ -2149,7 +2150,7 @@ public void callExtractPDB(String fileName) {
 		
 		//evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe 30;color atomsequence;", "",false, true, true, true);		
 		int numberOfChain = CommonFunctions.countChain(modelSet);
-		String script = "restrict bonds not selected;select not selected;wireframe 5;";
+		String script = "restrict bonds not selected;select not selected;wireframe " + Constants.DEFAULTWIREFRAME + ";";
 		if (numberOfChain > 1){
 			script += "color chain;";
 			if (numberOfChain > 5) script += "zoom 50;";
@@ -2183,7 +2184,7 @@ public void callExtractPDB(String fileName) {
    * @param command
    */
   public void highlightFragment(String command){
-	  evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe 10;color group;", "",false, true, true, true);
+	  evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe " + Constants.DEFAULTHIGHLIGHTWIREFRAME + ";color group;", "",false, true, true, true);
   }
 	
 		
