@@ -5961,6 +5961,7 @@ public class ScriptEvaluator {
 		ConvertPDB2GSS pdb2GSSConverter = new ConvertPDB2GSS();
 		try{
 			pdb2GSSConverter.convertToGSS(pdbFile, mappingFile, gssFile);
+			viewer.displayMessage(new String[]{"File converted successfully!"});
 		}catch(Exception ex){
 			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();

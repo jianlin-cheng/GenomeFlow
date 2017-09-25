@@ -1680,65 +1680,90 @@ public void showStatus(String message) {
 		    };
 		            
 		    
-		    panel.setLayout(new GridBagLayout());  	        
+		    panel.setLayout(new GridBagLayout());
+		    
+		    int y = 0;
 		    	        
 		    gbc.gridx = 0;
-		    gbc.gridy = 0;	                
+		    gbc.gridy = y;	                
 		    panel.add(new JLabel("Input PDB file:"), gbc);
 		    
 		    gbc.gridx = 1;
-		    gbc.gridy = 0;
+		    gbc.gridy = y;
 		    pdbFileField.setPreferredSize(new Dimension(300, 21));
 		    panel.add(pdbFileField, gbc);
 		    	        
 		    
 		    gbc.gridx = 2;
-		    gbc.gridy = 0;	        
+		    gbc.gridy = y;	        
 		    panel.add(openPDBFileButton, gbc);
 		    	        
-		   	
+		   	y++;
 		    gbc.gridx = 0;
-		    gbc.gridy = 1;	        	        
+		    gbc.gridy = y;	        	        
 		    panel.add(new JLabel("Input mapping file:"), gbc);	        
 		
 		    gbc.gridx = 1;
-		    gbc.gridy = 1;
+		    gbc.gridy = y;
 		    mappingFileField.setPreferredSize(new Dimension(300, 21));
 		    panel.add(mappingFileField, gbc);
 		    
 		    gbc.gridx = 2;
-		    gbc.gridy = 1;	
+		    gbc.gridy = y;	
 		    panel.add(openMappingFileButton, gbc);
 		    
-		
+		    y++;
 		    gbc.gridx = 0;
-		    gbc.gridy = 2;	
+		    gbc.gridy = y;	
 		    panel.add(new JLabel("Output GSS file:"), gbc);
 		    
 		
 		    gbc.gridx = 1;
-		    gbc.gridy = 2;
+		    gbc.gridy = y;
 		    gssFileField.setPreferredSize(new Dimension(300, 21));
 		    panel.add(gssFileField, gbc);
 		    
 		    gbc.gridx = 2;
-		    gbc.gridy = 2;
+		    gbc.gridy = y;
 		    gbc.gridwidth = 1;	
 		    panel.add(openGSSFileButton, gbc);
-		    	
+		    
+		   
+		    /*
 		    int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
 		        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
+		    */
 		    
-		    if (result == JOptionPane.OK_OPTION) {
-		        	        	
-		    	viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
-		    	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
-		    	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
-		    	
-		    	script = "pdb2GSS";
-		    	viewer.script(script);	        	
-		        
-		    } 
+		    Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setLocation(400, 400);
+	        
+	        subFrame.add(panel);
+	        subFrame.setVisible(true);
+	        
+	        JButton runButton = new JButton("Convert");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
+			    	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
+			    	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
+			    	
+			    	script = "pdb2GSS";
+			    	viewer.script(script);	
+					
+			    	
+				}
+			});
+	    	
+	    	y++;
+	    	gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+	    	panel.add(runButton, gbc);
+	    	
 		}
   }
 

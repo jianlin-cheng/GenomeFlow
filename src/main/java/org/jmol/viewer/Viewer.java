@@ -2167,7 +2167,7 @@ public void callExtractPDB(String fileName) {
    */
   public void displayMessage(String[] msg){
 	  
-	  if (getFullPathName() == null){
+	  if (getFullPathName() == null || getFullPathName().equals("Gmol") ){
 		  int[] selectedPath = { 1, 0, 0, 0, 0 };		  	  
 		  createModelSetAndReturnError((Object)"", false, new StringBuffer(""), 2, selectedPath, true);
 	  }
