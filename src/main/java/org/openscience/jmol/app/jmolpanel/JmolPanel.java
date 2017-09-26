@@ -43,7 +43,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
@@ -117,6 +116,9 @@ import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+import juicebox.data.Dataset;
+import juicebox.data.HiCFileTools;
+import juicebox.tools.clt.old.Dump;
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -159,6 +161,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private LorDG3DModeller lorDGModellerAction = new LorDG3DModeller(); //Tuan added
   private LoopDetectorAction loopDetectAction = new LoopDetectorAction(); //Tuan added
   private AnnotationAction annotationAction = new AnnotationAction(); //Tuan added
+  private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
   
   
   
@@ -199,6 +202,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String lorDG3DModellerAction = "LorDG";//Tuan added
   private static final String loopDetectorAction = "LoopDetector";//Tuan added
   private static final String annotateAction = "Annotate";//Tuan added
+  private static final String extractHiC = "ExtractHiC";//Tuan added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1088,7 +1092,8 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(), extractPDBAction, 
+      				pdb2GSSAction, lorDGModellerAction, loopDetectAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1325,6 +1330,115 @@ public void showStatus(String message) {
   
   
   //added end -hcf
+
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class ExtractHiCAction extends NewAction{
+	  
+	  Dump dump = new Dump();
+	  Dataset dataset = null;
+	  
+	  ExtractHiCAction(){
+		  super(extractHiC);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(600, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y=0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Path to .hic file:"), gbc);
+		  
+		  JTextField pathField = new JTextField();
+		  pathField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(pathField, gbc);
+		  
+		  JButton browserFileButton = new JButton("Browse file (if locally)");
+		  browserFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					pathField.setText(pathField.getText() + fileName + ";");					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(browserFileButton, gbc);
+		  
+		  
+		  y++;
+		  JButton loadFileButton = new JButton("Load");
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  panel.add(loadFileButton, gbc);
+		  
+		  y++;
+		  
+		  
+		  
+		  loadFileButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				List<String> files = new ArrayList<String>();
+				for (String s : pathField.getText().split(";")){
+					files.add(s);
+				}
+				
+				dataset = HiCFileTools.extractDatasetForCLT(files, false);
+				
+			}
+		});
+		  
+		  
+		
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(600, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+		
+		  subFrame.addWindowListener(new WindowAdapter() {
+			
+			
+			  @Override
+			  public void windowClosing(WindowEvent e) {
+				  viewer.setStringProperty(Constants.TRACKNAME, "");
+				  String script = "annotate";
+				  viewer.script(script);
+				
+			  }				
+			
+		  });
+	  	}
+  	}
   
   /**
    * 

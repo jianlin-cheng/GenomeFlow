@@ -250,6 +250,8 @@ public class GuiMap {
     labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
     labels.put("Annotate", "Annotation");
     labels.put("AnnotateTip", "Click to add annotation to the 3D model");
+    labels.put("ExtractHiC", "Extract HiC");
+    labels.put("ExtractHiCTip", "Extract HiC to sparse matrix format");
     //end
     
   }

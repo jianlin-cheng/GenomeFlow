@@ -5994,7 +5994,7 @@ public class ScriptEvaluator {
 		double conversionFactor = 0;
 		String conversionFactorStr = (String)viewer.getParameter(Constants.CONVERSIONFACTOR);
 		if (conversionFactorStr.length() > 0){
-			Double.parseDouble(conversionFactorStr);
+			conversionFactor = Double.parseDouble(conversionFactorStr);
 		}
 		double learningRate = Double.parseDouble((String)viewer.getParameter(Constants.LEARNINGRATE));
 		int maxIteration = Integer.parseInt((String)viewer.getParameter(Constants.MAXITERATION));
