@@ -68,6 +68,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -82,6 +83,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
@@ -124,11 +126,15 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
-import edu.missouri.chenglab.swingutilities.CustomizedWorker;
+import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
+import edu.missouri.chenglab.swingutilities.ReadHiCHeaderWorker;
+import juicebox.HiC;
 import juicebox.data.Dataset;
 import juicebox.tools.clt.old.Dump;
 import juicebox.windowui.HiCZoom;
+import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
@@ -1434,7 +1440,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 2;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  gbc.anchor = GridBagConstraints.EAST;
+		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(new JLabel("Resolution:"), gbc);
 		  
 		  JComboBox<String> resolutionList = new JComboBox<String>();
@@ -1448,7 +1454,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 4;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  gbc.anchor = GridBagConstraints.EAST;
+		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(new JLabel("Normalization:"), gbc);
 		  
 		  JComboBox<String> normalizationList = new JComboBox<String>();
@@ -1531,6 +1537,69 @@ public void showStatus(String message) {
 		  chr2ToField.setEnabled(false);
 		  panel.add(chr2ToField, gbc);
 		  
+		  chr1FromField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = chr1FromField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						chr1FromField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+		  });
+		  
+		  chr1ToField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = chr1ToField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						chr1ToField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+		  });
+		  chr2FromField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = chr2FromField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						chr2FromField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+		  });
+		  
+		  chr2ToField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = chr2ToField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						chr2ToField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+		  });
+		  
 		  
 		  
 		  loadFileButton.addActionListener(new ActionListener() {
@@ -1549,11 +1618,12 @@ public void showStatus(String message) {
 				  }
 				
 				  Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-				  final JDialog dialog = new JDialog(win, "Loading file", ModalityType.APPLICATION_MODAL);
+				  JDialog dialog = new JDialog(win, "Loading file ...", ModalityType.APPLICATION_MODAL);
+				  dialog.setPreferredSize(new Dimension(200,80));
 
 				  			      
 						  
-				  CustomizedWorker loadFileWorker = new CustomizedWorker(files);
+				  ReadHiCHeaderWorker loadFileWorker = new ReadHiCHeaderWorker(files);
 				  
 				  loadFileWorker.addPropertyChangeListener(new PropertyChangeListener() {
 					
@@ -1581,7 +1651,7 @@ public void showStatus(String message) {
 									chrom2List.addItem(chrom.getName());
 								}
 								
-								
+								resolutionList.removeAllItems();
 								for(HiCZoom res: dataset.getBpZooms()){
 									resolutionList.addItem(res.getKey());
 								}
@@ -1589,7 +1659,8 @@ public void showStatus(String message) {
 									resolutionList.addItem(res.getKey());
 								}
 								
-								for(NormalizationType norm : dataset.getNormalizationTypes()){
+								normalizationList.removeAllItems();
+								for(NormalizationType norm : dataset.getNormalizationTypes()){									
 									normalizationList.addItem(norm.getLabel());
 								}
 								
@@ -1615,18 +1686,16 @@ public void showStatus(String message) {
 						}
 						
 					}
-				  });
-				  
+				  });				  
 				  
 				  loadFileWorker.execute();
-				 
 				  
 				  JProgressBar progressBar = new JProgressBar();
 			      progressBar.setIndeterminate(true);
 			      JPanel panel = new JPanel(new BorderLayout());
 			      
 			      panel.add(progressBar, BorderLayout.CENTER);
-			      panel.add(new JLabel("Loading data..."), BorderLayout.PAGE_START);
+			      panel.add(new JLabel(""), BorderLayout.PAGE_START);
 			      dialog.add(panel);
 			      dialog.pack();
 			      dialog.setLocationRelativeTo(win);
@@ -1636,9 +1705,173 @@ public void showStatus(String message) {
 		  });
 		  
 		  
+		  JRadioButton observedOption = new JRadioButton("Observed");
+	      JRadioButton OEoption = new JRadioButton("Observed/Expected");
+	      
+	 
+	      ButtonGroup matrixTypeGroup = new ButtonGroup();	      
+	      matrixTypeGroup.add(OEoption);
+	      matrixTypeGroup.add(observedOption);
+	      y++;
+	      gbc.gridx = 0;
+	      gbc.gridy = y;
+	      gbc.gridwidth = 1;
+	      panel.add(new JLabel("Matrix type:"), gbc);
+	      
+	      gbc.gridx = 1;
+	      gbc.gridy = y;
+	      panel.add(observedOption, gbc);
+	      
+	      gbc.gridx = 2;
+	      gbc.gridy = y;
+	      panel.add(OEoption, gbc);
+	    		  
 		  
 		  
+		  JTextField outputFileField = new JTextField("");
+		  outputFileField.setPreferredSize(new Dimension(300,20));
 		  
+		  JButton outputFileButton = new JButton("Browse File");
+		    //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
+		    
+		  outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+				}
+		  });
+		    
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Output file:"), gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(outputFileField, gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(outputFileButton, gbc);
+		  
+		  
+		  JButton extractButton = new JButton("Extract data");
+		  extractButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				if (matrixTypeGroup.getSelection() == null) {
+					JOptionPane.showMessageDialog(null, "Please select matrix type!");
+					return;
+				}
+				
+				ReadHiCData readHiCData = new ReadHiCData();				
+				
+				List<Chromosome> chromosomeList = dataset.getChromosomes();
+			    Map<String, Chromosome> chromosomeMap = new HashMap<String, Chromosome>();
+		        for (Chromosome c : chromosomeList) {
+		            chromosomeMap.put(c.getName(), c);
+		        }
+		        
+				Chromosome chr1 = chromosomeMap.get(chrom1List.getItemAt(chrom1List.getSelectedIndex())); 
+				Chromosome chr2 = chromosomeMap.get(chrom2List.getItemAt(chrom2List.getSelectedIndex()));
+				NormalizationType norm = NormalizationType.enumValueFromString((String)normalizationList.getItemAt(normalizationList.getSelectedIndex()));
+				
+				String res = resolutionList.getItemAt(resolutionList.getSelectedIndex());
+				HiC.Unit unit = HiC.Unit.BP;
+				if (res.contains("FRAG")) unit =  HiC.Unit.FRAG;
+				int binSize = Integer.parseInt(res.split("_")[1]);
+				
+				HiCZoom zoom = new HiCZoom(unit, binSize);
+				String matrix = matrixTypeGroup.getSelection().toString();
+				if (!matrix.equals("Observed")) matrix = "oe";
+				MatrixType matrixType = MatrixType.enumValueFromString(matrix);
+				String outputfile = outputFileField.getText();
+				
+				if (chr1FromField.getText().length() > 0 && chr1ToField.getText().length() > 0 &&
+						chr2FromField.getText().length() > 0 && chr2ToField.getText().length() > 0){
+					
+				
+					int id1 = Integer.parseInt(chr1FromField.getText());
+					int id2 = Integer.parseInt(chr1ToField.getText());
+					int id3 = Integer.parseInt(chr2FromField.getText());
+					int id4 = Integer.parseInt(chr2ToField.getText());
+					
+					ReadHiCData.setRegionIndices(new int[]{id1, id2, id3, id4});
+					ReadHiCData.setUseRegionIndices(true);				
+				}else{
+					ReadHiCData.setUseRegionIndices(false);
+				}
+				
+				readHiCData.setDataset(dataset);
+				readHiCData.setMatrixType(matrixType);
+				readHiCData.setNorm(norm);
+				readHiCData.setZoom(zoom);
+				readHiCData.setChrom1(chr1);
+				readHiCData.setChrom2(chr2);
+				readHiCData.setOutputFile(outputfile);
+				
+				
+				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				final JDialog dialog = new JDialog(win, "Extracting data ... please wait !", ModalityType.APPLICATION_MODAL);
+				dialog.setPreferredSize(new Dimension(300,80));
+
+				ExtractHiCWorker extractDataWorker = new ExtractHiCWorker(readHiCData);
+				  
+				extractDataWorker.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								
+								win.setEnabled(true);
+								dialog.dispose();
+								JOptionPane.showMessageDialog(null, "Data is extracted!");
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });				  
+				  
+				extractDataWorker.execute();
+				  
+				JProgressBar progressBar = new JProgressBar();
+			    progressBar.setIndeterminate(true);
+			    JPanel panel = new JPanel(new BorderLayout());
+			      
+			    panel.add(progressBar, BorderLayout.CENTER);
+			    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			    dialog.add(panel);
+			    dialog.pack();
+			    dialog.setLocationRelativeTo(win);
+			    dialog.setVisible(true);			      
+			}
+		  });
+		  
+		  y++;
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  panel.add(extractButton, gbc);
 		  
 		  
 		

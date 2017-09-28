@@ -1,19 +1,17 @@
 package edu.missouri.chenglab.swingutilities;
 
-import java.awt.Cursor;
 import java.util.List;
 
-import javax.swing.JButton;
 import javax.swing.SwingWorker;
 
-import juicebox.data.HiCFileTools;
 import juicebox.data.Dataset;
+import juicebox.data.HiCFileTools;
 
-public class CustomizedWorker extends SwingWorker<Dataset,Integer>{
+public class ReadHiCHeaderWorker extends SwingWorker<Dataset,Integer>{
 	private List<String> files;
 	//private JButton runButton;
 	
-	public CustomizedWorker(List<String> files){
+	public ReadHiCHeaderWorker(List<String> files){
 		this.files = files;
 		//this.runButton = button;
 		//runButton.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
