@@ -27,6 +27,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -35,6 +36,7 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -70,6 +72,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -77,18 +81,23 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
+import org.broad.igv.feature.Chromosome;
 import org.jmol.api.Interface;
 import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolViewer;
@@ -116,9 +125,11 @@ import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+import edu.missouri.chenglab.swingutilities.CustomizedWorker;
 import juicebox.data.Dataset;
-import juicebox.data.HiCFileTools;
 import juicebox.tools.clt.old.Dump;
+import juicebox.windowui.HiCZoom;
+import juicebox.windowui.NormalizationType;
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -1093,7 +1104,7 @@ public void showStatus(String message) {
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
       new searchGenomeSequenceTableAction(), extractPDBAction, 
-      				pdb2GSSAction, lorDGModellerAction, loopDetectAction}//last four added -hcf, Tuan added pdb2GSSAction
+      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1354,7 +1365,7 @@ public void showStatus(String message) {
 		  JPanel panel = new JPanel(){
 			  @Override
 			  public Dimension getPreferredSize() {
-				  return new Dimension(600, 300);
+				  return new Dimension(800, 300);
 			  }	       
 		  };
 		  
@@ -1389,29 +1400,245 @@ public void showStatus(String message) {
 		  
 		  y++;
 		  JButton loadFileButton = new JButton("Load");
-		  gbc.gridx = 2;
+		  gbc.gridx = 1;
 		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
 		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(loadFileButton, gbc);
 		  
 		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 6;
+		  JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+		  separator.setPreferredSize(new Dimension(750,5));
+		  panel.add(separator, gbc);
+		  
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.EAST;
+		  panel.add(new JLabel("Genome:"), gbc);
+		  
+		  JTextField genomeField = new JTextField("---");
+		  genomeField.setPreferredSize(new Dimension(100,20));
+		  genomeField.setEnabled(false);
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(genomeField, gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.EAST;
+		  panel.add(new JLabel("Resolution:"), gbc);
+		  
+		  JComboBox<String> resolutionList = new JComboBox<String>();
+		  resolutionList.setPreferredSize(new Dimension(100,20));
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(resolutionList, gbc);
+		  
+		  gbc.gridx = 4;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.EAST;
+		  panel.add(new JLabel("Normalization:"), gbc);
+		  
+		  JComboBox<String> normalizationList = new JComboBox<String>();
+		  normalizationList.setPreferredSize(new Dimension(100,20));
+		  gbc.gridx = 5;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(normalizationList, gbc);
+		  
+		  
+		  JComboBox<String> chrom1List = new JComboBox<String>();		  
+		  JComboBox<String> chrom2List = new JComboBox<String>();
+		  
+		  chrom1List.setPreferredSize(new Dimension(100,20));
+		  chrom2List.setPreferredSize(new Dimension(100,20));
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  panel.add(new JLabel("Chromosome 1"), gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("From"), gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("To"), gbc);
+
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Chromosome 2"), gbc);
+		  
+		  gbc.gridx = 4;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("From"), gbc);
+		  
+		  gbc.gridx = 5;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("To"), gbc);
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;		  
+		  panel.add(chrom1List, gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  JTextField chr1FromField = new JTextField();
+		  chr1FromField.setPreferredSize(new Dimension(100,20));
+		  chr1FromField.setEnabled(false);
+		  panel.add(chr1FromField, gbc);
+
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  JTextField chr1ToField = new JTextField();
+		  chr1ToField.setPreferredSize(new Dimension(100,20));
+		  chr1ToField.setEnabled(false);
+		  panel.add(chr1ToField, gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(chrom2List, gbc);
+		  
+		  gbc.gridx = 4;
+		  gbc.gridy = y;
+		  JTextField chr2FromField = new JTextField();
+		  chr2FromField.setPreferredSize(new Dimension(100,20));
+		  chr2FromField.setEnabled(false);
+		  panel.add(chr2FromField, gbc);
+
+		  gbc.gridx = 5;
+		  gbc.gridy = y;
+		  JTextField chr2ToField = new JTextField();
+		  chr2ToField.setPreferredSize(new Dimension(100,20));
+		  chr2ToField.setEnabled(false);
+		  panel.add(chr2ToField, gbc);
 		  
 		  
 		  
 		  loadFileButton.addActionListener(new ActionListener() {
 			
-			@Override
-			public void actionPerformed(ActionEvent e) {
+			  @Override
+			  public void actionPerformed(ActionEvent e) {
+				  
+				  chrom1List.removeAllItems();
+				  chrom2List.removeAllItems();
+				  
+				  loadFileButton.setEnabled(false);
+				  
+				  List<String> files = new ArrayList<String>();
+				  for (String s : pathField.getText().split(";")){
+					  files.add(s);
+				  }
 				
-				List<String> files = new ArrayList<String>();
-				for (String s : pathField.getText().split(";")){
-					files.add(s);
-				}
-				
-				dataset = HiCFileTools.extractDatasetForCLT(files, false);
-				
-			}
-		});
+				  Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				  final JDialog dialog = new JDialog(win, "Loading file", ModalityType.APPLICATION_MODAL);
+
+				  			      
+						  
+				  CustomizedWorker loadFileWorker = new CustomizedWorker(files);
+				  
+				  loadFileWorker.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								try{
+									dataset = loadFileWorker.get();
+								}catch(Exception ex){
+									break;
+								}
+								
+								genomeField.setText(dataset.getGenomeId());
+								
+								List<Chromosome> chroms = dataset.getChromosomes();
+								chrom1List.removeAllItems();
+								chrom2List.removeAllItems();
+								for(Chromosome chrom : chroms){
+									chrom1List.addItem(chrom.getName());
+									chrom2List.addItem(chrom.getName());
+								}
+								
+								
+								for(HiCZoom res: dataset.getBpZooms()){
+									resolutionList.addItem(res.getKey());
+								}
+								for(HiCZoom res: dataset.getFragZooms()){
+									resolutionList.addItem(res.getKey());
+								}
+								
+								for(NormalizationType norm : dataset.getNormalizationTypes()){
+									normalizationList.addItem(norm.getLabel());
+								}
+								
+								chr1FromField.setEnabled(true);
+								chr1ToField.setEnabled(true);
+								chr2FromField.setEnabled(true);
+								chr2ToField.setEnabled(true);
+								
+								loadFileButton.setEnabled(true);
+								win.setEnabled(true);
+								dialog.dispose();
+								
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });
+				  
+				  
+				  loadFileWorker.execute();
+				 
+				  
+				  JProgressBar progressBar = new JProgressBar();
+			      progressBar.setIndeterminate(true);
+			      JPanel panel = new JPanel(new BorderLayout());
+			      
+			      panel.add(progressBar, BorderLayout.CENTER);
+			      panel.add(new JLabel("Loading data..."), BorderLayout.PAGE_START);
+			      dialog.add(panel);
+			      dialog.pack();
+			      dialog.setLocationRelativeTo(win);
+			      dialog.setVisible(true);
+			      
+			  }
+		  });
+		  
+		  
+		  
+		  
+		  
 		  
 		  
 		
@@ -1419,7 +1646,7 @@ public void showStatus(String message) {
 		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		
 		  Frame subFrame = new JFrame();
-		  subFrame.setSize(new Dimension(600, 400));
+		  subFrame.setSize(new Dimension(800, 400));
 		  subFrame.setLocation(400, 400);
 		
 		  subFrame.add(scrollpane, BorderLayout.CENTER);
@@ -1429,10 +1656,7 @@ public void showStatus(String message) {
 			
 			
 			  @Override
-			  public void windowClosing(WindowEvent e) {
-				  viewer.setStringProperty(Constants.TRACKNAME, "");
-				  String script = "annotate";
-				  viewer.script(script);
+			  public void windowClosing(WindowEvent e) {				  
 				
 			  }				
 			
