@@ -373,8 +373,13 @@ public class Token {
   //Tuan added for 3D genome functions
   public final static int pdb2gss = scriptCommand | 75 | deprecatedparam;
   public final static int lorDG = scriptCommand | 76 | deprecatedparam;
+  public final static int loopDetector = scriptCommand | 77 | deprecatedparam;
+  public final static int annotate = scriptCommand | 78 | deprecatedparam;
+  public final static int extractHiC = scriptCommand | 79 | deprecatedparam;
+
   //Tosin added for 3D genome functions
-  public final static int struct_3DMax = scriptCommand | 77 | deprecatedparam;
+  public final static int struct_3DMax = scriptCommand | 80 | deprecatedparam;
+
   //end
   
   // shapes:
@@ -2477,7 +2482,10 @@ public class Token {
       //Tuan added for 3D genome function
       "pdb2GSS", 		   new Token(pdb2gss),
       "lorDG", new Token(lorDG),
-    
+      "loopDetector", new Token(loopDetector),
+      "annotate", new Token(annotate),
+      "extractHiC", new Token(extractHiC),
+
       //end
       
       // Tosin added for 3D genome function

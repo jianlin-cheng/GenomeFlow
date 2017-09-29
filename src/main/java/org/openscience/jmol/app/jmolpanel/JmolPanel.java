@@ -53,10 +53,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Random;
 import java.util.StringTokenizer;
 
 import javax.swing.AbstractAction;
@@ -65,10 +67,9 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.ImageIcon;
-import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
+import javax.swing.JColorChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -112,10 +113,15 @@ import org.openscience.jmol.app.jsonkiosk.JsonNioServer;
 import org.openscience.jmol.app.jsonkiosk.KioskFrame;
 import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
-
 import edu.missouri.chenglab.gmol.Constants;
-
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 //added -hcf
+
+/*import juicebox.data.Dataset;
+import juicebox.data.HiCFileTools;
+import juicebox.tools.clt.old.Dump;
+*/
+
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -156,7 +162,13 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   // --- action implementations -----------------------------------
   private ConvertPDB2GSSAction pdb2GSSAction = new ConvertPDB2GSSAction(); //Tuan added
   private LorDG3DModeller lorDGModellerAction = new LorDG3DModeller(); //Tuan added
+  private LoopDetectorAction loopDetectAction = new LoopDetectorAction(); //Tuan added
+  private AnnotationAction annotationAction = new AnnotationAction(); //Tuan added
+  private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
+  
   private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
+ 
+
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -193,8 +205,10 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   // in org.openscience.jmol.Properties.Jmol-resources.properties
   private static final String convertPDB2GSSAction = "PDB2GSS";//Tuan added
   private static final String lorDG3DModellerAction = "LorDG";//Tuan added
+  private static final String loopDetectorAction = "LoopDetector";//Tuan added
+  private static final String annotateAction = "Annotate";//Tuan added
+  private static final String extractHiC = "ExtractHiC";//Tuan added
   private static final String structure3DMAXAction = "3DMax";//Tosin added
-  
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1084,7 +1098,9 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, pdb2GSSAction, lorDGModellerAction,structure3DMaxAction}//last four added -hcf, Tuan added pdb2GSSAction [Tosin added: structure3DMaxAction]
+      new searchGenomeSequenceTableAction(), extractPDBAction, 
+      				pdb2GSSAction, lorDGModellerAction,structure3DMaxAction, loopDetectAction}//last four added -hcf, Tuan added pdb2GSSAction, [Tosin added: structure3DMaxAction]
+
   ;
 
   class CloseAction extends AbstractAction {
@@ -1322,6 +1338,393 @@ public void showStatus(String message) {
   
   //added end -hcf
 
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class ExtractHiCAction extends NewAction{
+	  // commented by Tosin
+	 // Dump dump = new Dump();
+	 // Dataset dataset = null;
+	  
+	  ExtractHiCAction(){
+		  super(extractHiC);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(600, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y=0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Path to .hic file:"), gbc);
+		  
+		  JTextField pathField = new JTextField();
+		  pathField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(pathField, gbc);
+		  
+		  JButton browserFileButton = new JButton("Browse file (if locally)");
+		  browserFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					pathField.setText(pathField.getText() + fileName + ";");					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(browserFileButton, gbc);
+		  
+		  
+		  y++;
+		  JButton loadFileButton = new JButton("Load");
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  panel.add(loadFileButton, gbc);
+		  
+		  y++;
+		  
+		  
+		  
+		  loadFileButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				
+				List<String> files = new ArrayList<String>();
+				for (String s : pathField.getText().split(";")){
+					files.add(s);
+				}
+				
+				// dataset = HiCFileTools.extractDatasetForCLT(files, false); //commented by Tosin
+				
+			}
+		});
+		  
+		  
+		
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(600, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+		
+		  subFrame.addWindowListener(new WindowAdapter() {
+			
+			
+			  @Override
+			  public void windowClosing(WindowEvent e) {
+				  viewer.setStringProperty(Constants.TRACKNAME, "");
+				  String script = "annotate";
+				  viewer.script(script);
+				
+			  }				
+			
+		  });
+	  	}
+  	}
+  
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class AnnotationAction extends NewAction{
+	  int y = 0;
+	  
+	  AnnotationAction(){
+		  super(annotateAction);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  	Map<String, Color> trackColorMap = new HashMap<String, Color>();
+		  	Map<String, String> trackFileNameMap = new HashMap<String, String>();
+		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
+		  	
+	    	GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(600, 300);
+	            }	       
+	        };
+	        panel.setLayout(new GridBagLayout());  
+	        
+	        
+	        JScrollPane scrollpane = new JScrollPane(panel);
+	        scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+	        
+	        Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 400));
+	        subFrame.setLocation(400, 400);
+	        
+	        
+		  	Random rd = new Random();
+		  	Color defaulColor = new Color(rd.nextInt(256), rd.nextInt(256), rd.nextInt(256));		  	
+		  	JLabel colorDisplay = new JLabel("Color to highlight");
+		  	colorDisplay.setBackground(defaulColor);
+		  	colorDisplay.setForeground(defaulColor);	
+		  	
+	        //colorDisplay.setEnabled(false);
+		  
+	    	JTextField trackNameField = new JTextField();
+	    	
+	    	
+	    	JTextField trackFileField = new JTextField();
+	    	
+	    	JButton openTrackFileButton = new JButton("Browse File");		    
+		    
+	    	openTrackFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					trackFileField.setText(fileName);					
+				}
+			});
+	    	
+	    	
+		    
+	    	JButton runButton = new JButton("Annotate");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		return;
+			    	}
+					
+					if (trackFileField.getText().length() == 0){
+						JOptionPane.showMessageDialog(null, "Please specify the track file!");
+			    		return;
+					}
+					if (trackNameField.getText().length() == 0){
+						JOptionPane.showMessageDialog(null, "Please specify track name!");
+			    		return;
+					}else if (trackColorMap.keySet().contains(trackNameField.getText())){
+						JOptionPane.showMessageDialog(null, trackNameField.getText() + " is already used, please specify a different track name!");
+						return;
+					}
+					
+					
+					Color color = colorDisplay.getBackground();
+					
+					
+					if (trackColorMap.values().contains(color)){
+						JOptionPane.showMessageDialog(null, "This color is already used, please choose a different color!");
+						return;
+					}
+					
+					
+					trackColorMap.put(trackNameField.getText(), color);
+					trackFileNameMap.put(trackNameField.getText(), trackFileField.getText());					
+					trackStatusMap.put(trackNameField.getText(), true);
+										
+					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());
+			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
+			    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+			    	
+					
+					String script = "annotate";
+					viewer.script(script);
+					
+					
+					
+					JCheckBox newCheckBox = new JCheckBox(trackNameField.getText());
+					newCheckBox.setBackground(color);
+					//newCheckBox.setForeground(color);
+					newCheckBox.setSelected(true);
+					
+					newCheckBox.addActionListener(new ActionListener() {
+						
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							String track = e.getActionCommand();
+							String script = "annotate";
+							if (newCheckBox.isSelected() && !trackStatusMap.get(track)){																
+								
+								trackStatusMap.put(track, true);
+								
+								String trackFile = trackFileNameMap.get(track);
+								Color color = trackColorMap.get(track);
+								
+								viewer.setStringProperty(Constants.TRACKNAME, track);
+						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+						    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");						    	
+								viewer.script(script);
+								
+							}else{
+								
+								trackStatusMap.put(track, false);
+								viewer.setStringProperty(Constants.TRACKNAME, "");
+								viewer.script(script);
+								try {
+									Thread.sleep(500);
+								} catch (InterruptedException e1) {
+									e1.printStackTrace();
+								}
+								
+								for(String trackName : trackFileNameMap.keySet()){
+									if (trackStatusMap.get(trackName)){
+										String trackFile = trackFileNameMap.get(trackName);
+										Color color = trackColorMap.get(trackName);
+										
+										viewer.setStringProperty(Constants.TRACKNAME, trackName);
+								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+								    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");							    	
+										viewer.script(script);
+										
+										try {
+											Thread.sleep(500);
+										} catch (InterruptedException e1) {											
+											e1.printStackTrace();
+										}
+									}
+								}								
+							}
+						}
+					});
+					
+					y++;
+					gbc.gridx = 0;
+					gbc.gridy = y;
+					gbc.gridwidth = 1;
+					gbc.anchor = GridBagConstraints.WEST;
+					panel.add(newCheckBox, gbc);
+					
+					//subFrame.setPreferredSize(preferredSize);
+					
+					subFrame.validate();
+					subFrame.repaint();
+					
+					//trackCheckBoxes.add(newCheckBox);
+					
+					
+					
+					
+				}
+			});
+	    	
+
+	        
+	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Track name:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        trackNameField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(trackNameField, gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Track file:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        trackFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(trackFileField, gbc);
+	        
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(openTrackFileButton, gbc);
+	        
+	        y++;
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(colorDisplay, gbc);
+	        
+	        gbc.gridx = 2;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        
+	        JButton colorChooserButton = new JButton("Choose color");
+	        colorChooserButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Color color = JColorChooser.showDialog(null, "Choose color to highlight", defaulColor);	
+					colorDisplay.setBackground(color);
+					colorDisplay.setForeground(color);
+				}
+			});
+	        panel.add(colorChooserButton, gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	        
+	        panel.add(runButton, gbc);
+	        
+	        
+	        //////////////////////////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 4;
+	        panel.add(new JLabel("------------------------------------------------ Highlighted tracks ------------------------------------------------"), gbc);
+	                
+	        
+	        subFrame.add(scrollpane, BorderLayout.CENTER);
+	        subFrame.setVisible(true);
+	        
+	        subFrame.addWindowListener(new WindowAdapter() {
+				
+				
+				@Override
+				public void windowClosing(WindowEvent e) {
+					viewer.setStringProperty(Constants.TRACKNAME, "");
+					String script = "annotate";
+					viewer.script(script);
+					
+				}				
+				
+			});
+	        
+	  }
+  }
+  
+
   /*
    * Tuan created a new button to convert PDB format file to GSS
    */
@@ -1330,25 +1733,25 @@ public void showStatus(String message) {
 		  super(convertPDB2GSSAction);
 	  }
 	  
-	    @Override
-	    public void actionPerformed(ActionEvent e) {
-	    	//script = "pdb2GSS";
-	    	//viewer.script(script);
-	    	
-	    	
-	        JTextField pdbFileField = new JTextField();	        
-	        
-	        
-	        JTextField mappingFileField = new JTextField();
-	        //mappingFileField.setPreferredSize(new Dimension(400, 20));
-	        
-	        JTextField gssFileField = new JTextField();
-	        //gssFileField.setPreferredSize(new Dimension(400, 20));
-	        	        
-	        JButton openPDBFileButton = new JButton("Browse File");
-	        //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
-	        
-	        openPDBFileButton.addActionListener(new ActionListener() {				
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			//script = "pdb2GSS";
+			//viewer.script(script);
+			
+			
+		    JTextField pdbFileField = new JTextField();	        
+		    
+		    
+		    JTextField mappingFileField = new JTextField();
+		    //mappingFileField.setPreferredSize(new Dimension(400, 20));
+		    
+		    JTextField gssFileField = new JTextField();
+		    //gssFileField.setPreferredSize(new Dimension(400, 20));
+		    	        
+		    JButton openPDBFileButton = new JButton("Browse File");
+		    //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
+		    
+		    openPDBFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1358,11 +1761,11 @@ public void showStatus(String message) {
 					gssFileField.setText(fileName.replace(".pdb", ".gss"));
 				}
 			});
-	        
-	        
-	        JButton openMappingFileButton = new JButton("Browse File");
-	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
-	        openMappingFileButton.addActionListener(new ActionListener() {				
+		    
+		    
+		    JButton openMappingFileButton = new JButton("Browse File");
+		    //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+		    openMappingFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1371,12 +1774,12 @@ public void showStatus(String message) {
 					mappingFileField.setText(fileName);
 				}
 			});
-	        
-	        
-	        
-	        JButton openGSSFileButton = new JButton("Browse File");
-	        //openGSSFileButton.setPreferredSize(new Dimension(40, 20));
-	        openGSSFileButton.addActionListener(new ActionListener() {				
+		    
+		    
+		    
+		    JButton openGSSFileButton = new JButton("Browse File");
+		    //openGSSFileButton.setPreferredSize(new Dimension(40, 20));
+		    openGSSFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
@@ -1385,9 +1788,140 @@ public void showStatus(String message) {
 					gssFileField.setText(fileName);
 				}
 			});
-	        	        
+		    	        
+		    
+		    GridBagConstraints gbc = new GridBagConstraints();
+		    gbc.insets = new Insets(5, 5, 5, 5);
+		    
+		    JPanel panel = new JPanel(){
+		    	@Override
+		        public Dimension getPreferredSize() {
+		            return new Dimension(600, 120);
+		        }	       
+		    };
+		            
+		    
+		    panel.setLayout(new GridBagLayout());
+		    
+		    int y = 0;
+		    	        
+		    gbc.gridx = 0;
+		    gbc.gridy = y;	                
+		    panel.add(new JLabel("Input PDB file:"), gbc);
+		    
+		    gbc.gridx = 1;
+		    gbc.gridy = y;
+		    pdbFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(pdbFileField, gbc);
+		    	        
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = y;	        
+		    panel.add(openPDBFileButton, gbc);
+		    	        
+		   	y++;
+		    gbc.gridx = 0;
+		    gbc.gridy = y;	        	        
+		    panel.add(new JLabel("Input mapping file:"), gbc);	        
+		
+		    gbc.gridx = 1;
+		    gbc.gridy = y;
+		    mappingFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(mappingFileField, gbc);
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = y;	
+		    panel.add(openMappingFileButton, gbc);
+		    
+		    y++;
+		    gbc.gridx = 0;
+		    gbc.gridy = y;	
+		    panel.add(new JLabel("Output GSS file:"), gbc);
+		    
+		
+		    gbc.gridx = 1;
+		    gbc.gridy = y;
+		    gssFileField.setPreferredSize(new Dimension(300, 21));
+		    panel.add(gssFileField, gbc);
+		    
+		    gbc.gridx = 2;
+		    gbc.gridy = y;
+		    gbc.gridwidth = 1;	
+		    panel.add(openGSSFileButton, gbc);
+		    
+		   
+		    /*
+		    int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
+		        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
+		    */
+		    
+		    Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setLocation(400, 400);
 	        
-	        GridBagConstraints gbc = new GridBagConstraints();
+	        subFrame.add(panel);
+	        subFrame.setVisible(true);
+	        
+	        JButton runButton = new JButton("Convert");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
+			    	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
+			    	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
+			    	
+			    	script = "pdb2GSS";
+			    	viewer.script(script);	
+					
+			    	
+				}
+			});
+	    	
+	    	y++;
+	    	gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+	    	panel.add(runButton, gbc);
+	    	
+		}
+  }
+
+  /*
+   * Tuan created a new button to identify loops
+   */
+  class LoopDetectorAction extends NewAction {
+	  LoopDetectorAction() {
+		  super(loopDetectorAction);
+	  }
+	  
+	    @Override
+	    public void actionPerformed(ActionEvent e) {
+	        	
+
+	    	
+	    	JTextField outputFileField = new JTextField();
+	    	JButton runButton = new JButton("Identify loops");
+	    	runButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		return;
+			    	}
+			    	
+			    	viewer.setStringProperty(Constants.OUTPUTLOOPFILE, outputFileField.getText());
+			    	
+		        	script = "loopDetector";        	
+			    	viewer.script(script);
+					
+				}
+			});
+	    	
+	    	GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
 	        
 	        JPanel panel = new JPanel(){
@@ -1396,74 +1930,54 @@ public void showStatus(String message) {
 	                return new Dimension(600, 120);
 	            }	       
 	        };
-	                
+	        panel.setLayout(new GridBagLayout());  
 	        
-	        panel.setLayout(new GridBagLayout());  	        
-	        	        
 	        gbc.gridx = 0;
 	        gbc.gridy = 0;	                
-	        panel.add(new JLabel("Input PDB file:"), gbc);
+	        panel.add(new JLabel("Output file(optional):"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = 0;
-	        pdbFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(pdbFileField, gbc);
-	        	        
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
 	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 0;	        
-	        panel.add(openPDBFileButton, gbc);
-	        	        
-	       	
-	        gbc.gridx = 0;
-	        gbc.gridy = 1;	        	        
-	        panel.add(new JLabel("Input mapping file:"), gbc);	        
-	
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = 0;
+	        gbc.gridwidth = 1;
+	        JButton openFileButton = new JButton("Browse File");	        
+	        openFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+				}
+			});
+	        panel.add(openFileButton, gbc);
+	        
+	        
 	        gbc.gridx = 1;
 	        gbc.gridy = 1;
-	        mappingFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(mappingFileField, gbc);
+	        //gbc.gridwidth
+	        panel.add(runButton, gbc);
 	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 1;	
-	        panel.add(openMappingFileButton, gbc);
+	        Frame subFrame = new JFrame();
+	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setLocation(400, 400);
 	        
-
-	        gbc.gridx = 0;
-	        gbc.gridy = 2;	
-	        panel.add(new JLabel("Output GSS file:"), gbc);
+	        subFrame.add(panel);
+	        subFrame.setVisible(true);
 	        
-	
-	        gbc.gridx = 1;
-	        gbc.gridy = 2;
-	        gssFileField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(gssFileField, gbc);
-	        
-	        gbc.gridx = 2;
-	        gbc.gridy = 2;
-	        gbc.gridwidth = 1;	
-	        panel.add(openGSSFileButton, gbc);
-	        
-	        
-	        	
-	        int result = JOptionPane.showConfirmDialog(null, panel, "Convert PDB to GSS",
-	            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE );
-	        
-	        if (result == JOptionPane.OK_OPTION) {
-	            	        	
-	        	viewer.setStringProperty(Constants.INPUTPDBFILE, pdbFileField.getText());
-	        	viewer.setStringProperty(Constants.INPUTMAPPINGFILE, mappingFileField.getText());
-	        	viewer.setStringProperty(Constants.OUTPUTGSSFILE, gssFileField.getText());
-	        	
-	        	script = "pdb2GSS";
-		    	viewer.script(script);	        	
-	            
-	        } 
+	         
 	    }
   }
 
+  
   /*
-   * Tuan created a new button to convert PDB format file to GSS
+   * Tuan created a new button for LorDG function
    */
   class LorDG3DModeller extends NewAction {
 	  LorDG3DModeller() {
@@ -1664,7 +2178,7 @@ public void showStatus(String message) {
 			panel.add(isMultipleChrom, gbc);
 			
 			JLabel chromLenLabel = new JLabel("Length of chromosomes:");
-			JTextField chromLengthField = new JTextField("100,200");
+			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
 			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
 			
 			isMultipleChrom.addChangeListener(new ChangeListener() {
@@ -1768,6 +2282,15 @@ public void showStatus(String message) {
 					if (conversion < 0.2 && conversion > 3.5){
 						JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
 						conversionFactorField.setText("1.0");
+						return;
+					}
+					
+					if (!CommonFunctions.isFile(inputContactFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify a contact file as input");
+						return;
+					}
+					if (!CommonFunctions.isFolder(outputGSSFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify an out folder");
 						return;
 					}
 					

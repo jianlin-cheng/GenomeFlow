@@ -670,6 +670,10 @@ REMARK 290 REMARK: NULL
       chainAtomCounts[ch]++;
     atom.chainID = ch;
 
+    //Tuan added
+    atom.chrID = ch - 'A' + 1;
+    //End
+    
     atom.sequenceNumber = parseInt(line, 22, 26);
     
     atom.insertionCode = JmolAdapter.canonizeInsertionCode(line.charAt(26));

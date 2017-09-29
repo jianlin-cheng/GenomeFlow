@@ -165,8 +165,11 @@ public class GradientAscent {
 			//step_size = initialLearingRate / (Math.sqrt(count));
 			
 			if (tmpFolder != null && (count % 30 == 0 || count < 100) ){			
-				String tmpFile = tmpFolder + "/iteration_" + count + ".gss";
-				helper.writeStructureGSS(tmpFile,variables, inputPara.getLstPos(), idToChr);
+				
+				String tmpFileGss = tmpFolder + "/iteration_" + count + ".gss";
+				String tmpFilePdb = tmpFolder + "/iteration_" + count + ".pdb";
+				helper.writeStructureGSS(tmpFileGss,variables, inputPara.getLstPos(), idToChr);
+				helper.writeStructure(tmpFilePdb,variables, idToChr, "");				
 				
 				if (inputPara.getViewer() != null){					
 					
@@ -174,11 +177,12 @@ public class GradientAscent {
 						inputPara.getViewer().loadNewModel(tmpFile);
 					}else{*/
 						
-						String msg = "Conversion factor:" + String.format("%.2f", inputPara.getConvert_factor());
+						String msg = "Conversion factor: " + String.format("%.2f", inputPara.getConvert_factor());
+						String msgObj = "Objective function: " + String.format("%.3f",objectiveFn);
 						if (inputPara.isSearchingConversionFactor()){
-							inputPara.getViewer().loadNewModel(tmpFile, new String[]{"Searching conversion factor...",msg});
+							inputPara.getViewer().loadNewModel(tmpFilePdb, new String[]{"Searching conversion factor...",msg, msgObj});
 						}else{
-							inputPara.getViewer().loadNewModel(tmpFile, msg);
+							inputPara.getViewer().loadNewModel(tmpFilePdb, msg, msgObj);
 						}
 						
 						
@@ -187,7 +191,8 @@ public class GradientAscent {
 					//if (count < 60) Thread.sleep(1000);					
 				}
 				
-				helper.delete_file(tmpFile);
+				helper.delete_file(tmpFileGss);
+				helper.delete_file(tmpFilePdb);
 			}	
 			
 			if (inputPara.isStopRunning()){

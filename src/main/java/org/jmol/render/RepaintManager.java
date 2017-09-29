@@ -29,9 +29,11 @@ import org.jmol.api.JmolRendererInterface;
 import org.jmol.api.JmolRepaintInterface;
 import org.jmol.g3d.Graphics3D;
 import org.jmol.modelset.ModelSet;
+import org.jmol.shape.Scales;
 import org.jmol.shape.Shape;
 import org.jmol.util.Colix;
 import org.jmol.util.GData;
+import org.jmol.util.JmolFont;
 import org.jmol.util.Logger;
 import org.jmol.util.Rectangle;
 import org.jmol.viewer.JmolConstants;
@@ -185,10 +187,29 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
         if (logTime)
           Logger.checkTimer("render time " + JmolConstants.getShapeClassName(i, false));
       }
+      
     } catch (Exception e) {
       e.printStackTrace();
       Logger.error("rendering error? ");
     }
+
+    //Tuan added
+    Graphics3D g3d = (Graphics3D) gdata;
+    JmolFont font3d = gdata.getFont3D("SansSerif","Bold",12);
+    float imageFontScaling = viewer.getImageFontScaling();
+    int ascent = font3d.getAscent();
+    if (modelSet.message != null){
+    	for(int i = 0; i < modelSet.message.length; i++){	    	
+	    	int width = font3d.stringWidth(modelSet.message[i]) + 10;
+	    	int dx = (int) (width + Scales.margin * imageFontScaling);
+	        int dy = ascent;
+	    	g3d.drawStringNoSlab(modelSet.message[i], font3d, g3d.getRenderWidth() - dx, (i+3)*dy, 0);    	
+    	}
+    }
+    //End
+    
+    
+    
   }
 
   

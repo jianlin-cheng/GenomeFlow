@@ -12,12 +12,23 @@ public interface Constants {
 	String CHROMOSOMELEN = "chromLength";
 	String LEARNINGRATE = "learningRate";
 	
+	String OUTPUTLOOPFILE = "outputLoopFile";
+	
+	String TRACKNAME = "trackName";
+	String TRACKFILENAME = "trackFileName";
+	String ANNOTATIONCOLOR = "annotationColor";
 	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
-	
+	int DEFAULTWIREFRAME = 5;
+	int DEFAULTHIGHLIGHTWIREFRAME = 10;
+	String DEFAULTCOLOR = " structure";
+
 	//Tosin addded
 	String MINCONVERSIONFACTOR = "minconversionFactor";
 	String MAXCONVERSIONFACTOR = "maxconversionFactor";
 	String IFRESOLUTION = "matrixresolution";
 		
+
+	
+
 }

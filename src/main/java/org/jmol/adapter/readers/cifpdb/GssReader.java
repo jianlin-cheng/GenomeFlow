@@ -337,6 +337,11 @@ public class GssReader extends AtomSetCollectionReader {
 			  }
 			  else if (matcherEnsLine.matches()) {
 				    ensChr = matcherEnsLine.group(2);
+				    
+				    //Tuan added
+				    chrID = Integer.parseInt(ensChr);
+				    //End
+				    
 			  }
 			  else if (matcherLcLine.matches()) {
 				    lcChr = matcherLcLine.group(2);
@@ -351,6 +356,9 @@ public class GssReader extends AtomSetCollectionReader {
 		    	  atom.chrScaleNumber = chrScaleNum;
 		    	  atom.sequenceLength = sequenceLength;
 		    	  atom.chrID = chrID;
+		    	  //Tuan added
+		    	  atom.chainID = (char)(chrID - 1 + 'A');
+		    	  //End
 		    	  atom.fromPos = fromPos;
 		    	  atom.endPos = endPos;
 		    	  atom.spName = spName;
@@ -394,7 +402,7 @@ public class GssReader extends AtomSetCollectionReader {
 		    	  unitY = 0;
 		    	  unitZ = 0;
 		    	  unitRadius = 0;
-		    	  chrID = 0;
+		    	  //chrID = 0;//Tuan change
 		    	  fromPos = 0;
 		    	  endPos = 0;
 		      }
@@ -478,6 +486,10 @@ public class GssReader extends AtomSetCollectionReader {
 		  }
 		  else if (matcherEnsLine.matches()) {
 			    ensChr = matcherEnsLine.group(2);
+			    
+			    //Tuan add
+			    chrID = Integer.parseInt(ensChr);
+			    //End
 		  }
 		  else if (matcherLcLine.matches()) {
 			    lcChr = matcherLcLine.group(2);
@@ -493,6 +505,11 @@ public class GssReader extends AtomSetCollectionReader {
   	    	  atom.chrScaleNumber = chrScaleNum;
   	    	  atom.sequenceLength = sequenceLength;
 	    	  atom.chrID = chrID;
+	    	  
+	    	  //Tuan added
+	    	  atom.chainID = (char)(chrID - 1 + 'A');
+	    	  //End
+	    	  
 	    	  atom.fromPos = fromPos;
 	    	  atom.endPos = endPos;
 	    	  atom.spName = spName;
@@ -581,7 +598,7 @@ public class GssReader extends AtomSetCollectionReader {
   	    	  unitY = 0;
   	    	  unitZ = 0;
   	    	  unitRadius = 0;
-	    	  chrID = 0;
+  	    	//chrID = 0;//Tuan change
 	    	  fromPos = 0;
 	    	  endPos = 0;  	    	  
   	      }
@@ -664,6 +681,10 @@ public class GssReader extends AtomSetCollectionReader {
 		  }
 		  else if (matcherEnsLine.matches()) {
 			    ensChr = matcherEnsLine.group(2);
+			    
+			    //Tuan add
+			    chrID = Integer.parseInt(ensChr);
+			    //End
 		  }
 		  else if (matcherLcLine.matches()) {
 			    lcChr = matcherLcLine.group(2);
@@ -679,6 +700,11 @@ public class GssReader extends AtomSetCollectionReader {
   	    	  atom.chrScaleNumber = chrScaleNum;
   	    	  atom.sequenceLength = sequenceLength;
 	    	  atom.chrID = chrID;
+	    	  
+	    	  //Tuan added
+	    	  atom.chainID = (char)(chrID - 1 + 'A');
+	    	  //End
+	    	  
 	    	  atom.fromPos = fromPos;
 	    	  atom.endPos = endPos;
 	    	  atom.spName = spName;
@@ -763,11 +789,15 @@ public class GssReader extends AtomSetCollectionReader {
   	    	  unitY = 0;
   	    	  unitZ = 0;
   	    	  unitRadius = 0;
-	    	  chrID = 0;
+  	    	  //chrID = 0;//Tuan change
 	    	  fromPos = 0;
 	    	  endPos = 0;  	    	  
   	      }
     	}
+	    
+	    //Tuan added
+	    if (atom.atomSerial > maxSerial) maxSerial = atom.atomSerial;
+	    //End
 
     }
 

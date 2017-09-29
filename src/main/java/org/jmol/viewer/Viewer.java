@@ -136,6 +136,8 @@ import org.jmol.viewer.StateManager.Orientation;
 import org.jmol.viewer.binding.Binding;
 import org.openscience.jmol.app.jmolpanel.DisplayPanel;
 
+import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 /*
@@ -2136,17 +2138,6 @@ public void callExtractPDB(String fileName) {
 		int[] selectedPath = { 1, 0, 0, 0, 0 };
 		Atom[] currentUnits = getModelSet().atoms;
 		
-//		if (msg.length > 0){
-//			Graphics3D g3d = (Graphics3D) gdata;
-//			byte defaultFontId  = gdata.getFont3D(JmolConstants.DEFAULT_FONTFACE,JmolConstants.DEFAULT_FONTSTYLE, JmolConstants.LABEL_DEFAULT_FONTSIZE).fid;
-//			g3d.drawStringNoSlab("Ttestestsetstsetsetestset", JmolFont.getFont3D(defaultFontId),  g3d.getRenderWidth() - 120, 50, 0);
-//		
-//		
-//			DisplayPanel display = (DisplayPanel)getDisplay();
-//			display.repaint();
-//		}
-		
-		
 		loadModelFromFile(null, fileName, null, null,
 								false, htParams, loadScript, 0, 2, 0,
 								selectedPath, true, "none", currentUnits);
@@ -2154,21 +2145,48 @@ public void callExtractPDB(String fileName) {
 		//modelSet.message = new String[]{"Conversion: 1.0", "Correlation: 0.8"};
 		if (msg.length > 0){
 			modelSet.message = msg;
-			render();
+			//render();
 		}else modelSet.message = null;
 		
-		
-		//renderScreenImage(gdata, width, height);
-		
-		evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe on;color atomsequence;", "",false, true, true, true);
+		//evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe 30;color atomsequence;", "",false, true, true, true);		
+		int numberOfChain = CommonFunctions.countChain(modelSet);
+		String script = "restrict bonds not selected;select not selected;wireframe " + Constants.DEFAULTWIREFRAME + ";";
+		if (numberOfChain > 1){
+			script += "color chain;";
+			if (numberOfChain > 5) script += "zoom 50;";
+			evalStringWaitStatus("String", script, "",false, true, true, true);
+		}else{
+			script += "color group;";
+			evalStringWaitStatus("String", script, "",false, true, true, true);
+		}
 		
 		//repaint();
-		
-		
   }
-
+  /**
+   * Tuan added to display message while reading data
+   */
+  public void displayMessage(String[] msg){
+	  
+	  if (getFullPathName() == null || getFullPathName().equals("Gmol") ){
+		  int[] selectedPath = { 1, 0, 0, 0, 0 };		  	  
+		  createModelSetAndReturnError((Object)"", false, new StringBuffer(""), 2, selectedPath, true);
+	  }
+	  
+	  
+	  modelSet.message = msg;
+	  repaint();
+	  //evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe on;color atomsequence;", "",false, true, true, true);
+	  	  
+  }
   
-		
+  /**
+   * Tuan added to highlight loops, TADs, ...
+   * @param command
+   */
+  public void highlightFragment(String command){
+	  evalStringWaitStatus("String", "restrict bonds not selected;select not selected;wireframe " + Constants.DEFAULTHIGHLIGHTWIREFRAME + ";color group;", "",false, true, true, true);
+  }
+	
 		
   
  
@@ -5312,7 +5330,7 @@ public void fillAtomData(AtomData atomData, int mode) {
   int scriptIndex;
   boolean isScriptQueued = true;
 
-  //Tuan added options parameter
+  //Tuan added isRepaint parameter
   
 synchronized Object evalStringWaitStatus(String returnType, String strScript,
                                            String statusList,

@@ -25,6 +25,8 @@
 package org.jmol.adapter.smarter;
 
 import java.util.BitSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.vecmath.Point3f;
 
@@ -68,7 +70,7 @@ public class Atom extends Point3f implements Cloneable {
   public String spName = "";
   public String ensChr = "";
   public String lcChr = "";
-
+  
   
   public void setEllipsoid(Quadric e) {
     if (e == null)

@@ -7,6 +7,8 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jmol.viewer.Viewer;
+
 /**
  * Convert .pdb files into .gss file for visualization
  * 
@@ -32,7 +34,7 @@ public class ConvertPDB2GSS {
 			double[][] coords = getCoords(pdbFile);
 			Map<Integer, Integer> map = getIndexGenomicCoordMapping(mappingFile);
 			printOutGSSFile(coords, map, outputFile);			
-		}catch(Exception ex){
+		}catch(Exception ex){			
 			ex.printStackTrace();
 		}
 		

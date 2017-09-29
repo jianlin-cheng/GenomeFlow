@@ -642,6 +642,7 @@ abstract public class JmolViewer {
 	abstract public void loadNewModel(String fileName, String ...msg);
 	abstract public InputParameters getInput3DModeller();	
 	abstract public void setInput3DModeller(InputParameters input3dModeller);
+	abstract public void displayMessage(String[] msg);
 	//end
 
 }

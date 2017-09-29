@@ -721,14 +721,27 @@ public class AtomSetCollection {
 			        atoms = (Atom[])ArrayUtil.ensureLength(atoms, atomCount + 50000);
 			      else
 			        atoms = (Atom[])ArrayUtil.doubleLength(atoms);
-			    }
-			    if (atomSetCount == 0)
-			      newAtomSet();
-			    atom.atomIndex = atomCount;
-			    atoms[atomCount++] = atom;
-			    atom.atomSetIndex = currentAtomSetIndex;
-			    atom.atomSite = atomSetAtomCounts[currentAtomSetIndex]++;
-			    atom.sequenceNumber = atomCount;//key-point: this has been changed in order to supports the genome visualization, each unit has one unique sequenceNumber, all units in one chain(sequenceNumber increasing).
+			}
+		    
+		    if (atomSetCount == 0)
+		      newAtomSet();
+		    atom.atomIndex = atomCount;
+		    atoms[atomCount++] = atom;
+		    atom.atomSetIndex = currentAtomSetIndex;
+		    atom.atomSite = atomSetAtomCounts[currentAtomSetIndex]++;
+		    atom.sequenceNumber = atomCount;//key-point: this has been changed in order to supports the genome visualization, each unit has one unique sequenceNumber, all units in one chain(sequenceNumber increasing).
+		    //Tuan add
+		    if (atom.atomSerial == Integer.MIN_VALUE) atom.atomSerial = atom.atomIndex + 1;//atomIndex starts from 0, atomSerial starts from 1
+		    if (atomCount > 1){
+		    	Atom prevAtom = atoms[atomCount - 2];
+		    	if (atom.chrID == prevAtom.chrID){
+		    		//atomSetCollection.addConnection
+		    		//vConnect.add(new int[]{prevAtom.atomSerial, atom.atomSerial, 1});
+		    		addConnection(new int[]{prevAtom.atomSerial, atom.atomSerial, 1});
+		    	}
+		    }
+		    //End
+		    
 	  }
 	}
  //-added end -hcf 

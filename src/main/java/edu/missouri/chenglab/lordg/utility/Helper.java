@@ -15,8 +15,8 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.lordg.valueObject.Constraint;
+import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 public class Helper {	
 	private DecimalFormat df2 = new DecimalFormat("0.00");
@@ -93,8 +93,18 @@ public class Helper {
 	 * @return
 	 * @throws Exception
 	 */
-	public List<Constraint> readContactList(String fileName, List<Integer> lstPos,double...thres) throws Exception{
+	public List<Constraint> readContactList(InputParameters inputPara, List<Integer> lstPos,double...thres) throws Exception{
+		
+		String fileName = inputPara.getInput_file();
+		
 		File file = new File(fileName);
+		
+		long totalLength = file.length();
+		double lengthPerPercent = 100.0/totalLength;
+		long readLength = 0;
+		int readPercent; 
+		
+		
 		FileReader fr = null;
 		BufferedReader br = null;
 		ArrayList<Constraint> lst = new ArrayList<Constraint>();
@@ -122,8 +132,16 @@ public class Helper {
 			int count = 0;
 			int x,y,nbr = -1; // number of elements in one line
 			double f;
-			//int progress = 0;
+			int prevProgress = 0;
 			while((ln = br.readLine()) != null){
+				
+				readLength += ln.length();
+				readPercent = (int) Math.round(lengthPerPercent * readLength);
+				
+				if (inputPara.getViewer() != null && readPercent > prevProgress && readPercent % 5 == 0){					
+					inputPara.getViewer().displayMessage(new String[]{"Reading input data ... " + readPercent + " %" });
+					prevProgress = readPercent;
+				}
 				
 				if (ln.startsWith("#") || ln.trim().length() == 0 || ln.startsWith("x")){
 					continue;
@@ -137,6 +155,9 @@ public class Helper {
 				count++;
 				
 				if (count == 500000){
+					
+					
+					
 					count = 0;
 					st = splitRegex.split(sb.toString());
 					sb = new StringBuilder();
@@ -768,26 +789,59 @@ public class Helper {
 
 		PrintWriter pw = new PrintWriter(pathFilename);
 		pw.println("<sp>some_species</sp>");
-		pw.println("<ens-chr>1</ens-chr>");
-		pw.println("<lc-seq>unknown</lc-seq>");
-		pw.println("<cs>1");
 		
-		int id, n = structure.length/3;
 		
-		pw.printf("<lt>%d</lt>\n", n);
+		int id, n = 0, start=0, end=0, chrID = 1;
 		double radius = 1.0;
 		
+		//for each chromosome
+		pw.println("<ens-chr>1</ens-chr>");
+		pw.println("<lc-seq>unknown</lc-seq>");
+		pw.println("<cs>" + 1);
 		
-		for(int i = 0; i < structure.length; i += 3){
+		for(int i = 3; i < structure.length; i += 3){
 			id = i / 3;
-			pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
-					id+1, structure[i], structure[i + 1], structure[i + 2], radius, lstPos.get(id), (id + 1 < lstPos.size() ? lstPos.get(id + 1) - 1 : lstPos.get(id) + 1));
+			
+			if (idToChr.get(id) == idToChr.get(id - 1)) continue;
+			
+			end = id  - 1;
+			n = end - start + 1;
+			pw.printf("<lt>%d</lt>\n", n);
+			
+			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);
+			
+			pw.println("</cs>");
+			
+			start = id;
+			
+			if (i < structure.length){
+				chrID = idToChr.get(id) + 1;
+				pw.println("<ens-chr>" + chrID + "</ens-chr>");
+				pw.println("<lc-seq>unknown</lc-seq>");
+				pw.println("<cs>" + chrID);
+			}			
 		}
 		
-		pw.println("</cs>");
-		pw.close();
+		end = structure.length / 3 - 1;
+		n = end - start + 1;
+		if (end > start){
+			pw.printf("<lt>%d</lt>\n", n);		
+			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);		
+			pw.println("</cs>");
+		}
 		
 		
+		pw.close();			
+	}
+	
+	public void writeStructureGSS(PrintWriter pw, double[] a,List<Integer> lstPos, double radius, int start, int end){ // start, end are included
+		int id;
+		for(int i = start; i <= end; i += 3){
+			id = i / 3;
+			pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
+					id+1, a[i], a[i + 1], a[i + 2], radius, lstPos.get(id), (id + 1 < lstPos.size() ? lstPos.get(id + 1) - 1 : lstPos.get(id) + 1));
+			
+		}
 	}
 	
 
