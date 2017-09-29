@@ -126,6 +126,9 @@ import uk.ac.roslin.ensembl.exception.ConfigurationException;
 import uk.ac.roslin.ensembl.exception.DAOException;
 import uk.ac.roslin.ensembl.model.core.Chromosome;
 
+//Tosin
+import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
+
 public class ScriptEvaluator {
 
 	/*
@@ -5953,12 +5956,17 @@ public class ScriptEvaluator {
 				//Tuan added for 3D genome functions
 				case Token.pdb2gss:
 					convertPDB2GSS();
-					break;
-				
+					break;				
 				case Token.lorDG:
 					lorDG3DModeller();
 					break;
 				//end
+				// Tosin added for 3D genome functions	
+				case Token.struct_3DMax:
+					Structure_3DMax();
+					break;
+					
+				
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
@@ -6064,6 +6072,26 @@ public class ScriptEvaluator {
 //		}
     	
     	
+	}
+
+	
+	/**
+	 * @author-Tosin
+	 * To reconstruct 3D model using 3DMax
+	 */
+	private void Structure_3DMax() {
+		String[] Input = new String[6];
+		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
+		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);		
+		 Input[2] = (String)viewer.getParameter(Constants.MINCONVERSIONFACTOR);
+		 Input[3] = (String)viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
+		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);		
+		 Input[5] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
+		// Call the Structure_3DMax
+		 
+		Structure_3DMax obj = new Structure_3DMax(Input);
+		
+		
 	}
 	
 	///

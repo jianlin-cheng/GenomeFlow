@@ -15,4 +15,9 @@ public interface Constants {
 	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 	
+	//Tosin addded
+	String MINCONVERSIONFACTOR = "minconversionFactor";
+	String MAXCONVERSIONFACTOR = "maxconversionFactor";
+	String IFRESOLUTION = "matrixresolution";
+		
 }

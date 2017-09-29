@@ -246,6 +246,9 @@ public class GuiMap {
     labels.put("3Dtools", GT._("3D-Tools"));
     labels.put("LorDG", GT._("LorDG-3D Modeller"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
+    //Tosin added
+    labels.put("3DMax", GT._("3DMax"));
+    labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
     //end
     
   }
