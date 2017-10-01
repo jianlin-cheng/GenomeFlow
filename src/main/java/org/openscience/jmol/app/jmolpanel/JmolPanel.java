@@ -115,13 +115,16 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+
+import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
+
+
 //added -hcf
 
 /*import juicebox.data.Dataset;
 import juicebox.data.HiCFileTools;
 import juicebox.tools.clt.old.Dump;
 */
-
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -167,7 +170,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
   
   private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
- 
+  
 
   
   private ExportAction exportAction = new ExportAction();
@@ -2339,7 +2342,7 @@ public void showStatus(String message) {
 	    public void actionPerformed(ActionEvent e) {
 			    	
 	    	
-	        JTextField inputContactFileField = new JTextField();      
+	        JTextField inputContactFileField = new JTextField("Default_Input_format = [BinLocation_1  BinLocation_2  IF]");      
 	        
 	        JTextField outputGSSFileField = new JTextField();
 	               
@@ -2389,7 +2392,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Input contact file:"), gbc);
+	        panel.add(new JLabel("Input contact file:",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -2403,14 +2406,41 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;
 	        panel.add(openContactFileButton, gbc);
 	        	        
-	       	////////////////////////////////////////////////
-	        y++;
+	     
+	        
+	        ///////////////////////////////////////////////
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        panel.add(new JLabel("Data Resolution[1MB or 10KB]:",JLabel.LEFT), gbc);	        
+	        
+	        JTextField IFResolutionField = new JTextField("1000000"); 
+	        
+	        IFResolutionField .addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = IFResolutionField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB");
+						
+						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
 	        
 	        gbc.gridx = 1;
-	        gbc.gridy = y;	   
-	        gbc.gridwidth = 2;
-	        panel.add(new JLabel("Input is a Normalized Contact Matrix seperated by comma"), gbc);
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
+	        panel.add( IFResolutionField, gbc);
 	        
+			      
 	        ////////////////////////////////////////////////
 	        y++;
 	        gbc.gridx = 0;
@@ -2433,7 +2463,8 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Conversion Factor(Min):"), gbc);	        
+	        JLabel ConvFactormin =  new JLabel("Conversion Factor:");
+	        panel.add(ConvFactormin, gbc);	        
 	        
 	        JTextField minconversionFactorField = new JTextField("0.1"); 
 	        
@@ -2458,12 +2489,16 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 2;	
 	        minconversionFactorField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(minconversionFactorField, gbc);
-	        ///////////////////////////////////////////////
+	       
+	        
+			////////////////////////////////////////////////
+	        
 	        y++;	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Conversion Factor(Max):"), gbc);	        
+	        JLabel ConvFactormax =  new JLabel("Conversion Factor (Max):");
+	        panel.add(ConvFactormax, gbc);	         
 	        
 	        JTextField maxconversionFactorField = new JTextField("2.0"); 
 	        
@@ -2489,7 +2524,10 @@ public void showStatus(String message) {
 	        maxconversionFactorField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(maxconversionFactorField, gbc);        
 	           
-	        	        
+	        ConvFactormax.setVisible(false);
+	        maxconversionFactorField.setVisible(false);
+	        
+	        
 	        ///////////////////////////////////////////////	  
 	        y++;	        
 	        gbc.gridx = 0;
@@ -2519,41 +2557,83 @@ public void showStatus(String message) {
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
 	        learningRateField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(learningRateField, gbc);
-	        	        
-	        ///////////////////////////////////////////////
-	        y++;	        
+	        panel.add(learningRateField, gbc);	        	        
+	
+	        ///////////////////////////////////////////////	
+	        
+	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Contact Matrix Resolution:"), gbc);	        
-	        
-	        JTextField IFResolutionField = new JTextField("1000000"); 
-	        
-	        IFResolutionField .addKeyListener(new KeyAdapter(){
-	        	@Override
+	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
+	      	        
+	        JTextField maxIterationField = new JTextField("1000"); 	
+	        maxIterationField.addKeyListener(new KeyAdapter() {								
+				@Override
 				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = IFResolutionField .getText();
+					
+					String currentTxt = maxIterationField.getText();
 					if (currentTxt.length() == 0) return;
 					
 	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB");
-						
-						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
 					}
-				}	
-	        });
-	        
+				}				
+			});
+	        	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
-	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
-	        panel.add( IFResolutionField, gbc);
-	        	        
-	        ///////////////////////////////////////////////
+	        maxIterationField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(maxIterationField, gbc);             
 	        
+	      ///////////////////////////////////////////////	
+		y++;
+		JCheckBox isMatrix = new JCheckBox("Load input as a Normalized Contact Matrix seperated by comma ?");
+		gbc.gridx = 1;
+		gbc.gridy = y;
+		gbc.gridwidth = 2;
+		panel.add(isMatrix , gbc);
+				
+		isMatrix .addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (isMatrix.isSelected()){
+					inputContactFileField.setText("Load Contact Matrix");
+				}
+				
+			}
+		});
+	        
+	        /////////////////////////////////////////////// 
+			
+			y++;
+			JCheckBox cv_enable = new JCheckBox("Specify a Minimum and Maximum Conversion Factor ?");
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			panel.add(cv_enable , gbc);
+					
+			cv_enable .addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (cv_enable.isSelected()){
+						 ConvFactormin.setText("Conversion Factor (Min):");
+						 ConvFactormax.setVisible(true);
+					     maxconversionFactorField.setVisible(true);
+					}else{
+						 ConvFactormin.setText("Conversion Factor:");
+						 ConvFactormax.setVisible(false);
+					     maxconversionFactorField.setVisible(false);
+					}
+					
+				}
+			});
 	        	        
 	        
 	        y++;
@@ -2574,7 +2654,7 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame();
-	        Structure_3DMaxFrame.setSize(new Dimension(600,300));
+	        Structure_3DMaxFrame.setSize(new Dimension(680,380));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
@@ -2592,7 +2672,12 @@ public void showStatus(String message) {
 					String input = inputContactFileField.getText();
 					String output = outputGSSFileField.getText();
 					double learningRate = Double.parseDouble(learningRateField.getText());
-					
+					int maxIteration = Integer.parseInt(maxIterationField.getText());
+					if (maxIteration > 10000){
+						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!, Maximum is 10000");
+						maxIterationField.setText("5000");
+						return;
+					}
 					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
 						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !");						
 						return;
@@ -2620,18 +2705,26 @@ public void showStatus(String message) {
 						return;
 					}
 					
+					
+					
+					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
-		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
-		        	viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxconversionFactorField.getText());
-		        	viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minconversionFactorField.getText());		        	
+		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());		        	
+		        	viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minconversionFactorField.getText());
+		        	viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, minconversionFactorField.getText());
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
+		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
 		        	viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
+		        	
+		        	if (cv_enable.isSelected()) viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxconversionFactorField.getText());
+		        	
+		        	
 		        	
 		        	script = "struct_3DMax";
 			    	viewer.script(script);	 
 			    	
-			    	JOptionPane.showMessageDialog(null, "Result will be stored in the Specified path");
-			    	Structure_3DMaxFrame.setVisible(false);
+			    	
+			    	
 				}
 			});
 	        
@@ -2640,11 +2733,8 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-					if (viewer.getInput3DModeller() != null){
-						viewer.getInput3DModeller().setStopRunning(true);
-					}
 					
-					Structure_3DMaxFrame.setVisible(false);
+				
 				}
 			});
 	        

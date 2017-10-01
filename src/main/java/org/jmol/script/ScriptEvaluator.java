@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JOptionPane;
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
@@ -131,6 +132,8 @@ import uk.ac.roslin.ensembl.model.core.Chromosome;
 
 //Tosin
 import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
+
+
 
 public class ScriptEvaluator {
 
@@ -240,7 +243,8 @@ public class ScriptEvaluator {
 
 	public static final String SCRIPT_COMPLETED = "Script completed";
 	protected BufferedReader reader;
-	//added lxq35
+	
+		//added lxq35
 	public boolean threadStop = false; 
 
 	public ScriptEvaluator(Viewer viewer) {
@@ -6058,6 +6062,7 @@ public class ScriptEvaluator {
 		try{
 			generator.generateStructure();
 		}catch(Exception ex){
+			
 			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
@@ -6065,7 +6070,6 @@ public class ScriptEvaluator {
 		
 //		String inputFolder = "C:/Users/Tuan/workspace/Gmol/output/tmp/";
 //		File file = new File(inputFolder);
-//		for(File f : file.listFiles()){
 //			if (f.getName().endsWith(".gss")){
 //				//viewer.openFileAsynchronously(f.getAbsolutePath());
 //				viewer.loadNewModel(f.getAbsolutePath());			
@@ -6081,17 +6085,25 @@ public class ScriptEvaluator {
 	 * To reconstruct 3D model using 3DMax
 	 */
 	private void Structure_3DMax() {
-		String[] Input = new String[6];
+		String[] Input = new String[7];
 		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
 		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);		
 		 Input[2] = (String)viewer.getParameter(Constants.MINCONVERSIONFACTOR);
 		 Input[3] = (String)viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
-		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);		
-		 Input[5] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
+		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);
+		 Input[5] = (String)viewer.getParameter(Constants.MAXITERATION);
+		 Input[6] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
 		// Call the Structure_3DMax
 		 
-		Structure_3DMax obj = new Structure_3DMax(Input);
-		
+		try{
+						
+			@SuppressWarnings("unused")
+			Structure_3DMax obj = new Structure_3DMax(Input,viewer);
+		}catch(Exception ex){
+		    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output");
+			viewer.displayMessage(new String[]{ex.getMessage()});
+			ex.printStackTrace();
+		}
 		
 	}
 	

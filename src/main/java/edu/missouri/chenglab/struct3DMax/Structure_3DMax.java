@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Collections;
@@ -12,17 +16,23 @@ import java.util.List;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
+
+import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
 import java.util.HashMap;
 import java.util.Map;
+import edu.missouri.chenglab.lordg.utility.Helper;
+import org.jmol.api.JmolViewer;
 
 /** ------------------------------------------------------------------------------------------------------------------
  * start of Structure_3DMax class
  * ------------------------------------------------------------------------------------------------------------------  **/
+
+
 public class Structure_3DMax {		
 	
 	/*global variables*/	
-	
+	static int max_iteration=2000;
 	final static List<Double> list = new ArrayList<Double>();
 	final static String out1 = "output_Spearman_Correlation.txt"; // stores the spearman correlation value for genome or chromosome
 	final static String out2 = "output_report.log"; // reports the file containing max score	
@@ -31,15 +41,16 @@ public class Structure_3DMax {
 	static BufferedWriter log_outputWriter = null;
 	static String outpath = null ; 
 	static String outputname = null ;
-	static int NN = 5; //number of structures per alpha
+	static int NN = 1; //number of structures per alpha
 	static double min = 0.1,max = 2; // conversion factor								
 	static String inputfile = null; // input file 
 	static int Resolution = 1000;
 	static String FileName = "";
-	
-	
-	
-	
+	static String display_path = null;
+	static int Factor = 15; // zoom the structure
+	static String Header = "3D chromosome/genome modelling by 3DMax"; //header for pdb file
+	static Outputwriter OutputStructure = new Outputwriter(); //class to output the .gss and .pdb structure 
+	private static boolean global_isStopRunning = false;
 	
 	/*  end of global variables  */
 	
@@ -104,7 +115,20 @@ public class Structure_3DMax {
 			return func_val;
 		}
 		
-		
+		/**
+		 * determine if program should stop running
+		 * @return
+		 */
+		public boolean isStopRunning() {
+			return global_isStopRunning;
+		}
+		/**
+		 * Set the program Status
+		 * @param isStopRunning
+		 */
+		public static void setStopRunning(boolean isStopRunning) {
+			global_isStopRunning = isStopRunning;
+		}
 		
 		/**
 		 * 3DMax algorithm	
@@ -114,7 +138,7 @@ public class Structure_3DMax {
 		 * @param dist
 		 * @return
 		 */
-		public static double[][] Algorithm_3DMax(int n,double alpha,double[][] contact,double [][] dist )
+		public static double[][] Algorithm_3DMax( int n,double alpha,double[][] contact,double [][] dist, JmolViewer viewer, double found_alpha, double found_corr )
 		{
 			/*====================================================================			
 			 *  Variables declaration
@@ -155,6 +179,7 @@ public class Structure_3DMax {
 				for (int j = 0; j<3;j++) {
 					double rand = new Random().nextDouble(); 
 					XYZ[i][j] = min + (rand * (max-min));
+					XYZ[i][j] = XYZ[i][j] ;
 			 }
 			}
 			
@@ -170,7 +195,7 @@ public class Structure_3DMax {
 				System.out.print(String.format("epoch: %d step : %1.10f \t ",it_EM,step));			   
 				
 				int count=0; 				
-				while(count < 1000) {
+				while(count < max_iteration) {
 					obj_val_old = obj_val_new; // update the objective function
 					double v = 0;
 					for (int i = 0; i < n ;i++) {						
@@ -214,7 +239,6 @@ public class Structure_3DMax {
 						gradient[0] = gradient_x; gradient[1] = gradient_y; gradient[2] = gradient_z;
 					   
 						
-						
 											
 						for (int k = 0; k < 3; k ++) {
 							XYZ[i][k] = XYZ[i][k] + (step * gradient[k]);
@@ -234,8 +258,33 @@ public class Structure_3DMax {
 					
 					count++; 
 					epoch++; // The number of epoch
-					  
+					/*========================================================
+					 * 				Visualization 
+					 * =======================================================					 * 
+					 */
+					 String outputFilePDB =display_path + "Iteration_" + Integer.toString(count) +".pdb";
+					//write file to directory
+					 try {					
+						 
+						OutputStructure.writeStructurePDB(outputFilePDB, XYZ, Header) ; // Output pdb structure   
+						viewer.loadNewModel(outputFilePDB, new String[]{"Searching for best Conversion factor..... ","Conversion Factor: " + String.format("%.2f", alpha), 
+								"Objective Function: " + String.format("%.2f",obj_val_new), "Best alpha found: " + String.format("%.2f",found_alpha),"Correlation of Best alpha found: " + String.format("%.2f",found_corr) });	
+													
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				
+					// delete created file
+					try {
+						OutputStructure.delete_file(outputFilePDB);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					
+					
+					
 				} 
 			    
 				if (Math.abs(obj_val_new  - obj_val_old) < epsilon) {
@@ -257,7 +306,7 @@ public class Structure_3DMax {
 				for (int j = 0; j<3;j++) {
 					if(Double.isNaN(XYZ[i][j])){
 						System.out.println(String.format("Nan found, function called again !!!"));
-						XYZ = Structure_3DMax .Algorithm_3DMax(n,alpha, contact,dist);	
+						XYZ = Structure_3DMax .Algorithm_3DMax(n,alpha, contact,dist,viewer,found_alpha,found_corr);	
 					}					
 			 }
 			}
@@ -343,7 +392,7 @@ public class Structure_3DMax {
 		 * @param name
 		 * @param contact
 		 */
-		public static void Control_3DMax(String name,double[][] contact,double min, double max, int N) {
+		public static void Control_3DMax(double[][] contact,double min, double max, int N,JmolViewer viewer) {
 			
 			/*
 			 *  Input: contact = The Normalized contact matrix
@@ -353,6 +402,8 @@ public class Structure_3DMax {
 			 *  min and max = minimum and maximum conversion factors
 			 */
 			
+			
+			String name = outpath + "/" + outputname  ;		     
 			String struct_name = null;	
 			int n = contact.length; // Length of the contact Matrix [rows]			
 			double [][] D_Matrix = new double[n][n];
@@ -362,6 +413,8 @@ public class Structure_3DMax {
 			ArrayList<Double> Corr_List = new ArrayList<Double>(); // List of correlation score between target and expected distance structure
 			double Max_score =  -1; // Maximum correlation score
 			String Max_name = "";
+			double sel_alpha = min;
+			String sel_name = "";
 			
 			
 			for (double alpha = min; alpha<=max; alpha+=0.1) {
@@ -379,6 +432,8 @@ public class Structure_3DMax {
 					}								
 				}
 				 
+				
+				
 				double[] xArray = toDoubleArray(D_Matrix); //=====Convert 2D to 1D array====
 				/*================================================================
 				 * For each alpha generate N structures for each alpha
@@ -387,21 +442,45 @@ public class Structure_3DMax {
 					System.out.println(String.format("Creating structure at alpha = %f and structure = %d.......",alpha,j));
 					// ====== Call the EM Algorithm functn =======	
 				
-					XYZ = Structure_3DMax .Algorithm_3DMax(n,alpha, contact,D_Matrix);
+					XYZ = Structure_3DMax .Algorithm_3DMax(n,alpha, contact,D_Matrix,viewer,sel_alpha,Max_score);
 					// ===Find the distance matrix from XYZ coordinates =====
 					Gen_D_Matrix = Structure_3DMax .distmatrix (n,XYZ);
-					struct_name = name + "_alpha="+ Double.toString(alpha) + "_N=" + Integer.toString(j) ;
+					struct_name = name + "_alpha="+ Double.toString(alpha) ;
 					//=====Convert 2D to 1D array====					 
 					 double[] yArray = toDoubleArray(Gen_D_Matrix);
 					//====== Scoring of generated structure {spearman correlation}=====					 
-					double corr =   SC.correlation(xArray,yArray); // return the spearman Correlation					
+					double corr =   SC.correlation(xArray,yArray); // return the spearman Correlation	
+				
 					System.out.println(String.format("Finished :::: Spearman corr = %f", corr));
 					if(corr > Max_score) {
 						Max_score = corr;
 						Max_name = struct_name;
+						sel_alpha = alpha;
+						sel_name = outputname + "_alpha="+ Double.toString(alpha) ;
 						arrayCopy(XYZ,Max_XYZ);
 					}
+					// ====== output the display structure, display and delete======
+					String outputFilePDB =display_path + outputname + "_alpha="+ Double.toString(alpha) +".pdb";
+					try {
+						if (viewer!=null) {
+						OutputStructure.writeStructurePDB(outputFilePDB, XYZ, Header) ; // Output pdb structure   
+						viewer.loadNewModel(outputFilePDB, new String[]{"Conversion Factor: " + String.format("%.2f",alpha), 
+								"Correlation: " + String.format("%.2f", corr)});
+						}
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 					Corr_List.add(corr);
+					
+					// delete created file
+					try {
+						OutputStructure.delete_file(outputFilePDB);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					
 					
 				} // end of N loop
 				
@@ -416,14 +495,7 @@ public class Structure_3DMax {
 			
 			// ====== output the structure coordinate======
 			try {
-				String  fname = Max_name + ".xyz";
-				for (int i = 0; i<n;i++) {
-					for (int j = 0; j<3;j++) {
-						double rand = new Random().nextDouble(); 
-						Max_XYZ[i][j] = 30 * Max_XYZ[i][j];  // Increase resolution
-				 }
-				}
-				
+				String  fname = Max_name + ".xyz";							
 				Structure_3DMax.write(fname,Max_XYZ); // Output XYZ Coordinate  
 				// Generate the .gss and .pdb file here
 				HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
@@ -436,13 +508,20 @@ public class Structure_3DMax {
 				// Output the .gss file
 				String outputFile = Max_name + ".gss";
 				try {
-					printOutGSSFile(Max_XYZ, map, outputFile);
+					OutputStructure.writeStructureGSS(Max_XYZ, map, outputFile,Resolution);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}	
+				//output the .pdb file
+				outputFile = Max_name + ".pdb";
+				OutputStructure.writeStructurePDB(outputFile, XYZ, Header) ; // Output pdb structure   				
 				
-				
+				// display the final model
+				if (viewer!=null) {					
+					viewer.loadNewModel(outputFile, new String[]{"Search Completed!","Selected Model: " + String.format("%s",sel_name), 
+							"Correlation: " + String.format("%.2f", Max_score), "Alpha: " + String.format("%.2f", sel_alpha)});
+					}
 				
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -461,34 +540,7 @@ public class Structure_3DMax {
 			
 		}
 		
-		
-		
-		
-		
-		/**
-		 * 
-		 * @param coords: coordinates of points
-		 * @param outputFile
-		 */	
-		private static void printOutGSSFile(double[][] coords, Map<Integer, Integer> map, String outputFile) throws Exception{
-			PrintWriter pw = new PrintWriter(outputFile);
-			pw.println("<sp>some_species</sp>");
-			pw.println("<ens-chr>" + FileName +"</ens-chr>");
-			pw.println("<lc-seq>unknown</lc-seq>");
-			pw.println("<cs>1");
-			
-			pw.printf("<lt>%d</lt>\n", coords.length);
-			double radius = 1.0;
-			int res = Resolution;
-			for(int i = 0; i < coords.length; i++){
-				pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
-						i+1, coords[i][0], coords[i][1], coords[i][2], radius, i*res + 1, i*res + res);
-			}
-			
-			pw.println("</cs>");
-			pw.close();
-		}
-		
+	  
 		
 		
 		/**
@@ -497,7 +549,13 @@ public class Structure_3DMax {
 		 * @return
 		 * @throws FileNotFoundException 
 		 */
-		public static double [][] readFile(String Filename, String sep) throws FileNotFoundException{			
+		public static double [][] readFile(String Filename, String sep, JmolViewer viewer) throws FileNotFoundException{	
+			
+			//Accept Input Data				
+			viewer.displayMessage(new String[]{"Reading input data ..."});
+			//#######################################################################
+			// Detect To determine if it is a Matrix or Tuple. Greater than 3 cols
+			//#######################################################################
 			// pre-read in the number of rows/columns
 			int rows = 0;
 			int cols = 0;		
@@ -567,13 +625,15 @@ public class Structure_3DMax {
 			  outputWriter.close();  
 			}
 		
+				
+		
 		
 		/**
 		 * accept Input
 		 * @param parameters
 		 */
 
-		public Structure_3DMax(String[] args){
+		public Structure_3DMax(String[] args, JmolViewer viewer){
 			
 			long startTime = System.nanoTime();
 		    double [][] Data = null;
@@ -583,8 +643,9 @@ public class Structure_3DMax {
 			outpath = args[1];
 			min = Double.parseDouble(args[2]);
 			max = Double.parseDouble(args[3]);
-		    initial_lrate = Double.parseDouble(args[4]);		    
-			Resolution = Integer.parseInt(args[5]);
+		    initial_lrate = Double.parseDouble(args[4]);
+		    max_iteration = Integer.parseInt(args[5]);
+			Resolution = Integer.parseInt(args[6]);
 			
 			
 			 String[] tmp = inputfile.split("[\\/ \\. \\\\]");
@@ -612,7 +673,7 @@ public class Structure_3DMax {
 		      try {
 		    	 System.out.println("Reading Data from File......");
 		    	 String seperator = ","; // specify the data seperator for dataset
-				Data = readFile(inputfile,seperator);
+				Data = readFile(inputfile,seperator,viewer);
 			    System.out.println("File read successfully!!!\n");
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
@@ -631,8 +692,17 @@ public class Structure_3DMax {
 				}
 		     
 		     outputname = "Structure_"+ FileName + "_" + new Date().getTime();
-		     String fname = outpath + "/" + outputname  ;
-			 Structure_3DMax.Control_3DMax(fname,Data,min,max,NN);	 
+		     
+		     // Create a folder
+			display_path = outpath + "/tmp_3DMax/";
+			File dir = new File(display_path);
+			dir.mkdir();
+				
+		    // Run 3DMax Control Algorithm
+		    Structure_3DMax.Control_3DMax(Data,min,max,NN,viewer);	 
+			 
+		    JOptionPane.showMessageDialog(null, "Successfully Completed!, Check output directory for output files");
+			 
 			 
 			 System.out.println("3DMax Completed Successfully........");
 		     long stopTime = System.nanoTime();
@@ -651,6 +721,7 @@ public class Structure_3DMax {
 					e.printStackTrace();
 				}
 		}
-			
+
+
 
 } /*  end of 3DMax class  */

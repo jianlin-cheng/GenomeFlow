@@ -269,7 +269,6 @@ public class GuiMap {
   JMenu newJMenu(String key) {
 	//  System.out.println("try" + getLabel(key));
     return new KeyJMenu(key, getLabel(key), map);
-    
   }
   
   JMenuItem newJMenuItem(String key) {

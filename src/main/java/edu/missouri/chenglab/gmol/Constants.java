@@ -27,8 +27,8 @@ public interface Constants {
 	String MINCONVERSIONFACTOR = "minconversionFactor";
 	String MAXCONVERSIONFACTOR = "maxconversionFactor";
 	String IFRESOLUTION = "matrixresolution";
-		
 
+	
 	
 
 }
