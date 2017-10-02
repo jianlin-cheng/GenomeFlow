@@ -53,6 +53,7 @@ import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -62,19 +63,22 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -83,7 +87,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
@@ -98,6 +101,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.text.NumberFormatter;
 
 import org.broad.igv.feature.Chromosome;
 import org.jmol.api.Interface;
@@ -1421,12 +1425,12 @@ public void showStatus(String message) {
 		  panel.add(separator, gbc);
 		  
 		  
-		  
+		  /*
 		  y++;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  gbc.anchor = GridBagConstraints.EAST;
+		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(new JLabel("Genome:"), gbc);
 		  
 		  JTextField genomeField = new JTextField("---");
@@ -1434,7 +1438,8 @@ public void showStatus(String message) {
 		  genomeField.setEnabled(false);
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
-		  gbc.anchor = GridBagConstraints.WEST;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(genomeField, gbc);
 		  
 		  gbc.gridx = 2;
@@ -1449,6 +1454,7 @@ public void showStatus(String message) {
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  gbc.anchor = GridBagConstraints.WEST;
+		  gbc.fill = GridBagConstraints.NONE;
 		  panel.add(resolutionList, gbc);
 		  
 		  gbc.gridx = 4;
@@ -1461,9 +1467,9 @@ public void showStatus(String message) {
 		  normalizationList.setPreferredSize(new Dimension(100,20));
 		  gbc.gridx = 5;
 		  gbc.gridy = y;
-		  gbc.anchor = GridBagConstraints.WEST;
+		  gbc.anchor = GridBagConstraints.CENTER;
 		  panel.add(normalizationList, gbc);
-		  
+		  */
 		  
 		  JComboBox<String> chrom1List = new JComboBox<String>();		  
 		  JComboBox<String> chrom2List = new JComboBox<String>();
@@ -1476,17 +1482,28 @@ public void showStatus(String message) {
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  gbc.anchor = GridBagConstraints.CENTER;
-		  panel.add(new JLabel("Chromosome 1"), gbc);
+		  panel.add(new JLabel("Genome:"), gbc);
+		  
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  panel.add(new JLabel("Chromosome"), gbc);
+		  
+		  gbc.gridx = 2;		  
 		  panel.add(new JLabel("From"), gbc);
 		  
-		  gbc.gridx = 2;
-		  gbc.gridy = y;
+		  gbc.gridx = 3;		  
 		  panel.add(new JLabel("To"), gbc);
-
 		  
+		  gbc.gridx = 4;		  
+		  panel.add(new JLabel("Resolution"), gbc);
+		  
+		  gbc.gridx = 5;
+		  panel.add(new JLabel("Normalization"), gbc);
+		  
+		  /*
 		  gbc.gridx = 3;
 		  gbc.gridy = y;
 		  panel.add(new JLabel("Chromosome 2"), gbc);
@@ -1498,108 +1515,79 @@ public void showStatus(String message) {
 		  gbc.gridx = 5;
 		  gbc.gridy = y;
 		  panel.add(new JLabel("To"), gbc);
+		  */
 		  
-		  
-		  y++;
+		  y++;		  
+		  JTextField genomeField = new JTextField("---");
+		  genomeField.setPreferredSize(new Dimension(100,20));
+		  genomeField.setEnabled(false);
 		  gbc.gridx = 0;
-		  gbc.gridy = y;		  
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  panel.add(genomeField, gbc);
+		  
+		  
+		  gbc.gridx = 1;		  		  
 		  panel.add(chrom1List, gbc);
 		  
-		  gbc.gridx = 1;
+		  
+		  NumberFormatter formatter = new NumberFormatter(NumberFormat.getIntegerInstance());
+		 
+		  formatter.setValueClass(Integer.class);
+		  formatter.setMinimum(0);
+		  formatter.setMaximum(Integer.MAX_VALUE);
+		  formatter.setAllowsInvalid(false);
+		  
+		  
+		  gbc.gridx = 2;
 		  gbc.gridy = y;
-		  JTextField chr1FromField = new JTextField();
+		  JFormattedTextField chr1FromField = new JFormattedTextField(formatter);
 		  chr1FromField.setPreferredSize(new Dimension(100,20));
 		  chr1FromField.setEnabled(false);
 		  panel.add(chr1FromField, gbc);
+		  
 
-		  gbc.gridx = 2;
+		  gbc.gridx = 3;
 		  gbc.gridy = y;
-		  JTextField chr1ToField = new JTextField();
+		  //JTextField chr1ToField = new JTextField();
+		  JFormattedTextField chr1ToField = new JFormattedTextField(formatter);
 		  chr1ToField.setPreferredSize(new Dimension(100,20));
 		  chr1ToField.setEnabled(false);
 		  panel.add(chr1ToField, gbc);
 		  
+		  JComboBox<String> resolutionList = new JComboBox<String>();
+		  resolutionList.setPreferredSize(new Dimension(100,20));
+		  gbc.gridx = 4;
+		  panel.add(resolutionList, gbc);
+		  
+		  JComboBox<String> normalizationList = new JComboBox<String>();
+		  normalizationList.setPreferredSize(new Dimension(100,20));
+		  gbc.gridx = 5;
+		  panel.add(normalizationList, gbc);
+		  
+		  
+		  /*
 		  gbc.gridx = 3;
 		  gbc.gridy = y;
 		  panel.add(chrom2List, gbc);
 		  
 		  gbc.gridx = 4;
 		  gbc.gridy = y;
-		  JTextField chr2FromField = new JTextField();
+		  //JTextField chr2FromField = new JTextField();
+		  JFormattedTextField chr2FromField = new JFormattedTextField(formatter);
 		  chr2FromField.setPreferredSize(new Dimension(100,20));
 		  chr2FromField.setEnabled(false);
 		  panel.add(chr2FromField, gbc);
 
 		  gbc.gridx = 5;
 		  gbc.gridy = y;
-		  JTextField chr2ToField = new JTextField();
+		  //JTextField chr2ToField = new JTextField();
+		  JFormattedTextField chr2ToField = new JFormattedTextField(formatter);
 		  chr2ToField.setPreferredSize(new Dimension(100,20));
 		  chr2ToField.setEnabled(false);
 		  panel.add(chr2ToField, gbc);
-		  
-		  chr1FromField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = chr1FromField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						chr1FromField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-		  });
-		  
-		  chr1ToField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = chr1ToField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						chr1ToField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-		  });
-		  chr2FromField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = chr2FromField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						chr2FromField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-		  });
-		  
-		  chr2ToField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = chr2ToField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						chr2ToField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-		  });
-		  
+		  */
 		  
 		  
 		  loadFileButton.addActionListener(new ActionListener() {
@@ -1646,10 +1634,14 @@ public void showStatus(String message) {
 								List<Chromosome> chroms = dataset.getChromosomes();
 								chrom1List.removeAllItems();
 								chrom2List.removeAllItems();
-								for(Chromosome chrom : chroms){
+								for(int i = 1; i < chroms.size(); i++){
+									Chromosome chrom = chroms.get(i);
 									chrom1List.addItem(chrom.getName());
 									chrom2List.addItem(chrom.getName());
 								}
+								chrom1List.addItem(chroms.get(0).getName());
+								chrom2List.addItem(chroms.get(0).getName());
+								
 								
 								resolutionList.removeAllItems();
 								for(HiCZoom res: dataset.getBpZooms()){
@@ -1666,8 +1658,8 @@ public void showStatus(String message) {
 								
 								chr1FromField.setEnabled(true);
 								chr1ToField.setEnabled(true);
-								chr2FromField.setEnabled(true);
-								chr2ToField.setEnabled(true);
+								//chr2FromField.setEnabled(true);
+								//chr2ToField.setEnabled(true);
 								
 								loadFileButton.setEnabled(true);
 								win.setEnabled(true);
@@ -1705,10 +1697,10 @@ public void showStatus(String message) {
 		  });
 		  
 		  
+		  /*
 		  JRadioButton observedOption = new JRadioButton("Observed");
-	      JRadioButton OEoption = new JRadioButton("Observed/Expected");
+	      JRadioButton OEoption = new JRadioButton("Observed/Expected");	      
 	      
-	 
 	      ButtonGroup matrixTypeGroup = new ButtonGroup();	      
 	      matrixTypeGroup.add(OEoption);
 	      matrixTypeGroup.add(observedOption);
@@ -1725,6 +1717,7 @@ public void showStatus(String message) {
 	      gbc.gridx = 2;
 	      gbc.gridy = y;
 	      panel.add(OEoption, gbc);
+	      */
 	    		  
 		  
 		  
@@ -1760,14 +1753,15 @@ public void showStatus(String message) {
 		  panel.add(outputFileButton, gbc);
 		  
 		  
-		  JButton extractButton = new JButton("Extract data");
+		  JButton extractButton = new JButton("Extract contact data");
 		  extractButton.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				
-				if (matrixTypeGroup.getSelection() == null) {
-					JOptionPane.showMessageDialog(null, "Please select matrix type!");
+				
+				if (outputFileField.getText().length() == 0) {
+					JOptionPane.showMessageDialog(null, "Please select output file!");
 					return;
 				}
 				
@@ -1780,7 +1774,7 @@ public void showStatus(String message) {
 		        }
 		        
 				Chromosome chr1 = chromosomeMap.get(chrom1List.getItemAt(chrom1List.getSelectedIndex())); 
-				Chromosome chr2 = chromosomeMap.get(chrom2List.getItemAt(chrom2List.getSelectedIndex()));
+				Chromosome chr2 = chr1;//chromosomeMap.get(chrom2List.getItemAt(chrom2List.getSelectedIndex()));
 				NormalizationType norm = NormalizationType.enumValueFromString((String)normalizationList.getItemAt(normalizationList.getSelectedIndex()));
 				
 				String res = resolutionList.getItemAt(resolutionList.getSelectedIndex());
@@ -1789,25 +1783,36 @@ public void showStatus(String message) {
 				int binSize = Integer.parseInt(res.split("_")[1]);
 				
 				HiCZoom zoom = new HiCZoom(unit, binSize);
-				String matrix = matrixTypeGroup.getSelection().toString();
-				if (!matrix.equals("Observed")) matrix = "oe";
+				
+				String matrix = "Observed";
+				//if (!matrix.equals("Observed")) matrix = "oe";
 				MatrixType matrixType = MatrixType.enumValueFromString(matrix);
 				String outputfile = outputFileField.getText();
 				
-				if (chr1FromField.getText().length() > 0 && chr1ToField.getText().length() > 0 &&
-						chr2FromField.getText().length() > 0 && chr2ToField.getText().length() > 0){
-					
+				int chr1From = 0;
+				int chr1To = chr1.getLength();
 				
-					int id1 = Integer.parseInt(chr1FromField.getText());
-					int id2 = Integer.parseInt(chr1ToField.getText());
-					int id3 = Integer.parseInt(chr2FromField.getText());
-					int id4 = Integer.parseInt(chr2ToField.getText());
+				int chr2From = 0;
+				int chr2To = chr2.getLength();
+				
+				if (chr1FromField.getText().length() > 0 || chr1ToField.getText().length() > 0 /* ||
+						chr2FromField.getText().length() > 0 || chr2ToField.getText().length() > 0*/){
 					
-					ReadHiCData.setRegionIndices(new int[]{id1, id2, id3, id4});
+					if (chr1FromField.getText().length() > 0) chr1From = Integer.max(chr1From, Integer.parseInt(chr1FromField.getText().replace(",", "")));
+					if (chr1ToField.getText().length() > 0) chr1To = Integer.min(Integer.parseInt(chr1ToField.getText().replace(",", "")), chr1To);
+					
+					//if (chr2FromField.getText().length() > 0) chr2From = Integer.max(chr2From, Integer.parseInt(chr2FromField.getText().replace(",", "")));
+					//if (chr2ToField.getText().length() > 0) chr2To = Integer.min(Integer.parseInt(chr2ToField.getText().replace(",", "")), chr2To);
+					
+					
 					ReadHiCData.setUseRegionIndices(true);				
 				}else{
 					ReadHiCData.setUseRegionIndices(false);
 				}
+				
+				chr2From = chr1From;
+				chr2To = chr1To;
+				ReadHiCData.setRegionIndices(new int[]{chr1From, chr1To, chr2From, chr2To});
 				
 				readHiCData.setDataset(dataset);
 				readHiCData.setMatrixType(matrixType);
@@ -1837,7 +1842,19 @@ public void showStatus(String message) {
 								
 								win.setEnabled(true);
 								dialog.dispose();
-								JOptionPane.showMessageDialog(null, "Data is extracted!");
+								
+								try {
+									String msg = extractDataWorker.get();
+									JOptionPane.showMessageDialog(null, msg);
+								} catch (InterruptedException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								} catch (ExecutionException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								}
+								
+								
 								break;
 							case PENDING:								
 								break;
@@ -2158,18 +2175,17 @@ public void showStatus(String message) {
 	        subFrame.add(scrollpane, BorderLayout.CENTER);
 	        subFrame.setVisible(true);
 	        
+	        /*
 	        subFrame.addWindowListener(new WindowAdapter() {
-				
-				
 				@Override
 				public void windowClosing(WindowEvent e) {
 					viewer.setStringProperty(Constants.TRACKNAME, "");
 					String script = "annotate";
 					viewer.script(script);
 					
-				}				
-				
+				}								
 			});
+			*/
 	        
 	  }
   }
@@ -2531,23 +2547,15 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;
 	        panel.add(new JLabel("Conversion Factor:"), gbc);	        
 	        
-	        JTextField conversionFactorField = new JTextField("1.0"); 
 	        
-	        conversionFactorField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = conversionFactorField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in number only");
-						
-						conversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
+	        NumberFormatter doubleFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        doubleFormatter.setValueClass(Double.class);
+	        doubleFormatter.setMinimum(0.0);
+	        doubleFormatter.setMaximum(4.0);
+	        //doubleFormatter.setAllowsInvalid(false);
+	        
+			JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
+			conversionFactorField.setText("1.0");
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -2562,23 +2570,16 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;
 	        panel.add(new JLabel("Learning rate:"), gbc);	        
 	        
-	        JTextField learningRateField = new JTextField("0.1"); 
+	        NumberFormatter learningRateFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        learningRateFormatter.setValueClass(Double.class);
+	        learningRateFormatter.setMinimum(0.0);
+	        learningRateFormatter.setMaximum(10.0);
+	        //learningRateFormatter.setAllowsInvalid(false);
 	        
-	        learningRateField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = learningRateField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in number only");
-						
-						learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
+	        
+	        JFormattedTextField learningRateField = new JFormattedTextField(learningRateFormatter);
+	        learningRateField.setText("1.0");
+	        
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -2593,23 +2594,17 @@ public void showStatus(String message) {
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
 	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
-	      	        
-	        JTextField maxIterationField = new JTextField("1000"); 	
-	        maxIterationField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = maxIterationField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-			});
+	        
+	        NumberFormatter intFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        intFormatter.setValueClass(Integer.class);
+	        intFormatter.setMinimum(0);
+	        intFormatter.setMaximum(1000000);
+	        intFormatter.setAllowsInvalid(false);
+	        
+	        //JTextField maxIterationField = new JTextField("1000");
+	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
+	        maxIterationField.setText("1000");
+	        
 	        	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -2656,21 +2651,10 @@ public void showStatus(String message) {
 	        
 	        chromLenLabel.setVisible(false);
 	        panel.add(chromLenLabel, gbc);	
-	        
-	        
+	        	        
 	        chromLengthField.setPreferredSize(new Dimension(300, 21));
 	        
-	        chromLengthField.addKeyListener(new KeyAdapter() {
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = chromLengthField.getText();	        		
-					char chr = currentTxt.charAt(currentTxt.length() - 1);
-					if (!Character.isDigit(chr) && chr != ','){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						chromLengthField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-			});
+	       
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;	  
@@ -2721,14 +2705,14 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-					int maxIteration = Integer.parseInt(maxIterationField.getText());
+					int maxIteration = Integer.parseInt(maxIterationField.getText().replace(",", ""));
 					if (maxIteration > 1e9){
 						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!");
 						maxIterationField.setText("1000");
 						return;
 					}
 					
-					double conversion = Double.parseDouble(conversionFactorField.getText());
+					double conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
 					if (conversion < 0.2 && conversion > 3.5){
 						JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
 						conversionFactorField.setText("1.0");
@@ -2739,19 +2723,29 @@ public void showStatus(String message) {
 						JOptionPane.showMessageDialog(null, "Please specify a contact file as input");
 						return;
 					}
-					if (!CommonFunctions.isFolder(outputGSSFileField.getText())){
-						JOptionPane.showMessageDialog(null, "Please specify an out folder");
+					if (outputGSSFileField.getText().length() == 0 || !CommonFunctions.isFolder(outputGSSFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify an output folder");
 						return;
+					}
+					
+					if (isMultipleChrom.isSelected()){
+						String st = chromLengthField.getText();
+						for(int i = 0 ; i < st.length(); i++){
+							if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') {
+								JOptionPane.showMessageDialog(null, "Chromosome lengths field should contain numbers and/or , only! please correct it");
+								return;
+							};
+						}					
 					}
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
 		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
-		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText());
-		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
+		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText().replace(",", ""));
+		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
 		        	
 		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
 		        	
-		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
+		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	
 		        	script = "lorDG";
 			    	viewer.script(script);	 

@@ -3,6 +3,7 @@ package edu.missouri.chenglab.hicdata;
 
 
 import java.io.BufferedOutputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -86,14 +87,21 @@ public class ReadHiCData extends JuiceboxCLT {
         return "dump <observed/oe/norm/expected> <NONE/VC/VC_SQRT/KR> <hicFile(s)> <chr1>[:x1:x2] <chr2>[:y1:y2] <BP/FRAG> <binsize> <outfile>";
     }
 
-    private static void dumpGenomeWideData(Dataset dataset, List<Chromosome> chromosomeList,
+    public static void dumpGenomeWideData(Dataset dataset, List<Chromosome> chromosomeList,
                                            boolean includeIntra, HiCZoom zoom, NormalizationType norm,
-                                           MatrixType matrixType, int binSize) {
+                                           MatrixType matrixType, int binSize, String ofile) throws FileNotFoundException {
         if (zoom.getUnit() == HiC.Unit.FRAG) {
             System.err.println("All versus All currently not supported on fragment resolution");
-            System.exit(8);
+            //System.exit(8);
         }
-
+        
+        
+        PrintWriter txtWriter = null;
+        
+        if (ofile != null) {          
+           txtWriter = new PrintWriter(new FileOutputStream(ofile));           
+        }
+        
         // Build a "whole-genome" matrix
         ArrayList<ContactRecord> recordArrayList = createWholeGenomeRecords(dataset, chromosomeList, zoom, includeIntra);
 
@@ -157,8 +165,10 @@ public class ReadHiCData extends JuiceboxCLT {
                 }
 
                 System.out.println(x + "\t" + y + "\t" + value);
+                txtWriter.println(x + "\t" + y + "\t" + value);
             }
         }
+        if (txtWriter != null) txtWriter.close();
     }
 
     private static void dumpGeneralVector(Dataset dataset, String chr, Chromosome chromosome,
@@ -283,7 +293,7 @@ public class ReadHiCData extends JuiceboxCLT {
         BufferedOutputStream bos = null;
         PrintWriter txtWriter = null;
 
-        // TODO should add check to ensure directory for file exists otherwise mkdir?
+        
         if (ofile != null) {
             if (ofile.endsWith(".bin")) {
                 bos = new BufferedOutputStream(new FileOutputStream(ofile));
@@ -323,7 +333,7 @@ public class ReadHiCData extends JuiceboxCLT {
             for (int zoomIdx = 0; zoomIdx < dataset.getNumberZooms(HiC.Unit.FRAG); zoomIdx++) {
                 System.err.print(dataset.getZoom(HiC.Unit.FRAG, zoomIdx).getBinSize() + " ");
             }
-            System.exit(13);
+            //System.exit(13);
         }
 
         try {
@@ -332,7 +342,7 @@ public class ReadHiCData extends JuiceboxCLT {
                 df = dataset.getExpectedValues(zd.getZoom(), norm);
                 if (df == null) {
                     System.err.println(matrixType + " not available at " + chr1 + " " + zoom + " " + norm);
-                    System.exit(14);
+                    //System.exit(14);
                 }
             }
             zd.dump(txtWriter, les, norm, matrixType, useRegionIndices, regionIndices, df);
@@ -562,20 +572,24 @@ public class ReadHiCData extends JuiceboxCLT {
         if ((matrixType == MatrixType.OBSERVED || matrixType == MatrixType.NORM)
                 && chr1.equals(Globals.CHR_ALL)
                 && chr2.equals(Globals.CHR_ALL)) {
-            dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType, binSize);
+            try {
+				dumpGenomeWideData(dataset, chromosomeList, includeIntra, zoom, norm, matrixType, binSize, ofile);
+			} catch (FileNotFoundException e) {				
+				e.printStackTrace();
+			}
         } else if (MatrixType.isDumpMatrixType(matrixType)) {
             try {
                 dumpMatrix(dataset, chromosomeMap.get(chr1), chromosomeMap.get(chr2), norm, zoom, matrixType, ofile);
             } catch (Exception e) {
                 System.err.println("Unable to dump matrix " + e.getMessage());
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         } else if (MatrixType.isDumpVectorType(matrixType)) {
             try {
                 dumpGeneralVector(dataset, chr1, chromosomeMap.get(chr1), norm, zoom, matrixType, ofile, binSize, unit);
             } catch (Exception e) {
                 System.err.println("Unable to dump vector " + e.getMessage());
-                //e.printStackTrace();
+                e.printStackTrace();
             }
         }
 

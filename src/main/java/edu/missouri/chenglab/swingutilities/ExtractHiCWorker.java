@@ -2,9 +2,12 @@ package edu.missouri.chenglab.swingutilities;
 
 import javax.swing.SwingWorker;
 
-import edu.missouri.chenglab.hicdata.ReadHiCData;
+import org.broad.igv.Globals;
 
-public class ExtractHiCWorker extends SwingWorker<Void,Void>{
+import edu.missouri.chenglab.hicdata.ReadHiCData;
+import juicebox.windowui.MatrixType;
+
+public class ExtractHiCWorker extends SwingWorker<String,Void>{
 	private ReadHiCData readHiCData;
 	//private JButton runButton;
 	
@@ -12,11 +15,27 @@ public class ExtractHiCWorker extends SwingWorker<Void,Void>{
 		this.readHiCData = readHiC;		
 	}
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected String doInBackground() throws Exception {
 		
-		ReadHiCData.dumpMatrix(readHiCData.getDataset(), readHiCData.getChrom1(), readHiCData.getChrom2(),
-				readHiCData.getNorm(), readHiCData.getZoom(), readHiCData.getMatrixType(), readHiCData.getOutputFile());
+		try{
+			 if ((readHiCData.getMatrixType() == MatrixType.OBSERVED || readHiCData.getMatrixType() == MatrixType.NORM)
+		                && readHiCData.getChrom1().getName().equals(Globals.CHR_ALL)
+		                && readHiCData.getChrom2().getName().equals(Globals.CHR_ALL)) {			 
+			 
+				boolean includeIntra = true;
+				ReadHiCData.dumpGenomeWideData(readHiCData.getDataset(), readHiCData.getDataset().getChromosomes() , includeIntra, 
+						readHiCData.getZoom(), readHiCData.getNorm(), readHiCData.getMatrixType(), readHiCData.getZoom().getBinSize(), readHiCData.getOutputFile());
+			 }else{
+			
+				 ReadHiCData.dumpMatrix(readHiCData.getDataset(), readHiCData.getChrom1(), readHiCData.getChrom2(),
+						 readHiCData.getNorm(), readHiCData.getZoom(), readHiCData.getMatrixType(), readHiCData.getOutputFile());
+			 }
+		 
+		}catch(Exception ex){
+			ex.printStackTrace();
+			return ex.getMessage();
+		}
 		
-		return null;
+		return "Data is extracted!";
 	}
 }
