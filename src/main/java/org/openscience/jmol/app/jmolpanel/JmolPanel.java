@@ -39,8 +39,6 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -57,11 +55,13 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 
@@ -130,13 +130,13 @@ import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.ReadHiCHeaderWorker;
 import juicebox.HiC;
 import juicebox.data.Dataset;
-import juicebox.tools.clt.old.Dump;
 import juicebox.windowui.HiCZoom;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
@@ -183,6 +183,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private LoopDetectorAction loopDetectAction = new LoopDetectorAction(); //Tuan added
   private AnnotationAction annotationAction = new AnnotationAction(); //Tuan added
   private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
+  private ConvertToHiCAction convertToHiCAction = new ConvertToHiCAction(); //Tuan added
   
   
   
@@ -224,6 +225,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String loopDetectorAction = "LoopDetector";//Tuan added
   private static final String annotateAction = "Annotate";//Tuan added
   private static final String extractHiC = "ExtractHiC";//Tuan added
+  private static final String converToHiC = "ConvertToHiC";//Tuan added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1114,7 +1116,7 @@ public void showStatus(String message) {
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
       new searchGenomeSequenceTableAction(), extractPDBAction, 
-      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
+      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1351,7 +1353,287 @@ public void showStatus(String message) {
   
   
   //added end -hcf
+  
+  
 
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class ConvertToHiCAction extends NewAction{
+	  
+	  //Pre dump = new Dump();
+	  Dataset dataset = null;
+	  
+	  ConvertToHiCAction(){
+		  super(converToHiC);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(800, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y = 0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Input file:"), gbc);
+		  
+		  JTextField inputField = new JTextField();
+		  inputField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField, gbc);
+		  
+		  JButton browserFileButton = new JButton("Browse file");
+		  browserFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputField.setText(fileName);					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFileButton, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Genome ID:"), gbc);
+		  
+		  JTextField genomeIDField = new JTextField();
+		  genomeIDField.setPreferredSize(new Dimension(100,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(genomeIDField, gbc);
+		  genomeIDField.setInputVerifier(new InputVerifier() {
+			
+			@Override
+			public boolean verify(JComponent input) {
+				Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("hg18", "hg19", "hg38", "dMel", "mm9", "mm10", "anasPlat1", "bTaurus3",
+						"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
+				
+				JTextField field = (JTextField) input;
+				if (validGenomeIDs.contains(field.getText().length())) return true;
+				
+				return false;
+			}
+		  });
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(new JLabel("Output file:"), gbc);
+		  
+		  JTextField outputField = new JTextField();
+		  outputField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(outputField, gbc);
+		  
+		  JButton browserOutputFileButton = new JButton("Browse file");
+		  browserOutputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputField.setText(fileName);					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserOutputFileButton, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 4;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  JButton processDataButton = new JButton("Convert to HiC");
+		  panel.add(processDataButton, gbc);
+		  
+		  processDataButton.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				final JDialog dialog = new JDialog(win, "Extracting data ... please wait !", ModalityType.APPLICATION_MODAL);
+				dialog.setPreferredSize(new Dimension(300,80));
+				
+				
+				
+				String[] args = new String[]{};
+								
+				
+				PreProcessingHiC processingHiC = new PreProcessingHiC();
+				
+				HiCWorker extractDataWorker = new ExtractHiCWorker(readHiCData);
+				  
+				extractDataWorker.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								
+								win.setEnabled(true);
+								dialog.dispose();
+								
+								try {
+									String msg = extractDataWorker.get();
+									JOptionPane.showMessageDialog(null, msg);
+								} catch (InterruptedException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								} catch (ExecutionException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								}
+								
+								
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });				  
+				  
+				extractDataWorker.execute();
+				  
+				JProgressBar progressBar = new JProgressBar();
+			    progressBar.setIndeterminate(true);
+			    JPanel panel = new JPanel(new BorderLayout());
+			      
+			    panel.add(progressBar, BorderLayout.CENTER);
+			    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			    dialog.add(panel);
+			    dialog.pack();
+			    dialog.setLocationRelativeTo(win);
+			    dialog.setVisible(true);	
+				
+			}
+		});
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(new JLabel("Contact threshold"), gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("MAPQ score threshold"), gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("This chromosome only"), gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Resolutions (separated by ,)"), gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  JTextField contactThresholdField = new JTextField();
+		  contactThresholdField.setPreferredSize(new Dimension(100,20));
+		  panel.add(contactThresholdField, gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  JTextField mapqScoreThresholdField = new JTextField();
+		  mapqScoreThresholdField.setPreferredSize(new Dimension(100,20));
+		  panel.add(mapqScoreThresholdField, gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  JTextField chromField = new JTextField();
+		  chromField.setPreferredSize(new Dimension(100,20));
+		  panel.add(chromField, gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  JTextField resField = new JTextField();
+		  resField.setPreferredSize(new Dimension(100,20));
+		  panel.add(resField, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  panel.add(new JLabel("Restriction site file:"), gbc);
+		  
+		  JTextField restrictionSiteField = new JTextField();
+		  restrictionSiteField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(restrictionSiteField, gbc);
+		  
+		  JButton browserRestrictionSiteFileButton = new JButton("Browse file");
+		  browserRestrictionSiteFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					restrictionSiteField.setText(fileName);					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  panel.add(browserRestrictionSiteFileButton, gbc);
+		  
+		  
+		  
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(800, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+		  
+		  
+		  
+	  }
+  }
   /**
    * 
    * @author Tuan
@@ -1359,7 +1641,7 @@ public void showStatus(String message) {
    */
   class ExtractHiCAction extends NewAction{
 	  
-	  Dump dump = new Dump();
+	  //Dump dump = new Dump();
 	  Dataset dataset = null;
 	  
 	  ExtractHiCAction(){

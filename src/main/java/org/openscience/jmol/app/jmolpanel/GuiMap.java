@@ -252,6 +252,8 @@ public class GuiMap {
     labels.put("AnnotateTip", "Click to add annotation to the 3D model");
     labels.put("ExtractHiC", "Extract HiC");
     labels.put("ExtractHiCTip", "Extract HiC to sparse matrix format");
+    labels.put("ConvertToHiC", "Convert To HiC");
+    labels.put("ConvertToHiCTip", "Convert aligned reads to HiC format");
     //end
     
   }

@@ -376,6 +376,7 @@ public class Token {
   public final static int loopDetector = scriptCommand | 77 | deprecatedparam;
   public final static int annotate = scriptCommand | 78 | deprecatedparam;
   public final static int extractHiC = scriptCommand | 79 | deprecatedparam;
+  public final static int convertToHiC = scriptCommand | 80 | deprecatedparam;
   //end
   
   // shapes:
@@ -2481,6 +2482,7 @@ public class Token {
       "loopDetector", new Token(loopDetector),
       "annotate", new Token(annotate),
       "extractHiC", new Token(extractHiC),
+      "convertToHiC", new Token(convertToHiC),
       //end
 
 
