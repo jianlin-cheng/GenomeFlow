@@ -133,10 +133,13 @@ import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.ReadHiCHeaderWorker;
 import juicebox.HiC;
 import juicebox.data.Dataset;
+import juicebox.data.HiCFileTools;
+import juicebox.tools.utils.original.Preprocessor;
 import juicebox.windowui.HiCZoom;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
@@ -1388,6 +1391,7 @@ public void showStatus(String message) {
 		  int y = 0;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
 		  panel.add(new JLabel("Input file:"), gbc);
 		  
 		  JTextField inputField = new JTextField();
@@ -1432,7 +1436,7 @@ public void showStatus(String message) {
 						"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
 				
 				JTextField field = (JTextField) input;
-				if (validGenomeIDs.contains(field.getText().length())) return true;
+				if (validGenomeIDs.contains(field.getText())) return true;
 				
 				return false;
 			}
@@ -1467,6 +1471,186 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 1;
 		  panel.add(browserOutputFileButton, gbc);
 		  
+		  List<JComponent> hiddenComponents = new ArrayList<JComponent>();
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 6;
+		  JSeparator separator = new JSeparator(SwingConstants.HORIZONTAL);
+		  separator.setPreferredSize(new Dimension(750,5));
+		  hiddenComponents.add(separator);
+		  separator.setVisible(false);
+		  panel.add(separator, gbc);
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  JLabel contactThresholdLabel = new JLabel("Contact threshold");
+		  contactThresholdLabel.setVisible(false);
+		  hiddenComponents.add(contactThresholdLabel);
+		  panel.add(contactThresholdLabel, gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  JLabel mapqScoreThresholdLable = new JLabel("MAPQ score threshold");
+		  mapqScoreThresholdLable.setVisible(false);
+		  hiddenComponents.add(mapqScoreThresholdLable);
+		  panel.add(mapqScoreThresholdLable, gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  JLabel chromLabel = new JLabel("Chromosomes"); 
+		  chromLabel.setVisible(false);
+		  hiddenComponents.add(chromLabel);
+		  panel.add(chromLabel, gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  JLabel resLabel = new JLabel("Resolutions (separated by ,)");
+		  resLabel.setVisible(false);
+		  hiddenComponents.add(resLabel);
+		  panel.add(resLabel, gbc);
+		  
+		  
+		  NumberFormatter formatter = new NumberFormatter(NumberFormat.getIntegerInstance());			 
+		  formatter.setValueClass(Integer.class);
+		  formatter.setMinimum(0);
+		  formatter.setMaximum(Integer.MAX_VALUE);
+		  formatter.setAllowsInvalid(false);
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  JFormattedTextField contactThresholdField = new JFormattedTextField(formatter);
+		  contactThresholdField.setText("0");
+		  contactThresholdField.setPreferredSize(new Dimension(100,20));		  
+		  contactThresholdField.setVisible(false);
+		  hiddenComponents.add(contactThresholdField);		  
+		  panel.add(contactThresholdField, gbc);
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  JFormattedTextField mapqScoreThresholdField = new JFormattedTextField(formatter);
+		  mapqScoreThresholdField.setText("0");
+		  mapqScoreThresholdField.setPreferredSize(new Dimension(100,20));
+		  mapqScoreThresholdField.setVisible(false);
+		  hiddenComponents.add(mapqScoreThresholdField);
+		  panel.add(mapqScoreThresholdField, gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  JTextField chromField = new JTextField();
+		  chromField.setPreferredSize(new Dimension(100,20));
+		  chromField.setVisible(false);		  
+		  hiddenComponents.add(chromField);
+		  panel.add(chromField, gbc);
+		  chromField.setInputVerifier(new InputVerifier() {
+			
+			@Override
+			public boolean verify(JComponent input) {
+				JTextField field = (JTextField)input;
+				String st = field.getText();
+				for(int i = 0; i < st.length(); i++){
+					if (st.charAt(i) == 'X' || st.charAt(i) == 'Y' || st.charAt(i) == 'x' || st.charAt(i) == 'y') continue;
+					if (st.charAt(i) == 'M' && i < st.length() - 1 && st.charAt(i + 1) == 'T') {i++;continue;}
+					if (st.charAt(i) == 'm' && i < st.length() - 1 && st.charAt(i + 1) == 't') {i++;continue;}
+					
+					if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') return false;
+					if (i > 0 && st.charAt(i) == ',' && st.charAt(i - 1) == ',') return false;
+				}				
+								
+				return true;
+			}
+		});
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  JTextField resField = new JTextField();
+		  resField.setPreferredSize(new Dimension(100,20));
+		  resField.setText("2500000,1000000,500000,250000,100000,50000,25000,10000,5000");
+		  resField.setVisible(false);
+		  hiddenComponents.add(resField);
+		  panel.add(resField, gbc);
+		  
+		  resField.setInputVerifier(new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent input) {
+					JTextField field = (JTextField)input;
+					String st = field.getText();
+					for(int i = 0; i < st.length(); i++){
+						if (st.charAt(i) == 'f' && (i == 0 || st.charAt(i - 1) < '0' || st.charAt(i) > '9')) return false;
+						if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') return false;
+						if (i > 0 && st.charAt(i) == ',' && st.charAt(i - 1) == ',') return false;
+					}				
+									
+					return true;
+				}
+		  });
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  JLabel restrictionSiteLabel = new JLabel("Restriction site file:");
+		  restrictionSiteLabel.setVisible(false);
+		  hiddenComponents.add(restrictionSiteLabel);
+		  panel.add(restrictionSiteLabel, gbc);
+		  
+		  JTextField restrictionSiteField = new JTextField();
+		  restrictionSiteField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;		  
+		  restrictionSiteField.setVisible(false);
+		  hiddenComponents.add(restrictionSiteField);
+		  panel.add(restrictionSiteField, gbc);
+		  
+		  
+		  JButton browserRestrictionSiteFileButton = new JButton("Browse file");
+		  browserRestrictionSiteFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					restrictionSiteField.setText(fileName);					
+				}
+			});
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  browserRestrictionSiteFileButton.setVisible(false);
+		  hiddenComponents.add(browserRestrictionSiteFileButton);
+		  panel.add(browserRestrictionSiteFileButton, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  JCheckBox optinalCheckBox = new JCheckBox("Optional options");
+		  panel.add(optinalCheckBox, gbc);
+		  
+		  optinalCheckBox.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (optinalCheckBox.isSelected()){
+					for(JComponent com: hiddenComponents){
+						com.setVisible(true);
+					}
+				}else{
+					for(JComponent com: hiddenComponents){
+						com.setVisible(false);
+					}
+				}
+				
+			}
+		});
+		  
 		  y++;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
@@ -1476,23 +1660,58 @@ public void showStatus(String message) {
 		  panel.add(processDataButton, gbc);
 		  
 		  processDataButton.addActionListener(new ActionListener() {
-			
+				
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-				final JDialog dialog = new JDialog(win, "Extracting data ... please wait !", ModalityType.APPLICATION_MODAL);
+				final JDialog dialog = new JDialog(win, "Converting data ... please wait !", ModalityType.APPLICATION_MODAL);
 				dialog.setPreferredSize(new Dimension(300,80));
 				
 				
+				String inputFile = inputField.getText();
+				String outputFile = outputField.getText();
+				int countThreshold = 0;
+				if (contactThresholdField.getText().length() > 0) countThreshold = Integer.parseInt(contactThresholdField.getText());
 				
-				String[] args = new String[]{};
-								
+				int mapqThreshold = 0;
+				if (mapqScoreThresholdField.getText().length() > 0) mapqThreshold = Integer.parseInt(mapqScoreThresholdField.getText());
+				Set<String> includedChromosomes = new HashSet<String>();
+				if (chromField.getText().length() > 0){
+					String[] chroms = chromField.getText().split(",");
+					includedChromosomes.addAll(Arrays.asList(chroms));
+				}
+				Set<String> resolutions = new HashSet<String>();
+				if (resField.getText().length() > 0){
+					String[] res = resField.getText().split(",");
+					resolutions.addAll(Arrays.asList(res));
+				}
+				String restrictionSiteFile = restrictionSiteField.getText();
+				
+				String genomeId = genomeIDField.getText();
+				long genomeLength = 0;
+				List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeId);
+		        for (Chromosome c : chromosomes) {
+		            if (c != null)
+		                genomeLength += c.getLength();
+		        }
+		        chromosomes.set(0, new Chromosome(0, HiCFileTools.ALL_CHROMOSOME, (int) (genomeLength / 1000)));
+		        
+		        Preprocessor preprocessor = new Preprocessor(new File(outputFile), genomeId, chromosomes);
+		        preprocessor.setIncludedChromosomes(includedChromosomes);
+		        preprocessor.setCountThreshold(countThreshold);
+		        preprocessor.setMapqThreshold(mapqThreshold);		        
+		        preprocessor.setFragmentFile(restrictionSiteFile);
+		        if (resolutions.size() > 0) preprocessor.setResolutions(resolutions);
+		        
 				
 				PreProcessingHiC processingHiC = new PreProcessingHiC();
+				processingHiC.setPreprocessor(preprocessor);
+				processingHiC.setInputFile(inputFile);
+				processingHiC.setOutputFile(outputFile);
 				
-				HiCWorker extractDataWorker = new ExtractHiCWorker(readHiCData);
+				ConvertToHiCWorker convertToHiCWorker = new ConvertToHiCWorker(processingHiC);
 				  
-				extractDataWorker.addPropertyChangeListener(new PropertyChangeListener() {
+				convertToHiCWorker.addPropertyChangeListener(new PropertyChangeListener() {
 					
 					@Override
 					public void propertyChange(PropertyChangeEvent evt) {
@@ -1507,7 +1726,7 @@ public void showStatus(String message) {
 								dialog.dispose();
 								
 								try {
-									String msg = extractDataWorker.get();
+									String msg = convertToHiCWorker.get();
 									JOptionPane.showMessageDialog(null, msg);
 								} catch (InterruptedException e) {									
 									e.printStackTrace();
@@ -1533,7 +1752,7 @@ public void showStatus(String message) {
 					}
 				  });				  
 				  
-				extractDataWorker.execute();
+				convertToHiCWorker.execute();
 				  
 				JProgressBar progressBar = new JProgressBar();
 			    progressBar.setIndeterminate(true);
@@ -1548,75 +1767,7 @@ public void showStatus(String message) {
 				
 			}
 		});
-		  
-		  y++;
-		  gbc.gridx = 0;
-		  gbc.gridy = y;
-		  gbc.gridwidth = 1;
-		  panel.add(new JLabel("Contact threshold"), gbc);
-		  
-		  gbc.gridx = 1;
-		  gbc.gridy = y;
-		  panel.add(new JLabel("MAPQ score threshold"), gbc);
-		  
-		  gbc.gridx = 2;
-		  gbc.gridy = y;
-		  panel.add(new JLabel("This chromosome only"), gbc);
-		  
-		  gbc.gridx = 3;
-		  gbc.gridy = y;
-		  panel.add(new JLabel("Resolutions (separated by ,)"), gbc);
-		  
-		  y++;
-		  gbc.gridx = 0;
-		  gbc.gridy = y;
-		  JTextField contactThresholdField = new JTextField();
-		  contactThresholdField.setPreferredSize(new Dimension(100,20));
-		  panel.add(contactThresholdField, gbc);
-		  
-		  gbc.gridx = 1;
-		  gbc.gridy = y;
-		  JTextField mapqScoreThresholdField = new JTextField();
-		  mapqScoreThresholdField.setPreferredSize(new Dimension(100,20));
-		  panel.add(mapqScoreThresholdField, gbc);
-		  
-		  gbc.gridx = 2;
-		  gbc.gridy = y;
-		  JTextField chromField = new JTextField();
-		  chromField.setPreferredSize(new Dimension(100,20));
-		  panel.add(chromField, gbc);
-		  
-		  gbc.gridx = 3;
-		  gbc.gridy = y;
-		  JTextField resField = new JTextField();
-		  resField.setPreferredSize(new Dimension(100,20));
-		  panel.add(resField, gbc);
-		  
-		  y++;
-		  gbc.gridx = 0;
-		  gbc.gridy = y;
-		  panel.add(new JLabel("Restriction site file:"), gbc);
-		  
-		  JTextField restrictionSiteField = new JTextField();
-		  restrictionSiteField.setPreferredSize(new Dimension(300,20));
-		  gbc.gridx = 1;
-		  gbc.gridy = y;
-		  gbc.gridwidth = 2;
-		  panel.add(restrictionSiteField, gbc);
-		  
-		  JButton browserRestrictionSiteFileButton = new JButton("Browse file");
-		  browserRestrictionSiteFileButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
-					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					
-					restrictionSiteField.setText(fileName);					
-				}
-			});
-		  gbc.gridx = 3;
-		  gbc.gridy = y;
-		  panel.add(browserRestrictionSiteFileButton, gbc);
+
 		  
 		  
 		  
