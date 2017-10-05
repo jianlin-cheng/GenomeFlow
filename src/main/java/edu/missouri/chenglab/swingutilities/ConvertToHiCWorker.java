@@ -20,6 +20,6 @@ public class ConvertToHiCWorker extends SwingWorker<String,Void> {
         
         NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
         
-		return "Done";
+		return "Convert to HiC done!";
 	}
 }

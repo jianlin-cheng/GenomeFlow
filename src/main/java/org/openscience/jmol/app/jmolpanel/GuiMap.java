@@ -254,6 +254,8 @@ public class GuiMap {
     labels.put("ExtractHiCTip", "Extract HiC to sparse matrix format");
     labels.put("ConvertToHiC", "Convert To HiC");
     labels.put("ConvertToHiCTip", "Convert aligned reads to HiC format");
+    labels.put("NormalizeHiC", "Normalize HiC data");
+    labels.put("NormalizeHiCTip", "Normalize HiC data");
     //end
     
   }

@@ -135,6 +135,7 @@ import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
+import edu.missouri.chenglab.swingutilities.NormalizeHiCWorker;
 import edu.missouri.chenglab.swingutilities.ReadHiCHeaderWorker;
 import juicebox.HiC;
 import juicebox.data.Dataset;
@@ -187,6 +188,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private AnnotationAction annotationAction = new AnnotationAction(); //Tuan added
   private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
   private ConvertToHiCAction convertToHiCAction = new ConvertToHiCAction(); //Tuan added
+  private NormalizeHiCAction normalizeHiCAction = new NormalizeHiCAction(); //Tuan added
   
   
   
@@ -229,6 +231,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String annotateAction = "Annotate";//Tuan added
   private static final String extractHiC = "ExtractHiC";//Tuan added
   private static final String converToHiC = "ConvertToHiC";//Tuan added
+  private static final String normalizeHiC = "NormalizeHiC";//Tuan added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1119,7 +1122,7 @@ public void showStatus(String message) {
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
       new searchGenomeSequenceTableAction(), extractPDBAction, 
-      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
+      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
   ;
 
   class CloseAction extends AbstractAction {
@@ -1357,7 +1360,231 @@ public void showStatus(String message) {
   
   //added end -hcf
   
-  
+  class NormalizeHiCAction extends NewAction{
+	  
+	  //Pre dump = new Dump();
+	  Dataset dataset = null;
+	  
+	  NormalizeHiCAction(){
+		  super(normalizeHiC);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(800, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y = 0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Input file:"), gbc);
+		  
+		  JTextField inputField = new JTextField();
+		  inputField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField, gbc);
+		  
+		  JButton browserFileButton = new JButton("Browse file");
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFileButton, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Output file:"), gbc);
+		  
+		  JTextField outputField = new JTextField();
+		  outputField.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(outputField, gbc);
+		  
+		  JButton browserOutputFileButton = new JButton("Browse file");		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserOutputFileButton, gbc);
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  JLabel minResolutionLabel = new JLabel("Minimum resolution to normalize:");
+		  minResolutionLabel.setVisible(false);
+		  panel.add(minResolutionLabel, gbc);
+		  
+		  NumberFormatter formatter = new NumberFormatter(NumberFormat.getIntegerInstance());			 
+		  formatter.setValueClass(Integer.class);
+		  formatter.setMinimum(0);
+		  formatter.setMaximum(Integer.MAX_VALUE);
+		  formatter.setAllowsInvalid(false);		  
+		  
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  JFormattedTextField minResolutionField = new JFormattedTextField(formatter);		  
+		  minResolutionField.setPreferredSize(new Dimension(100,20));		  
+		  minResolutionField.setVisible(false);		  		  
+		  panel.add(minResolutionField, gbc);
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  JLabel optionalResolutionLabel = new JLabel("(optional)");
+		  optionalResolutionLabel.setVisible(false);
+		  panel.add(optionalResolutionLabel, gbc);
+		  
+		  
+		  browserFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputField.setText(fileName);
+					
+					if (fileName.endsWith(".hic")){
+						outputField.setText(fileName);
+						outputField.setEnabled(false);
+						browserOutputFileButton.setEnabled(false);
+						
+						minResolutionLabel.setVisible(true);
+						minResolutionField.setVisible(true);
+						optionalResolutionLabel.setVisible(true);
+						
+					}else{
+						outputField.setText(fileName.replace(".", "_norm."));
+						outputField.setEnabled(true);
+						browserOutputFileButton.setEnabled(true); 
+						
+						minResolutionLabel.setVisible(false);
+						minResolutionField.setVisible(false);
+						optionalResolutionLabel.setVisible(false);
+					}
+				}
+		  });
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 4;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  JButton normalizeButton = new JButton("Normalize");
+		  panel.add(normalizeButton, gbc);
+		  
+		  normalizeButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if (inputField.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify input file!");
+					return;
+				}
+				if (outputField.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify output file!");
+					return;
+				}
+				String inputFile = inputField.getText();
+				String outputFile = outputField.getText();
+				int minRes = 0;
+				if (minResolutionField.getText().length() > 0){
+					minRes = Integer.parseInt(minResolutionField.getText());
+				}
+				
+				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				final JDialog dialog = new JDialog(win, "Normalizing data ... please wait !", ModalityType.APPLICATION_MODAL);
+				dialog.setPreferredSize(new Dimension(300,80));
+				
+				NormalizeHiCWorker normalizationWorker = new NormalizeHiCWorker(inputFile, outputFile, minRes);
+				  
+				normalizationWorker.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								
+								win.setEnabled(true);
+								dialog.dispose();
+								
+								try {
+									String msg = normalizationWorker.get();
+									JOptionPane.showMessageDialog(null, msg);
+								} catch (InterruptedException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								} catch (ExecutionException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while extracting data");
+								}
+								
+								
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });				  
+				  
+				normalizationWorker.execute();
+				  
+				JProgressBar progressBar = new JProgressBar();
+			    progressBar.setIndeterminate(true);
+			    JPanel panel = new JPanel(new BorderLayout());
+			      
+			    panel.add(progressBar, BorderLayout.CENTER);
+			    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			    dialog.add(panel);
+			    dialog.pack();
+			    dialog.setLocationRelativeTo(win);
+			    dialog.setVisible(true);
+				
+				
+			}
+		  });
+		  
+		  
+		  
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(800, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+	  }
+  }
 
   /**
    * 

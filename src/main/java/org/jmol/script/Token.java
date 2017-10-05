@@ -377,6 +377,7 @@ public class Token {
   public final static int annotate = scriptCommand | 78 | deprecatedparam;
   public final static int extractHiC = scriptCommand | 79 | deprecatedparam;
   public final static int convertToHiC = scriptCommand | 80 | deprecatedparam;
+  public final static int normalizeHiC = scriptCommand | 81 | deprecatedparam;
   //end
   
   // shapes:
@@ -2483,6 +2484,7 @@ public class Token {
       "annotate", new Token(annotate),
       "extractHiC", new Token(extractHiC),
       "convertToHiC", new Token(convertToHiC),
+      "normalizeHiC", new Token(normalizeHiC),
       //end
 
 
