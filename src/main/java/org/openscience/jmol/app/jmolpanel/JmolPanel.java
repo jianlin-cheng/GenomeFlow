@@ -117,7 +117,7 @@ import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 
 import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
-
+import edu.missouri.chenglab.struct3DMax.Input;
 
 //added -hcf
 
@@ -2666,13 +2666,14 @@ public void showStatus(String message) {
 	        runButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {					
-					
+					Input.stoprunning = false;
 					double minlearn = Double.parseDouble(minconversionFactorField.getText());
 					double maxlearn = Double.parseDouble(maxconversionFactorField.getText());
 					String input = inputContactFileField.getText();
 					String output = outputGSSFileField.getText();
 					double learningRate = Double.parseDouble(learningRateField.getText());
 					int maxIteration = Integer.parseInt(maxIterationField.getText());
+					String inputdata_type = Input.inputtype_Tuple;
 					if (maxIteration > 10000){
 						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!, Maximum is 10000");
 						maxIterationField.setText("5000");
@@ -2705,7 +2706,9 @@ public void showStatus(String message) {
 						return;
 					}
 					
-					
+					if (isMatrix.isSelected()){
+						inputdata_type = Input.inputtype_Matrix; // 1						
+					} 
 					
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
@@ -2715,7 +2718,7 @@ public void showStatus(String message) {
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
 		        	viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
-		        	
+		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
 		        	if (cv_enable.isSelected()) viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxconversionFactorField.getText());
 		        	
 		        	
@@ -2732,8 +2735,8 @@ public void showStatus(String message) {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
-					
+				// set stop running to true					
+				Input.stoprunning = true;
 				
 				}
 			});

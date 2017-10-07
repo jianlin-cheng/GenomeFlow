@@ -41,13 +41,14 @@ public class Structure_3DMax {
 	static BufferedWriter log_outputWriter = null;
 	static String outpath = null ; 
 	static String outputname = null ;
+	static int ismatrix = 1;
 	static int NN = 1; //number of structures per alpha
 	static double min = 0.1,max = 2; // conversion factor								
 	static String inputfile = null; // input file 
 	static int Resolution = 1000;
 	static String FileName = "";
 	static String display_path = null;
-	static int Factor = 15; // zoom the structure
+	static int Factor = 13; // zoom the structure
 	static String Header = "3D chromosome/genome modelling by 3DMax"; //header for pdb file
 	static Outputwriter OutputStructure = new Outputwriter(); //class to output the .gss and .pdb structure 
 	private static boolean global_isStopRunning = false;
@@ -188,7 +189,7 @@ public class Structure_3DMax {
 			//System.out.println(String.format("Objective function: %10.10f",obj_val_old));
 			
 			int epoch = 0;
-			while(it_EM < 20) {				
+			while(it_EM < 2) {				
 				//========= decreasing learning rate=======						
 				step = LearningRate(epoch);  //comment out to use constant learning rate
 				
@@ -255,6 +256,10 @@ public class Structure_3DMax {
 						break;
 					}
 					
+					// Stop running program
+					if(Input.stoprunning) {
+						break;
+					}
 					
 					count++; 
 					epoch++; // The number of epoch
@@ -292,6 +297,11 @@ public class Structure_3DMax {
 					//System.out.println(String.format("number of iterations::%d !!!",count));
 					break;
 				} 
+				
+				// Stop running program
+				if(Input.stoprunning) {
+					break;
+				}
 				
 				
 				it_EM++;
@@ -539,8 +549,130 @@ public class Structure_3DMax {
 			}
 			
 		}
+
+	   /**
+	    *  Read the matrix input from file
+	    * @param rows
+	    * @param cols
+	    * @param Filename
+	    * @param sep
+	    * @return
+	    */
+		public static double[][] readMatrix(int rows, int cols, String Filename, String sep){
+		// read in the data
+		double [][] a  = new double[rows][cols];
+		 try {
+			 int linesCounter = 0;
+			 Scanner input = new Scanner (new File( Filename));
+		 
+				while(input.hasNextLine())
+				{
+					String [] line = null;
+					String rowdata = input.nextLine();
+					line = rowdata.split(sep);						
+					 for (int k = 0; k < cols; k++) {							  
+		                	a[linesCounter][k] = Double.parseDouble(line[k]);
+		                }
+					 linesCounter++;    						    
+				}			
+				input.close();
+		 	} catch (FileNotFoundException e) {
+	         e.printStackTrace();
+		 	}
+	 
+		  return a;
+		}
 		
-	  
+		
+		
+		
+		
+		
+		public static double [][] readTupleFile(String Filename, String sep) throws FileNotFoundException{	
+			
+			//create Hashmap
+			HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+			//store index on hashmap: 
+			int max = 0;	
+			int count = 0;
+			try {
+				 Scanner input = new Scanner (new File( Filename));			 
+					while(input.hasNextLine())
+					{	String [] line = null;
+						String rowdata = input.nextLine();
+						if(!rowdata.isEmpty()) {
+						line = rowdata.split(sep);
+						for (int i= 0; i<2;i++) {
+							int key = Integer.parseInt(line[i]);
+							if (map.containsKey(key)) {
+								//key exists
+								continue;
+							} else {
+								Object value = map.get(key);
+								if (value == null) {
+								    value = max++;		
+									map.put(key, (Integer) value);
+									count =  count + 1;
+								}														
+							}							
+						}
+						}
+					}			
+					input.close();
+			 	} catch (FileNotFoundException e) {
+		         e.printStackTrace();
+			 	}	
+			System.out.println(String.format("The total number of unique element = %d", count));
+			// Once the number of element is obtained, get the total number of elements, create a matrix with them	
+			 double [][] a = new double[count][count];
+			 for (int i = 0; i<max;i++) {
+					for (int j = 0; j<max;j++) {
+						a[i][j] = 0;
+				}
+			}
+			
+			// For each key get value
+			 try {				
+				 Scanner input = new Scanner (new File( Filename));
+			 
+					while(input.hasNextLine())
+					{
+						String [] line = null;
+						String rowdata = input.nextLine();
+						if(!rowdata.isEmpty()) {
+							line = rowdata.split(sep);						
+							// Find the key value from map
+							int indexkey0 = Integer.parseInt(line[0]); int indexvalue0 = map.get(indexkey0);
+							int indexkey1 = Integer.parseInt(line[1]); int indexvalue1 = map.get(indexkey1);
+							
+							System.out.println(String.format("%d %d %f",  indexkey0, indexkey1 ,Double.parseDouble(line[2]) ));
+							
+							if (Double.isNaN( Double.parseDouble(line[2]))) {
+								a[indexvalue0][indexvalue1] = 0;
+								a[indexvalue1][indexvalue0] = 0;
+							}
+							else {
+								a[indexvalue0][indexvalue1] = Double.parseDouble(line[2]) ;					 
+								a[indexvalue1][indexvalue0] = Double.parseDouble(line[2]) ;
+							}
+						}
+					
+		             }			
+				
+					input.close();
+			 	} catch (FileNotFoundException e) {
+			 		System.out.println("There is a line with a wrong Format");
+		         e.printStackTrace();
+			 	}
+			 
+								
+			return a;
+			
+		}
+		
+		
+		
+		
 		
 		
 		/**
@@ -556,51 +688,46 @@ public class Structure_3DMax {
 			//#######################################################################
 			// Detect To determine if it is a Matrix or Tuple. Greater than 3 cols
 			//#######################################################################
+			
 			// pre-read in the number of rows/columns
 			int rows = 0;
-			int cols = 0;		
-			 try {
-				 Scanner input = new Scanner (new File( Filename));
+			int cols = 0;	
+			double [][] matrix= null;			
 			 
-					while(input.hasNextLine())
-					{	String [] line = null;
-						String rowdata = input.nextLine();					
-						//System.out.println(rowdata);
-						line = rowdata.split(sep);						
-						//System.out.println(String.format("col = %d", line.length));
-						++rows;		
-						cols = line.length;
-					}			
-					input.close();
-			 	} catch (FileNotFoundException e) {
-		         e.printStackTrace();
-			 	}
-			
-			 System.out.println(String.format("Number of row/col = %d", rows));
-			 // read in the data
-			 double [][] a = new double[rows][cols];
-			 try {
-				 int linesCounter = 0;
-				 Scanner input = new Scanner (new File( Filename));
+			 System.out.println(String.format("Number of rows = %d", rows));
+			 //===================================
+			 // Read in Matrix input directly
+			 //===================================		 
+			 if (ismatrix == 1) {
+				 try {
+					 Scanner input = new Scanner (new File( Filename));
+				 
+						while(input.hasNextLine())
+						{	String [] line = null;
+							String rowdata = input.nextLine();					
+							//System.out.println(rowdata);
+							line = rowdata.split(sep);						
+							//System.out.println(String.format("col = %d", line.length));
+							++rows;		
+							cols = line.length;
+						}			
+						input.close();
+				 	} catch (FileNotFoundException e) {
+			         e.printStackTrace();
+				 	}			
+				 System.out.println(String.format("Number of row/col = %d", rows));
+				 matrix = readMatrix( rows, cols, Filename,  sep);
+			 }				
+			 //===================================
+			 // Convert Tuple to a Matrix
+			 //===================================	
+			 else {
+				
+				 matrix =  readTupleFile(Filename,sep);
+			 }
 			 
-					while(input.hasNextLine())
-					{
-						String [] line = null;
-						String rowdata = input.nextLine();
-						line = rowdata.split(sep);						
-						 for (int k = 0; k < cols; k++) {							  
-			                	a[linesCounter][k] = Double.parseDouble(line[k]);
-			                }
-						 linesCounter++;    						    
-					}			
-					input.close();
-			 	} catch (FileNotFoundException e) {
-		         e.printStackTrace();
-			 	}
 			 
-			
-			 
-			return a;
+			 return matrix;
 		}
 		
 		
@@ -646,7 +773,7 @@ public class Structure_3DMax {
 		    initial_lrate = Double.parseDouble(args[4]);
 		    max_iteration = Integer.parseInt(args[5]);
 			Resolution = Integer.parseInt(args[6]);
-			
+			ismatrix = Integer.parseInt(args[7]);
 			
 			 String[] tmp = inputfile.split("[\\/ \\. \\\\]");
 			 if (inputfile.contains(".")){
@@ -671,8 +798,15 @@ public class Structure_3DMax {
 		    		
 			System.out.println(String.format("Input = %s", inputfile));
 		      try {
+		    	  String seperator;
 		    	 System.out.println("Reading Data from File......");
-		    	 String seperator = ","; // specify the data seperator for dataset
+		    	 if (ismatrix == 1) {
+		    		 seperator = ","; // specify the data seperator for dataset
+		    	 }
+		    	 else {
+		    		 seperator = "\t"; 
+		    	 }
+		    	 
 				Data = readFile(inputfile,seperator,viewer);
 			    System.out.println("File read successfully!!!\n");
 			} catch (FileNotFoundException e) {

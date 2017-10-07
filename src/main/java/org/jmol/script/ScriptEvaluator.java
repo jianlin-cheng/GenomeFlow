@@ -6085,7 +6085,7 @@ public class ScriptEvaluator {
 	 * To reconstruct 3D model using 3DMax
 	 */
 	private void Structure_3DMax() {
-		String[] Input = new String[7];
+		String[] Input = new String[8];
 		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
 		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);		
 		 Input[2] = (String)viewer.getParameter(Constants.MINCONVERSIONFACTOR);
@@ -6093,6 +6093,7 @@ public class ScriptEvaluator {
 		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);
 		 Input[5] = (String)viewer.getParameter(Constants.MAXITERATION);
 		 Input[6] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
+		 Input[7] = (String)viewer.getParameter(Constants.ISMATRIX);	
 		// Call the Structure_3DMax
 		 
 		try{

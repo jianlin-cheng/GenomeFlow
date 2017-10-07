@@ -1,3 +1,0 @@
-
-
-Best convert factor: 1.00, with avg. correlation: 1.00, pick models generated using this convert factor as your final models 
