@@ -2392,7 +2392,9 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					
+					if (!CommonFunctions.isFile(fileName)){
+						fileName = fileName + "\\";
+					}
 					outputFileField.setText(fileName);
 				}
 		  });
@@ -2634,6 +2636,12 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
+					
+					if (trackNameField.getText().length() == 0) {
+						String name = CommonFunctions.getFileNameFromPath(fileName);
+						trackNameField.setText(name);
+					}
+					
 					trackFileField.setText(fileName);					
 				}
 			});
@@ -2763,20 +2771,6 @@ public void showStatus(String message) {
 			});
 	    	
 
-	        
-	        
-	        gbc.gridx = 0;
-	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Track name:"), gbc);
-	        
-	        gbc.gridx = 1;
-	        gbc.gridy = y;
-	        gbc.gridwidth = 2;
-	        trackNameField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(trackNameField, gbc);
-	        
-	        
-	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	
 	        gbc.gridwidth = 1;
@@ -2793,6 +2787,17 @@ public void showStatus(String message) {
 	        gbc.gridy = y;
 	        gbc.gridwidth = 1;	        
 	        panel.add(openTrackFileButton, gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Track name:"), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        trackNameField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(trackNameField, gbc);
 	        
 	        y++;
 	        
@@ -3273,7 +3278,70 @@ public void showStatus(String message) {
 	        panel.add(maxIterationField, gbc);
 	        
 			///////////////////////////////////////////
-				        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Chromosome (Optional):"), gbc);	        
+
+	        JTextField chromosomeField = new JTextField("X");	        
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        chromosomeField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(chromosomeField, gbc);
+	        
+	        chromosomeField.setInputVerifier(new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent input) {
+					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
+							"18","19","20","21","22","23","X","Y"));
+					
+					JTextField field = (JTextField) input;
+					if (validGenomeIDs.contains(field.getText())) return true;
+					
+					return false;
+				}
+			});
+
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("(1,2,3,X or Y)"), gbc);	
+	        
+	        //////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Genome ID (Optional):"), gbc);	        
+
+	        JTextField genomeField = new JTextField("hg19");
+	               
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        genomeField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(genomeField, gbc);
+	        genomeField.setInputVerifier(new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent input) {
+					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("hg18", "hg19", "hg38", "dMel", "mm9", "mm10", "anasPlat1", "bTaurus3",
+							"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
+					
+					JTextField field = (JTextField) input;
+					if (validGenomeIDs.contains(field.getText())) return true;
+					
+					return false;
+				}
+			});
+	        
+	        //////////
 			
 			y++;
 			JCheckBox isMultipleChrom = new JCheckBox("Is Multiple-Chromosomes Structure?");
@@ -3352,7 +3420,7 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame lorDGFrame = new JFrame();
-	        lorDGFrame.setSize(new Dimension(600, 300));
+	        lorDGFrame.setSize(new Dimension(650, 400));
 	        lorDGFrame.setLocation(400, 400);
 	        
 	        lorDGFrame.add(panel);
@@ -3372,11 +3440,14 @@ public void showStatus(String message) {
 						return;
 					}
 					
-					double conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
-					if (conversion < 0.2 && conversion > 3.5){
-						JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
-						conversionFactorField.setText("1.0");
-						return;
+					double conversion = 0.0;
+					if (conversionFactorField.getText().length() > 0){
+						conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
+						if (conversion < 0.2 && conversion > 3.5){
+							JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
+							conversionFactorField.setText("1.0");
+							return;
+						}
 					}
 					
 					if (!CommonFunctions.isFile(inputContactFileField.getText())){
@@ -3402,6 +3473,9 @@ public void showStatus(String message) {
 		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
 		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText().replace(",", ""));
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
+		        	
+		        	viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
+		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
 		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
 		        	

@@ -168,7 +168,7 @@ public class GradientAscent {
 				
 				String tmpFileGss = tmpFolder + "/iteration_" + count + ".gss";
 				String tmpFilePdb = tmpFolder + "/iteration_" + count + ".pdb";
-				helper.writeStructureGSS(tmpFileGss,variables, inputPara.getLstPos(), idToChr);
+				helper.writeStructureGSS(tmpFileGss,variables, inputPara.getLstPos(), idToChr, inputPara.getChrom(), inputPara.getGenomeID());
 				helper.writeStructure(tmpFilePdb,variables, idToChr, "");				
 				
 				if (inputPara.getViewer() != null){					

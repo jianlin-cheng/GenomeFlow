@@ -339,7 +339,13 @@ public class GssReader extends AtomSetCollectionReader {
 				    ensChr = matcherEnsLine.group(2);
 				    
 				    //Tuan added
-				    chrID = Integer.parseInt(ensChr);
+				    if (ensChr.equalsIgnoreCase("X")){
+				    	chrID = 23;
+				    }else if (ensChr.equalsIgnoreCase("Y")){
+				    	chrID = 24;
+				    }else{
+				    	chrID = Integer.parseInt(ensChr);
+				    }
 				    //End
 				    
 			  }
@@ -488,7 +494,13 @@ public class GssReader extends AtomSetCollectionReader {
 			    ensChr = matcherEnsLine.group(2);
 			    
 			    //Tuan add
-			    chrID = Integer.parseInt(ensChr);
+			    if (ensChr.equalsIgnoreCase("X")){
+			    	chrID = 23;
+			    }else if (ensChr.equalsIgnoreCase("Y")){
+			    	chrID = 24;
+			    }else{
+			    	chrID = Integer.parseInt(ensChr);
+			    }
 			    //End
 		  }
 		  else if (matcherLcLine.matches()) {
@@ -683,7 +695,13 @@ public class GssReader extends AtomSetCollectionReader {
 			    ensChr = matcherEnsLine.group(2);
 			    
 			    //Tuan add
-			    chrID = Integer.parseInt(ensChr);
+			    if (ensChr.equalsIgnoreCase("X")){
+			    	chrID = 23;
+			    }else if (ensChr.equalsIgnoreCase("Y")){
+			    	chrID = 24;
+			    }else{
+			    	chrID = Integer.parseInt(ensChr);
+			    }
 			    //End
 		  }
 		  else if (matcherLcLine.matches()) {

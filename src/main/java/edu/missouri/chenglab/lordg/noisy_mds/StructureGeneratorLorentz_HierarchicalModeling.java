@@ -608,10 +608,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 					inputParameters.setNumber_threads(1);
 					inputParameters.setConvert_factor(convertFactor);
 					cor = run();  
-					if (inputParameters.isStopRunning()){
-						inputParameters.setStopRunning(false);
-						break;
-					}
+					
 				} catch (Exception e) {					
 					e.printStackTrace();
 					continue;
@@ -620,6 +617,11 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				if (minCor > cor){
 					minCor = cor;
 					bestConvertFactor = convertFactor;
+				}
+				
+				if (inputParameters.isStopRunning()){
+					inputParameters.setStopRunning(false);
+					break;
 				}
 			}
 			
@@ -737,7 +739,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				String outputFileGSS = outputFile + ".gss";
 				String outputFilePDB = outputFile + ".pdb";
 				helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
-				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr);
+				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
 				
 				if (inputParameters.getViewer() != null){
 					inputParameters.getViewer().loadNewModel(outputFilePDB, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 

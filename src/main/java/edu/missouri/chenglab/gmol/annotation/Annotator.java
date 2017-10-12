@@ -27,6 +27,7 @@ public class Annotator {
 		List<Region> regions = readRegions(trackFile);
 		Atom[] atoms = viewer.getModelSet().atoms;
 		
+		viewer.evalString("restrict bonds not selected;select not selected;wireframe 5;color structure");
 		for(Atom atom : atoms){
 			boolean isLabel = false;
 			for(Region reg : regions){
@@ -81,7 +82,7 @@ public class Annotator {
 	private List<Region> readRegions(String trackFile) throws Exception{
 		
 		Pattern genePattern = Pattern.compile("^(.+?)(\\s+)chr(\\d+)(\\s+)([+-])(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(.*)");
-		Pattern bedPattern = Pattern.compile("^chr(\\d+)(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(.+?)(\\s+)(.*)");
+		Pattern bedPattern = Pattern.compile("^chr(\\d+|[XY])(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(\\S+)(.*)");
 		
 		
 		List<Region> rs = new ArrayList<Region>();
@@ -104,7 +105,14 @@ public class Annotator {
 				end = Integer.parseInt(geneMatcher.group(9));
 				name = geneMatcher.group(1);
 			}else if (bedMatcher.find()){
-				chrID = Integer.parseInt(bedMatcher.group(1));
+				if (bedMatcher.group(1).equalsIgnoreCase("x")){
+					chrID = 23;
+					
+				}else if (bedMatcher.group(1).equalsIgnoreCase("y")){
+					chrID = 24;				
+				}else{
+					chrID = Integer.parseInt(bedMatcher.group(1));
+				}
 				start = Integer.parseInt(bedMatcher.group(3));
 				end = Integer.parseInt(bedMatcher.group(5));
 				name = bedMatcher.group(7);

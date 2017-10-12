@@ -39,6 +39,9 @@ public class InputParameters {
 	
 	private boolean isSearchingConversionFactor = false;
 	
+	private String chrom = "1";
+	private String genomeID = "hg19";
+	
 	public InputParameters copy(){
 		InputParameters inputParameter = new InputParameters();
 		inputParameter.setNum(num);
@@ -66,10 +69,33 @@ public class InputParameters {
 		
 		inputParameter.setSearchingConversionFactor(isSearchingConversionFactor);
 		
+		inputParameter.setChrom(chrom);
+		inputParameter.setGenomeID(genomeID);
+		
 		return inputParameter;
 	}
 	
 	
+	public String getChrom() {
+		return chrom;
+	}
+
+
+	public void setChrom(String chrom) {
+		this.chrom = chrom;
+	}
+
+
+	public String getGenomeID() {
+		return genomeID;
+	}
+
+
+	public void setGenomeID(String genomeId) {
+		this.genomeID = genomeId;
+	}
+
+
 	public boolean isSearchingConversionFactor() {
 		return isSearchingConversionFactor;
 	}

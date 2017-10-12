@@ -6014,6 +6014,8 @@ public class ScriptEvaluator {
 			if (chrLen.length > 1) inputParameter.setChr_lens(chrLen);
 		}
 		
+		String chrom = (String) viewer.getParameter(Constants.CHROMOSOME);
+		String genomeID = (String) viewer.getParameter(Constants.GENOMEID);
 		
 		inputParameter.setNum(1);
 		inputParameter.setOutput_folder(outputFolder);
@@ -6023,7 +6025,8 @@ public class ScriptEvaluator {
 		if (conversionFactor > 0) inputParameter.setConvert_factor(conversionFactor);
 		inputParameter.setMax_iteration(maxIteration);
 		
-		
+		inputParameter.setChrom(chrom);
+		inputParameter.setGenomeID(genomeID);
 		
 		inputParameter.setVerbose(false);
 		

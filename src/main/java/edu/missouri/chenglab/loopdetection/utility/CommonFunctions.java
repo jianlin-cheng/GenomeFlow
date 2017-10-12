@@ -147,4 +147,14 @@ public class CommonFunctions {
 		
 		return lst;
 	}
+	
+	public static String getFileNameFromPath(String path){
+		String[] st = path.split("[.\\\\/]");
+		if (st.length <= 1) return path;
+		
+		if (st.length >= 2 && path.endsWith("." + st[st.length - 1])){
+			return st[st.length - 2];
+		}else return st[st.length - 1];
+	}
+	
 }

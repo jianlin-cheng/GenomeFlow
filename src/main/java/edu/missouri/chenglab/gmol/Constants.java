@@ -19,6 +19,8 @@ public interface Constants {
 	String ANNOTATIONCOLOR = "annotationColor";
 	
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
+	String CHROMOSOME = "chromsome";
+	String GENOMEID = "genomeID";
 	
 	int DEFAULTWIREFRAME = 5;
 	int DEFAULTHIGHLIGHTWIREFRAME = 10;

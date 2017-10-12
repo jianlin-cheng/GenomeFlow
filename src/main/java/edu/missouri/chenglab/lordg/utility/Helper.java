@@ -785,19 +785,19 @@ public class Helper {
 	 * @param structure: every 3 consecutive points is one point in 3D
 	 * @param
 	 */
-	public void writeStructureGSS(String pathFilename, double[] structure, List<Integer> lstPos, HashMap<Integer,Integer> idToChr) throws IOException{
+	public void writeStructureGSS(String pathFilename, double[] structure, List<Integer> lstPos, HashMap<Integer,Integer> idToChr, String chrom, String genomeID) throws IOException{
 
 		PrintWriter pw = new PrintWriter(pathFilename);
-		pw.println("<sp>some_species</sp>");
+		pw.println(String.format("<sp>%s</sp>", genomeID));
 		
 		
 		int id, n = 0, start=0, end=0, chrID = 1;
 		double radius = 1.0;
 		
 		//for each chromosome
-		pw.println("<ens-chr>1</ens-chr>");
+		pw.println(String.format("<ens-chr>%s</ens-chr>", chrom));
 		pw.println("<lc-seq>unknown</lc-seq>");
-		pw.println("<cs>" + 1);
+		pw.println("<cs>" + chrom);
 		
 		for(int i = 3; i < structure.length; i += 3){
 			id = i / 3;
