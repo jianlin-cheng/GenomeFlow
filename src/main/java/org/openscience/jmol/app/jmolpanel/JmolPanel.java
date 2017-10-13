@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -1459,6 +1460,8 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
+					if (fileName == null) return;
+					
 					inputField.setText(fileName);
 					
 					if (fileName.endsWith(".hic")){
@@ -1583,6 +1586,7 @@ public void showStatus(String message) {
 		
 		  subFrame.add(scrollpane, BorderLayout.CENTER);
 		  subFrame.setVisible(true);
+		  subFrame.setTitle("Normalize HiC Data");
 	  }
   }
 
@@ -1635,6 +1639,7 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
+					if (fileName == null) return;
 					inputField.setText(fileName);					
 				}
 			});
@@ -1689,7 +1694,7 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					
+					if (fileName == null) return;
 					outputField.setText(fileName);					
 				}
 			});
@@ -1844,7 +1849,7 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					
+					if (fileName == null) return;
 					restrictionSiteField.setText(fileName);					
 				}
 			});
@@ -2007,7 +2012,7 @@ public void showStatus(String message) {
 		
 		  subFrame.add(scrollpane, BorderLayout.CENTER);
 		  subFrame.setVisible(true);
-		  
+		  subFrame.setTitle("Convert Mapped Reads to HiC Files");
 		  
 		  
 	  }
@@ -2042,8 +2047,11 @@ public void showStatus(String message) {
 		  panel.setLayout(new GridBagLayout());  
 		  
 		  int y=0;
+		 
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  gbc.gridheight = 1;
 		  panel.add(new JLabel("Path to .hic file:"), gbc);
 		  
 		  JTextField pathField = new JTextField();
@@ -2059,7 +2067,7 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					
+					if (fileName == null) return;
 					pathField.setText(pathField.getText() + fileName + ";");					
 				}
 			});
@@ -2392,6 +2400,8 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					if (fileName == null) return;
 					if (!CommonFunctions.isFile(fileName)){
 						fileName = fileName + "\\";
 					}
@@ -2563,7 +2573,9 @@ public void showStatus(String message) {
 		
 		  subFrame.add(scrollpane, BorderLayout.CENTER);
 		  subFrame.setVisible(true);
-		
+		  
+		  subFrame.setTitle("Extracting Contact Matrix from HiC Files");
+		  
 		  subFrame.addWindowListener(new WindowAdapter() {
 			
 			
@@ -2590,7 +2602,9 @@ public void showStatus(String message) {
 	  
 	  @Override
 	  public void actionPerformed(ActionEvent e) {
-		  
+		  	
+		  	//viewer.evalString("restrict bonds not selected;select not selected;wireframe 5;color structure");
+		  	
 		  	Map<String, Color> trackColorMap = new HashMap<String, Color>();
 		  	Map<String, String> trackFileNameMap = new HashMap<String, String>();
 		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
@@ -2613,7 +2627,7 @@ public void showStatus(String message) {
 	        Frame subFrame = new JFrame();
 	        subFrame.setSize(new Dimension(600, 400));
 	        subFrame.setLocation(400, 400);
-	        
+	        subFrame.setTitle("Annotate 3D Models");
 	        
 		  	Random rd = new Random();
 		  	Color defaulColor = new Color(rd.nextInt(256), rd.nextInt(256), rd.nextInt(256));		  	
@@ -2636,7 +2650,7 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					
+					if (fileName == null) return;
 					if (trackNameField.getText().length() == 0) {
 						String name = CommonFunctions.getFileNameFromPath(fileName);
 						trackNameField.setText(name);
@@ -2689,7 +2703,6 @@ public void showStatus(String message) {
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
 			    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 			    	
-					
 					String script = "annotate";
 					viewer.script(script);
 					
@@ -2992,6 +3005,7 @@ public void showStatus(String message) {
 	        
 	        subFrame.add(panel);
 	        subFrame.setVisible(true);
+	        subFrame.setTitle("Converting .pdb Files to .gss Files");
 	        
 	        JButton runButton = new JButton("Convert");
 	    	runButton.addActionListener(new ActionListener() {
@@ -3101,6 +3115,7 @@ public void showStatus(String message) {
 	        
 	        subFrame.add(panel);
 	        subFrame.setVisible(true);
+	        subFrame.setTitle("Identify Chromatin Loops in 3D Models");
 	        
 	         
 	    }
@@ -3425,7 +3440,7 @@ public void showStatus(String message) {
 	        
 	        lorDGFrame.add(panel);
 	        lorDGFrame.setVisible(true);
-	        
+	        lorDGFrame.setTitle("Reconstruct 3D Models from Contact Matrices");
 	        
 	        
 	        

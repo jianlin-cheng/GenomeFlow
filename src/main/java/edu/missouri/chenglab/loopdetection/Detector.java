@@ -50,12 +50,17 @@ public class Detector {
 		
 		viewer.displayMessage(new String[]{String.format("%d loop%s identified", resultLoop.size(), resultLoop.size() > 1 ? "s":"")});
 		
-		viewer.evalString("restrict bonds not selected;select not selected;wireframe 5;color structure");
+		//viewer.evalString("restrict bonds not selected;select not selected;wireframe 5;color structure");
 		
+		StringBuilder sb = new StringBuilder();
 		for (Loop loop : resultLoop){
 		    //cmd.spectrum(expression="count", palette="rainbow", selection="id " + str(loop.beg + 1) + "-" + str(loop.end + 1))
-			viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 10; color group;", loop.atomBeg.index + 1, loop.atomEnd.index + 1));
+			//viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 10; color group;", loop.atomBeg.index + 1, loop.atomEnd.index + 1));
+			sb.append(String.format("select atomno >= %d and atomno <= %d; wireframe 10; color group;", loop.atomBeg.index + 1, loop.atomEnd.index + 1));			
 		}
+		viewer.evalString(sb.toString());
+		
+		
 		viewer.evalString(String.format("select all;"));
 		String outputFile = (String) viewer.getParameter(Constants.OUTPUTLOOPFILE);	
 		if (outputFile != null && outputFile.length() > 0){

@@ -26,8 +26,8 @@ public class Annotator {
 		
 		List<Region> regions = readRegions(trackFile);
 		Atom[] atoms = viewer.getModelSet().atoms;
-		
-		viewer.evalString("restrict bonds not selected;select not selected;wireframe 5;color structure");
+				
+		StringBuilder commandSB = new StringBuilder();
 		for(Atom atom : atoms){
 			boolean isLabel = false;
 			for(Region reg : regions){
@@ -49,11 +49,14 @@ public class Annotator {
 				
 				atom.currentColor = color;
 				
-				if (label.length() > 0) script.append("label " + label.toString() + ";select all;");
+				if (label.length() > 0) script.append("label " + label.toString() + ";");
 				
-				viewer.script(script.toString());
+				//viewer.script(script.toString());
+				commandSB.append(script.toString());
 			}
 		}
+		commandSB.append("select all;");
+		viewer.evalString(commandSB.toString());
 		
 	}
 	
