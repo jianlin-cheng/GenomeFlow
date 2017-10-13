@@ -742,7 +742,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
 				
 				if (inputParameters.getViewer() != null){
-					inputParameters.getViewer().loadNewModel(outputFilePDB, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
+					inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
 							"Correlation: " + String.format("%.2f", cor)});
 				}
 				
