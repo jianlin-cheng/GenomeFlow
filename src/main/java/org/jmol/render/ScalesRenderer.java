@@ -49,7 +49,7 @@ public class ScalesRenderer extends ShapeRenderer {
 	  int fiberScale = modelSet.fiberScaleNumber;
 	  int nucleoScale = modelSet.nucleoScaleNumber;
 	
-	  if (chrScale != 0) {
+	  if (chrScale != 0) {		  
 		  scaleStrings[1] = "CHROM" + ": " + Integer.toString(chrScale);
 	  }
 	  if (lociScale != 0) {

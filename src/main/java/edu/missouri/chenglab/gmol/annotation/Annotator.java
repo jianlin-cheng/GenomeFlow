@@ -86,6 +86,7 @@ public class Annotator {
 		
 		Pattern genePattern = Pattern.compile("^(.+?)(\\s+)chr(\\d+)(\\s+)([+-])(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(.*)");
 		Pattern bedPattern = Pattern.compile("^chr(\\d+|[XY])(\\s+)(\\d+)(\\s+)(\\d+)(\\s+)(\\S+)(.*)");
+		Pattern bedPatternNoName = Pattern.compile("^chr(\\d+|[XY])(\\s+)(\\d+)(\\s+)(\\d+)(.*)");
 		
 		
 		List<Region> rs = new ArrayList<Region>();
@@ -101,6 +102,7 @@ public class Annotator {
 			
 			Matcher geneMatcher = genePattern.matcher(ln);
 			Matcher bedMatcher = bedPattern.matcher(ln);
+			Matcher bedMatcherNoName = bedPatternNoName.matcher(ln);
 			
 			if (geneMatcher.find()){
 				chrID = Integer.parseInt(geneMatcher.group(3));
@@ -119,6 +121,18 @@ public class Annotator {
 				start = Integer.parseInt(bedMatcher.group(3));
 				end = Integer.parseInt(bedMatcher.group(5));
 				name = bedMatcher.group(7);
+			}else if (bedMatcherNoName.find()){
+				if (bedMatcherNoName.group(1).equalsIgnoreCase("x")){
+					chrID = 23;
+					
+				}else if (bedMatcherNoName.group(1).equalsIgnoreCase("y")){
+					chrID = 24;				
+				}else{
+					chrID = Integer.parseInt(bedMatcherNoName.group(1));
+				}
+				start = Integer.parseInt(bedMatcherNoName.group(3));
+				end = Integer.parseInt(bedMatcherNoName.group(5));
+				name = "";
 			}else{
 				continue;
 			}

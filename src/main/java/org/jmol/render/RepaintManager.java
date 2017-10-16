@@ -28,6 +28,7 @@ import javax.vecmath.Point3f;
 import org.jmol.api.JmolRendererInterface;
 import org.jmol.api.JmolRepaintInterface;
 import org.jmol.g3d.Graphics3D;
+import org.jmol.modelset.Atom;
 import org.jmol.modelset.ModelSet;
 import org.jmol.shape.Scales;
 import org.jmol.shape.Shape;
@@ -193,17 +194,39 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
       Logger.error("rendering error? ");
     }
 
-    //Tuan added
+    //Tuan added    
     Graphics3D g3d = (Graphics3D) gdata;
     JmolFont font3d = gdata.getFont3D("SansSerif","Bold",12);
     float imageFontScaling = viewer.getImageFontScaling();
     int ascent = font3d.getAscent();
+    
+    int currentChrom = modelSet.atoms[0].chrID;
+    StringBuilder chromSB = new StringBuilder("" + modelSet.atoms[0].chrID);
+    for(Atom atom : modelSet.atoms){
+    	if (atom.chrID != currentChrom){
+    		chromSB.append("," + atom.chrID);
+    		currentChrom = atom.chrID;
+    	}
+    }
+    String message = chromSB.substring(0, chromSB.length() <= 2 ? chromSB.length() : 2);
+    if (message.length() < chromSB.length()) message += " ...";
+    
+    int width, dx, dy;
+    dy = ascent;	
+    if (message.length() > 0){
+	    message = "Chrom: " + message;    
+	    width = font3d.stringWidth(message) + 90;
+		dx = (int) (width + Scales.margin * imageFontScaling);
+		
+	    g3d.drawStringNoSlab(message, font3d, g3d.getRenderWidth() - dx, 2*dy, 0);
+    }
+    
     if (modelSet.message != null){
     	for(int i = 0; i < modelSet.message.length; i++){	    	
-	    	int width = font3d.stringWidth(modelSet.message[i]) + 10;
-	    	int dx = (int) (width + Scales.margin * imageFontScaling);
-	        int dy = ascent;
-	    	g3d.drawStringNoSlab(modelSet.message[i], font3d, g3d.getRenderWidth() - dx, (i+3)*dy, 0);    	
+	    	width = font3d.stringWidth(modelSet.message[i]) + 10;
+	    	dx = (int) (width + Scales.margin * imageFontScaling);
+	        
+	    	g3d.drawStringNoSlab(modelSet.message[i], font3d, g3d.getRenderWidth() - dx, (i+4)*dy, 0);    	
     	}
     }
     //End

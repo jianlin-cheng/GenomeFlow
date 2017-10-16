@@ -2651,10 +2651,10 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					if (fileName == null) return;
-					if (trackNameField.getText().length() == 0) {
+					//if (trackNameField.getText().length() == 0) {
 						String name = CommonFunctions.getFileNameFromPath(fileName);
 						trackNameField.setText(name);
-					}
+					//}
 					
 					trackFileField.setText(fileName);					
 				}
@@ -2766,7 +2766,7 @@ public void showStatus(String message) {
 					y++;
 					gbc.gridx = 0;
 					gbc.gridy = y;
-					gbc.gridwidth = 1;
+					gbc.gridwidth = 4;
 					gbc.anchor = GridBagConstraints.WEST;
 					panel.add(newCheckBox, gbc);
 					
