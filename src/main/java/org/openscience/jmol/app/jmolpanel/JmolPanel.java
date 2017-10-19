@@ -2608,6 +2608,7 @@ public void showStatus(String message) {
 		  	Map<String, Color> trackColorMap = new HashMap<String, Color>();
 		  	Map<String, String> trackFileNameMap = new HashMap<String, String>();
 		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
+		  	Map<String, Boolean> trackDomainMap = new HashMap<String, Boolean>();
 		  	
 	    	GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
@@ -2641,6 +2642,8 @@ public void showStatus(String message) {
 	    	
 	    	
 	    	JTextField trackFileField = new JTextField();
+	    	
+	    	JCheckBox isDomain = new JCheckBox("Is domain or loop?");
 	    	
 	    	JButton openTrackFileButton = new JButton("Browse File");		    
 		    
@@ -2689,7 +2692,7 @@ public void showStatus(String message) {
 					Color color = colorDisplay.getBackground();
 					
 					
-					if (trackColorMap.values().contains(color)){
+					if (!isDomain.isSelected() && trackColorMap.values().contains(color)){
 						JOptionPane.showMessageDialog(null, "This color is already used, please choose a different color!");
 						return;
 					}
@@ -2698,10 +2701,13 @@ public void showStatus(String message) {
 					trackColorMap.put(trackNameField.getText(), color);
 					trackFileNameMap.put(trackNameField.getText(), trackFileField.getText());					
 					trackStatusMap.put(trackNameField.getText(), true);
+					trackDomainMap.put(trackNameField.getText(), isDomain.isSelected());
 										
-					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());
+					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());					
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
-			    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+			    	
+			    	if (!isDomain.isSelected()) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
 			    	
 					String script = "annotate";
 					viewer.script(script);
@@ -2728,7 +2734,10 @@ public void showStatus(String message) {
 								
 								viewer.setStringProperty(Constants.TRACKNAME, track);
 						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
-						    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");						    	
+						    	
+						    	if (!trackDomainMap.get(track)) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+						    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
+						    	
 								viewer.script(script);
 								
 							}else{
@@ -2749,7 +2758,10 @@ public void showStatus(String message) {
 										
 										viewer.setStringProperty(Constants.TRACKNAME, trackName);
 								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
-								    	viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");							    	
+								    	
+								    	if (!trackDomainMap.get(track))  viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+								    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
+								    	
 										viewer.script(script);
 										
 										try {
@@ -2812,8 +2824,14 @@ public void showStatus(String message) {
 	        trackNameField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(trackNameField, gbc);
 	        
-	        y++;
 	        
+	        y++;
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	        
+	        panel.add(isDomain, gbc);
+	        
+	        
+	        y++;	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 1;	        

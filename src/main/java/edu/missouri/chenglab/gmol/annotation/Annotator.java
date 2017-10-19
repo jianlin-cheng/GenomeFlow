@@ -40,7 +40,7 @@ public class Annotator {
 				StringBuffer label = new StringBuffer();
 				for(String k : atom.labels.keySet()){
 					if (label.length() > 0) label.append(",");
-					label.append(atom.labels.get(k));
+					label.append(atom.labels.get(k).replace(";", ","));
 				}
 				//if (label.length() == 0) label.append(trackName);
 				
@@ -49,16 +49,75 @@ public class Annotator {
 				
 				atom.currentColor = color;
 				
-				if (label.length() > 0) script.append("label " + label.toString() + ";");
+				if (label.length() > 0) {
+					script.append("label " + label.toString() + ";");
+				}
 				
 				//viewer.script(script.toString());
 				commandSB.append(script.toString());
 			}
 		}
 		commandSB.append("select all;");
+		viewer.evalString(commandSB.toString());		
+	}
+	
+	
+	public void annotateDomain(String trackName, String trackFile, Viewer viewer) throws Exception{
+		
+		List<Region> regions = readRegions(trackFile);
+		Atom[] atoms = viewer.getModelSet().atoms;
+				
+		StringBuilder commandSB = new StringBuilder();
+		
+		int ireg = 0, iatom = 0;
+		Region reg;
+		Atom atom, begAtom=null, endAtom=null;		
+		
+		int smallSize = 5, bigSize = 10;
+		while(ireg < regions.size() && iatom < atoms.length){
+			reg = regions.get(ireg);
+			atom = atoms[iatom];
+			
+			if (isOverlap(reg, atom)){
+				
+				if (atom.fromPos <= reg.getStart() && reg.getEnd() <= atom.endPos){
+					begAtom = atom;
+					endAtom = atom;					
+				}else{
+					if (begAtom == null){ 
+						begAtom = atom;
+					}else{
+						endAtom = atom;						
+					}
+					
+				}
+				iatom++;				
+				
+			}else if (begAtom != null && endAtom != null){
+				commandSB.append(String.format("select atomno >= %d and atomno <= %d; wireframe %d; color group;", begAtom.index + 1, endAtom.index + 1, ireg % 2 == 0 ? smallSize : bigSize));
+				
+				begAtom = null;
+				endAtom = null;
+				
+				ireg++;
+			}else{
+				
+				
+				int k = compare(reg, atom);
+				if (k > 0) iatom++;
+				else{
+					ireg++;
+				}
+			}
+		}
+		
 		viewer.evalString(commandSB.toString());
+		viewer.evalString(String.format("select all;"));
+		
+
 		
 	}
+
 	
 	
 	/**
@@ -74,6 +133,13 @@ public class Annotator {
 	}
 
 	
+	//positive if reg > atom
+	//negative if reg < atom
+	private int compare(Region reg, Atom atom){
+		if (reg.getChrID() != atom.chrID) return reg.getChrID() - atom.chrID;		
+		return reg.getStart() - atom.fromPos;
+	}
+
 	
 	private boolean isOverlap(Region reg, Atom atom){
 		if (reg.getChrID() != atom.chrID) return false;

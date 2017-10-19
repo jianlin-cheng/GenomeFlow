@@ -5943,7 +5943,11 @@ public class ScriptEvaluator {
 			String trackFileName = (String) viewer.getParameter(Constants.TRACKFILENAME);
 			String color = (String) viewer.getParameter(Constants.ANNOTATIONCOLOR);
 			
-			annotator.annotate(trackName, trackFileName, color, 15, (Viewer)viewer);
+			if (color.length() > 0){
+				annotator.annotate(trackName, trackFileName, color, 15, (Viewer)viewer);
+			}else{
+				annotator.annotateDomain(trackName, trackFileName, viewer);
+			}
 			
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -6059,17 +6063,6 @@ public class ScriptEvaluator {
 			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
-		
-		
-//		String inputFolder = "C:/Users/Tuan/workspace/Gmol/output/tmp/";
-//		File file = new File(inputFolder);
-//		for(File f : file.listFiles()){
-//			if (f.getName().endsWith(".gss")){
-//				//viewer.openFileAsynchronously(f.getAbsolutePath());
-//				viewer.loadNewModel(f.getAbsolutePath());			
-//			}
-//		}
-    	
     	
 	}
 	

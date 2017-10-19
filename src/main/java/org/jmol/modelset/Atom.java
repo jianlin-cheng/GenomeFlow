@@ -949,25 +949,25 @@ public int getModelIndex() {
 	  if (nucleoScale != 0) {
 		  //String tmpString = "<CHR(" + chrScale + ")," + "LOC(" + lociScale + ")," + "FIB(" + fiberScale + ")," + "NUC(" + nucleoScale + ")>";
 		  //Tuan changed
-		  String tmpString = "<CHR(" + chrID + "), " + "LOC(" + fromPos + "-" + endPos + ")," + "FIB(" + fiberScale + ")," + "NUC(" + nucleoScale + ")>";
+		  String tmpString = "<Chr(" + chrID + "), " + "Loc(" + fromPos + "-" + endPos + ")," + "FIB(" + fiberScale + ")," + "NUC(" + nucleoScale + ")>";
 		  info.append(tmpString);
 	  }
 	  else if (fiberScale != 0) {
 		  //String tmpString = "<CHR(" + chrScale + ")," + "LOC(" + lociScale + ")," + "FIB(" + fiberScale + ")>";
 		  //Tuan changed
-		  String tmpString = "<CHR(" + chrID + "), " + "LOC(" + fromPos + "-" + endPos + ")," + "FIB(" + fiberScale + ")>";
+		  String tmpString = "<Chr(" + chrID + "), " + "Loc(" + fromPos + "-" + endPos + ")," + "FIB(" + fiberScale + ")>";
 		  info.append(tmpString);
 	  }
 	  else if (lociScale != 0) {
 		  //String tmpString = "<CHR(" + chrScale + ")," + "LOC(" + lociScale + ")>";
 		  //Tuan changed
-		  String tmpString = "<CHR(" + chrID + "), " + "LOC(" + fromPos + "-" + endPos + "),";
+		  String tmpString = "<Chr(" + chrID + "), " + "Loc(" + fromPos + "-" + endPos + "),";
 		  info.append(tmpString);
 	  }
 	  else if (chrScale != 0) {
 		  //String tmpString = "<CHR(" + chrScale + ")>";
 		  //Tuan changed
-		  String tmpString = "<CHR(" + chrID + "), " + "LOC(" + fromPos + "-" + endPos + "),";
+		  String tmpString = "<Chr(" + chrID + "), " + "Loc(" + fromPos + "-" + endPos + "),";
 		  info.append(tmpString);
 	  }
 	  else {
