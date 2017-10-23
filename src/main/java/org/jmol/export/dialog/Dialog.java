@@ -31,6 +31,7 @@ import java.awt.Point;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.File;
+import java.net.URI;
 import java.util.Map;
 
 import javax.swing.JComboBox;
@@ -160,6 +161,7 @@ public String getOpenFileNameFromDialog(Map<String, Object> viewerOptions,
       FileManager.setLocalPath(viewer, file.getParent(), true);
       fileName = file.getAbsolutePath();
     }
+        
     boolean doAppend = (allowAppend && openPreview != null && openPreview.isAppendSelected());
     boolean doCartoons = (allowAppend && openPreview != null && openPreview.isCartoonsSelected());
     closePreview();

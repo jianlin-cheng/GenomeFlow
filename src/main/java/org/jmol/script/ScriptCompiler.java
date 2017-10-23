@@ -1043,10 +1043,18 @@ public class ScriptCompiler extends ScriptCompilationTokenParser {
           return CONTINUE;
         }
       }
-      if (!iHaveQuotedString
+      //Tuan changed to allow space in file path
+      /*if (!iHaveQuotedString
           && lookingAtImpliedString(false, tokCommand == Token.load, 
-              nTokens > 1 || tokCommand != Token.script)) {
-        String str = script.substring(ichToken, ichToken + cchToken);
+              nTokens > 1 || tokCommand != Token.script)) {*/    	  
+	  if (!iHaveQuotedString
+	          && lookingAtImpliedString(tokCommand == Token.load, tokCommand == Token.load, 
+	              nTokens > 1 || tokCommand != Token.script)) {
+    	
+    	String str = script.substring(ichToken, ichToken + cchToken);
+    	
+    	
+        
         if (tokCommand == Token.script && str.startsWith("javascript:")) {
           lookingAtImpliedString(true, true, true);
           str = script.substring(ichToken, ichToken + cchToken);

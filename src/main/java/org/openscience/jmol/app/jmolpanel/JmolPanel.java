@@ -40,6 +40,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -2600,6 +2602,14 @@ public void showStatus(String message) {
 		  super(annotateAction);
 	  }
 	  
+	  private boolean isAlreadyDisplayedDomainTrack(Map<String, Boolean> trackStatusMap, Map<String, Boolean> trackDomainMap ){
+		  for(String track:trackDomainMap.keySet()){
+			if (trackDomainMap.get(track) && trackStatusMap.get(track)){
+				return true;
+			}
+		  }
+		  return false;
+	  }
 	  @Override
 	  public void actionPerformed(ActionEvent e) {
 		  	
@@ -2630,6 +2640,8 @@ public void showStatus(String message) {
 	        subFrame.setLocation(400, 400);
 	        subFrame.setTitle("Annotate 3D Models");
 	        
+	        JButton colorChooserButton = new JButton("Choose color");
+	        
 		  	Random rd = new Random();
 		  	Color defaulColor = new Color(rd.nextInt(256), rd.nextInt(256), rd.nextInt(256));		  	
 		  	JLabel colorDisplay = new JLabel("Color to highlight");
@@ -2645,6 +2657,18 @@ public void showStatus(String message) {
 	    	
 	    	JCheckBox isDomain = new JCheckBox("Is domain or loop?");
 	    	
+	    	isDomain.addItemListener(new ItemListener() {
+				
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (isDomain.isSelected()){
+						colorChooserButton.setEnabled(false);
+					}else{
+						colorChooserButton.setEnabled(true);
+					}					
+				}
+			});
+	    		    	
 	    	JButton openTrackFileButton = new JButton("Browse File");		    
 		    
 	    	openTrackFileButton.addActionListener(new ActionListener() {				
@@ -2683,14 +2707,21 @@ public void showStatus(String message) {
 					if (trackNameField.getText().length() == 0){
 						JOptionPane.showMessageDialog(null, "Please specify track name!");
 			    		return;
-					}else if (trackColorMap.keySet().contains(trackNameField.getText())){
+					}else if (trackFileNameMap.keySet().contains(trackNameField.getText())){
 						JOptionPane.showMessageDialog(null, trackNameField.getText() + " is already used, please specify a different track name!");
 						return;
 					}
 					
 					
-					Color color = colorDisplay.getBackground();
+					if (isDomain.isSelected()){
+						if (isAlreadyDisplayedDomainTrack(trackStatusMap, trackDomainMap)){
+							JOptionPane.showMessageDialog(null, "Only one domain or loop track can be displayed at a time, please deselect the current domain/loop track!");
+							isDomain.setSelected(false);
+							return;							
+						}
+					}
 					
+					Color color = colorDisplay.getBackground();
 					
 					if (!isDomain.isSelected() && trackColorMap.values().contains(color)){
 						JOptionPane.showMessageDialog(null, "This color is already used, please choose a different color!");
@@ -2698,26 +2729,31 @@ public void showStatus(String message) {
 					}
 					
 					
-					trackColorMap.put(trackNameField.getText(), color);
+					if (!isDomain.isSelected()) trackColorMap.put(trackNameField.getText(), color);
 					trackFileNameMap.put(trackNameField.getText(), trackFileField.getText());					
 					trackStatusMap.put(trackNameField.getText(), true);
 					trackDomainMap.put(trackNameField.getText(), isDomain.isSelected());
-										
+															
 					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());					
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
 			    	
 			    	if (!isDomain.isSelected()) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
-			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
+			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
 			    	
 					String script = "annotate";
 					viewer.script(script);
 					
-					
-					
+										
 					JCheckBox newCheckBox = new JCheckBox(trackNameField.getText());
-					newCheckBox.setBackground(color);
+					
+					if (!isDomain.isSelected()) newCheckBox.setBackground(color);
+					
 					//newCheckBox.setForeground(color);
 					newCheckBox.setSelected(true);
+					
+					//reset i
+					isDomain.setSelected(false);
+					//colorChooserButton.setEnabled(true);
 					
 					newCheckBox.addActionListener(new ActionListener() {
 						
@@ -2727,6 +2763,11 @@ public void showStatus(String message) {
 							String script = "annotate";
 							if (newCheckBox.isSelected() && !trackStatusMap.get(track)){																
 								
+								if (trackDomainMap.get(track) && isAlreadyDisplayedDomainTrack(trackStatusMap, trackDomainMap)){
+									JOptionPane.showMessageDialog(null, "Only one domain or loop track can be displayed at a time, please deselect the current domain/loop track!");
+									newCheckBox.setSelected(false);
+									return;
+								}
 								trackStatusMap.put(track, true);
 								
 								String trackFile = trackFileNameMap.get(track);
@@ -2736,7 +2777,9 @@ public void showStatus(String message) {
 						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
 						    	
 						    	if (!trackDomainMap.get(track)) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
-						    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
+						    	else {
+						    		viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
+						    	}
 						    	
 								viewer.script(script);
 								
@@ -2759,8 +2802,8 @@ public void showStatus(String message) {
 										viewer.setStringProperty(Constants.TRACKNAME, trackName);
 								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
 								    	
-								    	if (!trackDomainMap.get(track))  viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
-								    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, null);
+								    	if (!trackDomainMap.get(trackName))  viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
+								    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
 								    	
 										viewer.script(script);
 										
@@ -2788,8 +2831,6 @@ public void showStatus(String message) {
 					subFrame.repaint();
 					
 					//trackCheckBoxes.add(newCheckBox);
-					
-					
 					
 					
 				}
@@ -2841,7 +2882,7 @@ public void showStatus(String message) {
 	        gbc.gridy = y;
 	        gbc.gridwidth = 1;
 	        
-	        JButton colorChooserButton = new JButton("Choose color");
+	        
 	        colorChooserButton.addActionListener(new ActionListener() {
 				
 				@Override
@@ -3333,7 +3374,7 @@ public void showStatus(String message) {
 							"18","19","20","21","22","23","X","Y"));
 					
 					JTextField field = (JTextField) input;
-					if (validGenomeIDs.contains(field.getText())) return true;
+					if (field.getText().length() == 0 || validGenomeIDs.contains(field.getText())) return true;
 					
 					return false;
 				}
@@ -3507,7 +3548,12 @@ public void showStatus(String message) {
 		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText().replace(",", ""));
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
 		        	
-		        	viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
+		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	else {
+		        		if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
+		        		else if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	}
+		        	
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
 		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());

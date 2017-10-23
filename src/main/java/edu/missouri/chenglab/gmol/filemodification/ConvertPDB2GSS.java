@@ -71,6 +71,7 @@ public class ConvertPDB2GSS {
 	private int detectResolution(Map<Integer, Integer> map){
 		int max = 0, res = 0, g, n = map.size();
 		Map<Integer, Integer> count = new HashMap<Integer, Integer>();
+		
 		for(int i = 1; i < n; i++){
 			g = map.get(i) - map.get(i - 1);
 			if (!count.containsKey(g)) count.put(g,  0);

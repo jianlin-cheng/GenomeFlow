@@ -73,7 +73,8 @@ public class Annotator {
 		Region reg;
 		Atom atom, begAtom=null, endAtom=null;		
 		
-		int smallSize = 5, bigSize = 10;
+		int smallSize = 2, bigSize = 8;
+		int count = 0;
 		while(ireg < regions.size() && iatom < atoms.length){
 			reg = regions.get(ireg);
 			atom = atoms[iatom];
@@ -94,7 +95,10 @@ public class Annotator {
 				iatom++;				
 				
 			}else if (begAtom != null && endAtom != null){
-				commandSB.append(String.format("select atomno >= %d and atomno <= %d; wireframe %d; color group;", begAtom.index + 1, endAtom.index + 1, ireg % 2 == 0 ? smallSize : bigSize));
+				
+				commandSB.append(String.format("select atomno >= %d and atomno <= %d; wireframe %d; color %s;", 
+						begAtom.index + 1, endAtom.index + 1, count % 2 == 0 ? smallSize : bigSize, count % 2 == 0 ? "red" : "green"));
+				count++;
 				
 				begAtom = null;
 				endAtom = null;
