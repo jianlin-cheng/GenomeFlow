@@ -379,7 +379,8 @@ public class Token {
 
   //Tosin added for 3D genome functions
   public final static int struct_3DMax = scriptCommand | 80 | deprecatedparam;
-
+  public final static int Heatmap2D = scriptCommand | 81 | deprecatedparam;
+  public final static int FindTAD2D = scriptCommand | 82 | deprecatedparam;
   //end
   
   // shapes:
@@ -2490,7 +2491,9 @@ public class Token {
       
       // Tosin added for 3D genome function
       "struct_3DMax",							new Token(struct_3DMax),
-
+      // 2D visualization
+      "Heatmap2D",							new Token(Heatmap2D ),
+      "FindTAD2D",							new Token(FindTAD2D ),
     };
 
     Token tokenLast = null;

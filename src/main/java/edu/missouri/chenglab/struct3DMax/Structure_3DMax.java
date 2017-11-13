@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 import edu.missouri.chenglab.lordg.utility.Helper;
 import org.jmol.api.JmolViewer;
-
+import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 /** ------------------------------------------------------------------------------------------------------------------
  * start of Structure_3DMax class
  * ------------------------------------------------------------------------------------------------------------------  **/
@@ -52,6 +52,9 @@ public class Structure_3DMax {
 	static String Header = "3D chromosome/genome modelling by 3DMax"; //header for pdb file
 	static Outputwriter OutputStructure = new Outputwriter(); //class to output the .gss and .pdb structure 
 	private static boolean global_isStopRunning = false;
+	private static int MAX_NUM_THREAD = 10;
+	
+		
 	
 	/*  end of global variables  */
 	
@@ -161,9 +164,10 @@ public class Structure_3DMax {
 			
 			
 			double [][] XYZ = new double[n][3];
+			double [][] Sum_Grad =  new double[n][3];
 			double sigma = Math.random();
-			double epsilon =0.00001; 
-		    double step= 0.0001; 			
+			double epsilon =0.001;   //epsilon changed from 0.00001 to 0.001
+		    double step = initial_lrate;   			
 			int it_EM = 1; 
 			double obj_val_old = 0,obj_val_new = 0;			
 			double gradient_x, gradient_y , gradient_z;
@@ -175,12 +179,13 @@ public class Structure_3DMax {
 			
 			// Randomly initialize in the range -0.5 to 0.5			
 			double min = -0.5;
-			double max = 0.5;			
+			double max = 0.5;	
+			double smooth_factor = 0.0000001;
 			for (int i = 0; i<n;i++) {
 				for (int j = 0; j<3;j++) {
 					double rand = new Random().nextDouble(); 
 					XYZ[i][j] = min + (rand * (max-min));
-					XYZ[i][j] = XYZ[i][j] ;
+					Sum_Grad[i][j] = 0; 											//Initalize history gradient to zero
 			 }
 			}
 			
@@ -190,8 +195,7 @@ public class Structure_3DMax {
 			
 			int epoch = 0;
 			while(it_EM < 2) {				
-				//========= decreasing learning rate=======						
-				step = LearningRate(epoch);  //comment out to use constant learning rate
+						
 				
 				System.out.print(String.format("epoch: %d step : %1.10f \t ",it_EM,step));			   
 				
@@ -235,15 +239,28 @@ public class Structure_3DMax {
 							}
 						}
 						
+						/**
+						 * ===========================================================================
+						 * IMPLEMENTATION OF ADAGRAD
+						 * ==========================================================================						 * 
+						 */
 						// Gradient ascent
 						double [] gradient = new double [3];
-						gradient[0] = gradient_x; gradient[1] = gradient_y; gradient[2] = gradient_z;
-					   
+						double [] denum = new double [3];
+						double [] adagrad = new double [3];
 						
+						gradient[0] = gradient_x; gradient[1] = gradient_y; gradient[2] = gradient_z;
+						for (int k = 0; k < 3; k++) {
+							Sum_Grad[i][k] = Sum_Grad[i][k] + (gradient[k] * gradient[k]); 
+							denum[k] = Sum_Grad[i][k] + smooth_factor;
+							adagrad[k]  = (step * gradient[k]) / (Math.sqrt(denum[k]));
+							
+						}						
+					
 											
 						for (int k = 0; k < 3; k ++) {
-							XYZ[i][k] = XYZ[i][k] + (step * gradient[k]);
-						}						
+							XYZ[i][k] = XYZ[i][k] + (adagrad[k]);
+						}												
 					} // end of for loop
 					
 					// Update the objective function score using new coordinates but old variance(sigma)
@@ -367,22 +384,7 @@ public class Structure_3DMax {
 			  outputWriter.flush();  
 			  outputWriter.close();  
 			}
-		
-		/**
-		 * Learning decreasing learning rate implementation
-		 * @param epoch
-		 * @return
-		 */
-		public static double  LearningRate(int epoch) {			
-			double drop = 0.5;
-			double epochs_drop = 70.0;
-			double fract = Math.floor((1+epoch)/epochs_drop);
-			double step = initial_lrate *Math.pow(drop, fract);
-			if (step < 0.0000001) {
-				step = 0.0000001;
-			}
-			return step;
-		}
+	
 		
 		/**
 		 * source is the array to copy
@@ -583,10 +585,15 @@ public class Structure_3DMax {
 		  return a;
 		}
 		
-		
-		
-		
-		
+		/**
+		 * 
+		 * read tuple input 
+		 * @param Filename
+		 * @param sep
+		 * @return
+		 * @throws FileNotFoundException
+		 *  */
+			
 		
 		public static double [][] readTupleFile(String Filename, String sep) throws FileNotFoundException{	
 			
@@ -758,12 +765,14 @@ public class Structure_3DMax {
 		/**
 		 * accept Input
 		 * @param parameters
+		 * @throws Exception 
 		 */
 
-		public Structure_3DMax(String[] args, JmolViewer viewer){
+		public Structure_3DMax(String[] args, JmolViewer viewer) throws Exception{
 			
 			long startTime = System.nanoTime();
 		    double [][] Data = null;
+		 
 		    
 			// ==========PARAMETERS==================		 
 			inputfile = args[0];
@@ -804,7 +813,9 @@ public class Structure_3DMax {
 		    		 seperator = ","; // specify the data seperator for dataset
 		    	 }
 		    	 else {
-		    		 seperator = "\t"; 
+		    		 seperator = "\\s+"; 
+		    		 // if Tuple: Detect Resolution
+		    		 Resolution = LoadHeatmap.Resolution(inputfile);
 		    	 }
 		    	 
 				Data = readFile(inputfile,seperator,viewer);

@@ -243,7 +243,13 @@ public class GuiMap {
     labels.put("PDB2GSS", GT._("PDB to GSS"));
     labels.put("1Dtools", GT._("1D-Tools"));
     labels.put("2Dtools", GT._("2D-Tools"));
-    labels.put("3Dtools", GT._("3D-Tools"));
+    //Tosin added
+    labels.put("Visualize", GT._("Visualize Dataset"));
+    labels.put("Find-TAD", GT._("Identify TAD"));
+    labels.put("Find-TADTip", GT._("Click to Visualize TAD for Input Dataset"));
+    
+    labels.put("3DMaxTip", GT._("Click to Visualize reconstructed 3D chromosome/genome model"));
+    labels.put("3Dtools", GT._("3D-Tools"));    
     labels.put("LorDG", GT._("LorDG-3D Modeller"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
     labels.put("LoopDetector", GT._("Detect Loop"));

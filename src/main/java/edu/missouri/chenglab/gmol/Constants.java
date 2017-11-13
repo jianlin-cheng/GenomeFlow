@@ -28,7 +28,7 @@ public interface Constants {
 	String MAXCONVERSIONFACTOR = "maxconversionFactor";
 	String IFRESOLUTION = "matrixresolution";
 	String ISMATRIX = "1";
-	
+	String STARTLOCATION = "startinggenomelocation";
 	
 
 }
