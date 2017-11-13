@@ -22,7 +22,7 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/oluwatosin/Downloads/weka-3-8-0/weka-3-8-0/weka.jar"/>
-	<classpathentry kind="lib" path="C:/Users/oluwatosin/Downloads/weka-3-8-0/weka-3-8-0/weka-src.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Tosin/Downloads/weka-3-7-12/weka-3-7-12/weka.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Tosin/Downloads/weka-3-7-12/weka-3-7-12/weka-src.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>
