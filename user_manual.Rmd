@@ -1,0 +1,29 @@
+---
+title: "GenomeFlow User Manual"
+author: "Tuan"
+date: "November 13, 2017"
+output: html_document
+  
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Convert Hi-C mapped reads to hic format files
+## Extract contact matrices from hic format files
+## Normalize contact matrices
+## 3D model reconstruction
+
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

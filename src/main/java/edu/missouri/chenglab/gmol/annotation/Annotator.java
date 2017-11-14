@@ -130,7 +130,11 @@ public class Annotator {
 	 * @throws Exception
 	 */
 	public void deannotate(Viewer viewer) throws Exception{
-
+		Atom[] atoms = viewer.getModelSet().atoms;
+		for(Atom atom : atoms){
+			atom.labels.clear();
+		}
+		
 		StringBuffer script = new StringBuffer();
 		script.append("select all;label \"\";wireframe " + Constants.DEFAULTWIREFRAME  + ";color structure;");
 		viewer.script(script.toString());

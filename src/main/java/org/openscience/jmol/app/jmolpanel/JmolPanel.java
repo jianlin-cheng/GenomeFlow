@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -53,7 +52,9 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -210,7 +211,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   //added -hcf
   private searchGenomeSequenceTableAction searchGenomeSequenceTableAction = new searchGenomeSequenceTableAction();
   //added end -hcf
-  
+    
   private Map<String, Object> viewerOptions;
 
   private static int numWindows = 0;
@@ -1581,7 +1582,8 @@ public void showStatus(String message) {
 		  
 		  JScrollPane scrollpane = new JScrollPane(panel);
 		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		
+		  scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		  
 		  Frame subFrame = new JFrame();
 		  subFrame.setSize(new Dimension(800, 400));
 		  subFrame.setLocation(400, 400);
@@ -1656,25 +1658,53 @@ public void showStatus(String message) {
 		  gbc.anchor = GridBagConstraints.WEST;
 		  panel.add(new JLabel("Genome ID:"), gbc);
 		  
-		  JTextField genomeIDField = new JTextField();
-		  genomeIDField.setPreferredSize(new Dimension(100,20));
+		  //JTextField genomeIDField = new JTextField();
+		  //genomeIDField.setPreferredSize(new Dimension(100,20));
+		  
+//		  InputStream gmolResources;
+//		  Properties prop = new Properties();
+//		  try {
+//			  gmolResources = new FileInputStream("Jmol-resources.properties");			  
+//			  prop.load(gmolResources);
+//		  } catch (FileNotFoundException e1) {			
+//			  e1.printStackTrace();
+//		  } catch (IOException e1) {
+//			e1.printStackTrace();
+//		}
+		  		  
+//		  String genomeIDs = prop.getProperty("genomeid");
+		  
+		  String genomeIDs = Constants.AVAILABLEGENOMEIDS;
+		  
+		  String[] ids = genomeIDs.split(",");
+		  
+		  JComboBox<String> genomeIDList = new JComboBox<String>();
+		  
+		  for(int i = 0; i < ids.length; i++){
+			  if (ids[i].length() > 0){
+				  genomeIDList.addItem(ids[i]);
+			  }
+		  }
+		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 2;
-		  panel.add(genomeIDField, gbc);
-		  genomeIDField.setInputVerifier(new InputVerifier() {
-			
-			@Override
-			public boolean verify(JComponent input) {
-				Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("hg18", "hg19", "hg38", "dMel", "mm9", "mm10", "anasPlat1", "bTaurus3",
-						"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
-				
-				JTextField field = (JTextField) input;
-				if (validGenomeIDs.contains(field.getText())) return true;
-				
-				return false;
-			}
-		  });
+		  //panel.add(genomeIDField, gbc);
+		  panel.add(genomeIDList, gbc);
+		  
+//		  genomeIDList.setInputVerifier(new InputVerifier() {
+//			
+//			@Override
+//			public boolean verify(JComponent input) {
+//				Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("hg18", "hg19", "hg38", "dMel", "mm9", "mm10", "anasPlat1", "bTaurus3",
+//						"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
+//				
+//				JTextField field = (JTextField) input;
+//				if (validGenomeIDs.contains(field.getText())) return true;
+//				
+//				return false;
+//			}
+//		  });
 		  
 		  
 		  y++;
@@ -1736,7 +1766,7 @@ public void showStatus(String message) {
 		  
 		  gbc.gridx = 2;
 		  gbc.gridy = y;
-		  JLabel chromLabel = new JLabel("Chromosomes"); 
+		  JLabel chromLabel = new JLabel("Chromosomes (separated by ,)"); 
 		  chromLabel.setVisible(false);
 		  hiddenComponents.add(chromLabel);
 		  panel.add(chromLabel, gbc);
@@ -1921,7 +1951,8 @@ public void showStatus(String message) {
 				}
 				String restrictionSiteFile = restrictionSiteField.getText();
 				
-				String genomeId = genomeIDField.getText();
+				//String genomeId = genomeIDField.getText();
+				String genomeId = genomeIDList.getItemAt(genomeIDList.getSelectedIndex());
 				long genomeLength = 0;
 				List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeId);
 		        for (Chromosome c : chromosomes) {
@@ -1964,10 +1995,10 @@ public void showStatus(String message) {
 									JOptionPane.showMessageDialog(null, msg);
 								} catch (InterruptedException e) {									
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(null, "Error while extracting data");
+									JOptionPane.showMessageDialog(null, "Error while converting data");
 								} catch (ExecutionException e) {									
 									e.printStackTrace();
-									JOptionPane.showMessageDialog(null, "Error while extracting data");
+									JOptionPane.showMessageDialog(null, "Error while converting data");
 								}
 								
 								
@@ -2007,6 +2038,7 @@ public void showStatus(String message) {
 		  
 		  JScrollPane scrollpane = new JScrollPane(panel);
 		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		  scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		  Frame subFrame = new JFrame();
 		  subFrame.setSize(new Dimension(800, 400));
@@ -2568,6 +2600,7 @@ public void showStatus(String message) {
 		
 		  JScrollPane scrollpane = new JScrollPane(panel);
 		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		  scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		
 		  Frame subFrame = new JFrame();
 		  subFrame.setSize(new Dimension(800, 400));
@@ -2626,7 +2659,7 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(600, 300);
+	                return new Dimension(650, 350);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -2634,9 +2667,10 @@ public void showStatus(String message) {
 	        
 	        JScrollPane scrollpane = new JScrollPane(panel);
 	        scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+	        scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	        
 	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(600, 400));
+	        subFrame.setSize(new Dimension(700, 400));
 	        subFrame.setLocation(400, 400);
 	        subFrame.setTitle("Annotate 3D Models");
 	        
@@ -2746,6 +2780,31 @@ public void showStatus(String message) {
 										
 					JCheckBox newCheckBox = new JCheckBox(trackNameField.getText());
 					
+					//if (!isDomain.isSelected()){
+					JButton newColorChooser = new JButton("Change color");
+					newColorChooser.addActionListener(new ActionListener() {
+						
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							Color color = JColorChooser.showDialog(null, "Choose color to highlight", defaulColor);	
+							if (trackColorMap.values().contains(color)){
+								JOptionPane.showMessageDialog(null, "This color is already used, please choose a different color!");
+								return;
+							}
+					
+							newCheckBox.setBackground(color);
+							
+							String track = newCheckBox.getText();
+							trackColorMap.put(track, color);
+							
+							if (newCheckBox.isSelected()){
+								newCheckBox.setSelected(false);
+								newCheckBox.setSelected(true);
+							}
+						}
+					});
+					//}
+					
 					if (!isDomain.isSelected()) newCheckBox.setBackground(color);
 					
 					//newCheckBox.setForeground(color);
@@ -2755,11 +2814,11 @@ public void showStatus(String message) {
 					isDomain.setSelected(false);
 					//colorChooserButton.setEnabled(true);
 					
-					newCheckBox.addActionListener(new ActionListener() {
-						
+					//newCheckBox.addActionListener(new ActionListener() {
+					newCheckBox.addItemListener(new ItemListener() {
 						@Override
-						public void actionPerformed(ActionEvent e) {
-							String track = e.getActionCommand();
+						public void itemStateChanged(ItemEvent e) {
+							String track = ((JCheckBox)e.getItem()).getText();
 							String script = "annotate";
 							if (newCheckBox.isSelected() && !trackStatusMap.get(track)){																
 								
@@ -2821,15 +2880,24 @@ public void showStatus(String message) {
 					y++;
 					gbc.gridx = 0;
 					gbc.gridy = y;
-					gbc.gridwidth = 4;
+					gbc.gridwidth = 3;
 					gbc.anchor = GridBagConstraints.WEST;
 					panel.add(newCheckBox, gbc);
+					
+					if (!isDomain.isSelected()){
+						gbc.gridx = 4;
+						gbc.gridy = y;
+						gbc.gridwidth = 1;
+						gbc.anchor = GridBagConstraints.WEST;
+						panel.add(newColorChooser, gbc);
+					}
 					
 					//subFrame.setPreferredSize(preferredSize);
 					
 					subFrame.validate();
 					subFrame.repaint();
-					
+					scrollpane.validate();
+					scrollpane.repaint();
 					//trackCheckBoxes.add(newCheckBox);
 					
 					

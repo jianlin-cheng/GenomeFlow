@@ -58,5 +58,6 @@ public interface Constants {
 	
 	public static final long MAX_CONTACT_LENGTH = Long.MAX_VALUE;
 	public static final long MIN_CONTACT_LENGTH = 0;
+	
 
 }
