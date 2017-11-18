@@ -36,6 +36,7 @@ public class Annotator {
 					isLabel = true;
 				}
 			}
+			/*
 			if (isLabel){
 				StringBuffer label = new StringBuffer();
 				for(String k : atom.labels.keySet()){
@@ -56,7 +57,48 @@ public class Annotator {
 				//viewer.script(script.toString());
 				commandSB.append(script.toString());
 			}
+			*/
 		}
+		
+		for(int i = 0; i < atoms.length; i++){
+			Atom atom = atoms[i];
+			Atom prevAtom = i > 0 ? atoms[i - 1] : null;
+			Atom nextAtom = i < atoms.length - 1 ? atoms[i + 1] : null;
+			
+			boolean isLabel = false;
+			for(Region reg : regions){
+				if (isOverlap(reg, atom)){										
+					isLabel = true;
+					break;
+				}
+			}
+			if (isLabel){
+				StringBuffer label = new StringBuffer();
+				for(String k : atom.labels.keySet()){
+					if (prevAtom != null && prevAtom.labels.containsValue(atom.labels.get(k)) &&
+							nextAtom != null && nextAtom.labels.containsValue(atom.labels.get(k))) continue;
+					
+						
+					if (label.length() > 0) label.append(",");					
+					label.append(atom.labels.get(k).replace(";", ","));
+					
+				}
+				
+				StringBuffer script = new StringBuffer();
+				script.append("select " + atom.index + ";wireframe " + radius + ";color " + color + ";");
+				
+				atom.currentColor = color;
+				
+				if (label.length() > 0) {
+					script.append("label " + label.toString() + ";");
+				}
+				
+				//viewer.script(script.toString());
+				commandSB.append(script.toString());
+			}
+		}
+		
+		
 		commandSB.append("select all;");
 		viewer.evalString(commandSB.toString());		
 	}

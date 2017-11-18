@@ -2436,7 +2436,7 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					if (fileName == null) return;
-					if (!CommonFunctions.isFile(fileName)){
+					if (CommonFunctions.isFolder(fileName)){
 						fileName = fileName + "\\";
 					}
 					outputFileField.setText(fileName);
@@ -2810,8 +2810,7 @@ public void showStatus(String message) {
 					//newCheckBox.setForeground(color);
 					newCheckBox.setSelected(true);
 					
-					//reset i
-					isDomain.setSelected(false);
+					
 					//colorChooserButton.setEnabled(true);
 					
 					//newCheckBox.addActionListener(new ActionListener() {
@@ -2891,6 +2890,9 @@ public void showStatus(String message) {
 						gbc.anchor = GridBagConstraints.WEST;
 						panel.add(newColorChooser, gbc);
 					}
+					
+					//reset i
+					isDomain.setSelected(false);
 					
 					//subFrame.setPreferredSize(preferredSize);
 					
