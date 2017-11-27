@@ -1636,7 +1636,7 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 2;
 		  panel.add(inputField, gbc);
 		  
-		  JButton browserFileButton = new JButton("Browse file");
+		  JButton browserFileButton = new JButton("Browse File");
 		  browserFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -1656,7 +1656,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.anchor = GridBagConstraints.WEST;
-		  panel.add(new JLabel("Genome ID:"), gbc);
+		  panel.add(new JLabel("Genome ID"), gbc);
 		  
 		  //JTextField genomeIDField = new JTextField();
 		  //genomeIDField.setPreferredSize(new Dimension(100,20));
@@ -1711,7 +1711,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  panel.add(new JLabel("Output file:"), gbc);
+		  panel.add(new JLabel("Output File"), gbc);
 		  
 		  JTextField outputField = new JTextField();
 		  outputField.setPreferredSize(new Dimension(300,20));
@@ -1720,7 +1720,7 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 2;
 		  panel.add(outputField, gbc);
 		  
-		  JButton browserOutputFileButton = new JButton("Browse file");
+		  JButton browserOutputFileButton = new JButton("Browse File");
 		  browserOutputFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -1752,14 +1752,14 @@ public void showStatus(String message) {
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  gbc.anchor = GridBagConstraints.CENTER;
-		  JLabel contactThresholdLabel = new JLabel("Contact threshold");
+		  JLabel contactThresholdLabel = new JLabel("Contact Threshold");
 		  contactThresholdLabel.setVisible(false);
 		  hiddenComponents.add(contactThresholdLabel);
 		  panel.add(contactThresholdLabel, gbc);
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
-		  JLabel mapqScoreThresholdLable = new JLabel("MAPQ score threshold");
+		  JLabel mapqScoreThresholdLable = new JLabel("MAPQ Score Threshold");
 		  mapqScoreThresholdLable.setVisible(false);
 		  hiddenComponents.add(mapqScoreThresholdLable);
 		  panel.add(mapqScoreThresholdLable, gbc);
@@ -1860,7 +1860,7 @@ public void showStatus(String message) {
 		  y++;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
-		  JLabel restrictionSiteLabel = new JLabel("Restriction site file:");
+		  JLabel restrictionSiteLabel = new JLabel("Restriction Site File");
 		  restrictionSiteLabel.setVisible(false);
 		  hiddenComponents.add(restrictionSiteLabel);
 		  panel.add(restrictionSiteLabel, gbc);
@@ -1875,7 +1875,7 @@ public void showStatus(String message) {
 		  panel.add(restrictionSiteField, gbc);
 		  
 		  
-		  JButton browserRestrictionSiteFileButton = new JButton("Browse file");
+		  JButton browserRestrictionSiteFileButton = new JButton("Browse File");
 		  browserRestrictionSiteFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -1895,7 +1895,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  JCheckBox optinalCheckBox = new JCheckBox("Optional options");
+		  JCheckBox optinalCheckBox = new JCheckBox("Advanced Options");
 		  panel.add(optinalCheckBox, gbc);
 		  
 		  optinalCheckBox.addActionListener(new ActionListener() {
@@ -2086,7 +2086,7 @@ public void showStatus(String message) {
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  gbc.gridheight = 1;
-		  panel.add(new JLabel("Path to .hic file:"), gbc);
+		  panel.add(new JLabel("Path to .hic File"), gbc);
 		  
 		  JTextField pathField = new JTextField();
 		  pathField.setPreferredSize(new Dimension(300,20));
@@ -2095,7 +2095,7 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 2;
 		  panel.add(pathField, gbc);
 		  
-		  JButton browserFileButton = new JButton("Browse file (if locally)");
+		  JButton browserFileButton = new JButton("Browse File (if locally)");
 		  browserFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -2184,7 +2184,7 @@ public void showStatus(String message) {
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  gbc.anchor = GridBagConstraints.CENTER;
-		  panel.add(new JLabel("Genome:"), gbc);
+		  panel.add(new JLabel("Genome"), gbc);
 		  
 		  
 		  gbc.gridx = 1;
@@ -2239,8 +2239,8 @@ public void showStatus(String message) {
 		  formatter.setValueClass(Integer.class);
 		  formatter.setMinimum(0);
 		  formatter.setMaximum(Integer.MAX_VALUE);
-		  formatter.setAllowsInvalid(false);
-		  
+		  formatter.setAllowsInvalid(true);
+		  		  
 		  
 		  gbc.gridx = 2;
 		  gbc.gridy = y;
@@ -2446,7 +2446,7 @@ public void showStatus(String message) {
 		  y++;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
-		  panel.add(new JLabel("Output file:"), gbc);
+		  panel.add(new JLabel("Output File"), gbc);
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
@@ -2459,7 +2459,7 @@ public void showStatus(String message) {
 		  panel.add(outputFileButton, gbc);
 		  
 		  
-		  JButton extractButton = new JButton("Extract contact data");
+		  JButton extractButton = new JButton("Extract Contact Data");
 		  extractButton.addActionListener(new ActionListener() {
 			
 			@Override
@@ -2467,7 +2467,7 @@ public void showStatus(String message) {
 				
 				
 				if (outputFileField.getText().length() == 0) {
-					JOptionPane.showMessageDialog(null, "Please select output file!");
+					JOptionPane.showMessageDialog(null, "Please Select Output File!");
 					return;
 				}
 				
@@ -2900,6 +2900,7 @@ public void showStatus(String message) {
 					subFrame.repaint();
 					scrollpane.validate();
 					scrollpane.repaint();
+					
 					//trackCheckBoxes.add(newCheckBox);
 					
 					
@@ -2910,7 +2911,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Track file:"), gbc);
+	        panel.add(new JLabel("Track File"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -2927,7 +2928,7 @@ public void showStatus(String message) {
 	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Track name:"), gbc);
+	        panel.add(new JLabel("Track Name"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3080,7 +3081,7 @@ public void showStatus(String message) {
 		    	        
 		    gbc.gridx = 0;
 		    gbc.gridy = y;	                
-		    panel.add(new JLabel("Input PDB file:"), gbc);
+		    panel.add(new JLabel("Input PDB File"), gbc);
 		    
 		    gbc.gridx = 1;
 		    gbc.gridy = y;
@@ -3095,7 +3096,7 @@ public void showStatus(String message) {
 		   	y++;
 		    gbc.gridx = 0;
 		    gbc.gridy = y;	        	        
-		    panel.add(new JLabel("Input mapping file:"), gbc);	        
+		    panel.add(new JLabel("Input Mapping File"), gbc);	        
 		
 		    gbc.gridx = 1;
 		    gbc.gridy = y;
@@ -3109,7 +3110,7 @@ public void showStatus(String message) {
 		    y++;
 		    gbc.gridx = 0;
 		    gbc.gridy = y;	
-		    panel.add(new JLabel("Output GSS file:"), gbc);
+		    panel.add(new JLabel("Output GSS File"), gbc);
 		    
 		
 		    gbc.gridx = 1;
@@ -3208,7 +3209,7 @@ public void showStatus(String message) {
 	        
 	        gbc.gridx = 0;
 	        gbc.gridy = 0;	                
-	        panel.add(new JLabel("Output file(optional):"), gbc);
+	        panel.add(new JLabel("Output File(optional)"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = 0;
@@ -3318,7 +3319,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Input contact file:"), gbc);
+	        panel.add(new JLabel("Input Contact File"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3337,7 +3338,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	 
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Output 3D model folder:"), gbc);	        
+	        panel.add(new JLabel("Output 3D Model Folder"), gbc);	        
 	
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3354,7 +3355,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Conversion Factor:"), gbc);	        
+	        panel.add(new JLabel("Conversion Factor"), gbc);	        
 	        
 	        
 	        NumberFormatter doubleFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
@@ -3377,7 +3378,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Learning rate:"), gbc);	        
+	        panel.add(new JLabel("Initial Learning Rate:"), gbc);	        
 	        
 	        NumberFormatter learningRateFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
 	        learningRateFormatter.setValueClass(Double.class);
@@ -3402,7 +3403,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
+	        panel.add(new JLabel("Max Number of Iteration"), gbc);	        
 	        
 	        NumberFormatter intFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
 	        intFormatter.setValueClass(Integer.class);
@@ -3426,7 +3427,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Chromosome (Optional):"), gbc);	        
+	        panel.add(new JLabel("Chromosome (Optional)"), gbc);	        
 
 	        JTextField chromosomeField = new JTextField("X");	        
 	        	        
@@ -3461,7 +3462,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Genome ID (Optional):"), gbc);	        
+	        panel.add(new JLabel("Genome ID (Optional)"), gbc);	        
 
 	        JTextField genomeField = new JTextField("hg19");
 	               
@@ -3494,7 +3495,7 @@ public void showStatus(String message) {
 			gbc.gridwidth = 2;
 			panel.add(isMultipleChrom, gbc);
 			
-			JLabel chromLenLabel = new JLabel("Length of chromosomes:");
+			JLabel chromLenLabel = new JLabel("Length of Chromosomes");
 			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
 			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
 			
@@ -3578,7 +3579,7 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 					
 					int maxIteration = Integer.parseInt(maxIterationField.getText().replace(",", ""));
-					if (maxIteration > 1e9){
+					if (maxIteration > 1e6){
 						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!");
 						maxIterationField.setText("1000");
 						return;

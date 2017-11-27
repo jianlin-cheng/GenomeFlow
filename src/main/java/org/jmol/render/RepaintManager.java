@@ -179,6 +179,45 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
       if (renderers == null)
         renderers = new ShapeRenderer[JmolConstants.SHAPE_MAX];
 
+      
+      //Tuan added
+      JmolFont font3d = gdata.getFont3D("SansSerif","Bold",12);
+      float imageFontScaling = viewer.getImageFontScaling();
+      int ascent = font3d.getAscent();
+      
+      int currentChrom = modelSet.atoms[0].chrID;
+      StringBuilder chromSB = new StringBuilder("" + modelSet.atoms[0].chrID);
+      for(Atom atom : modelSet.atoms){
+      	if (atom.chrID != currentChrom){
+      		chromSB.append("," + atom.chrID);
+      		currentChrom = atom.chrID;
+      	}
+      }
+      String message = chromSB.substring(0, chromSB.length() <= 2 ? chromSB.length() : 2);
+      if (message.length() < chromSB.length()) message += " ...";
+      
+      int width, dx, dy;
+      dy = ascent;	
+      if (message.length() > 0){
+  	    message = "Chrom: " + message;    
+  	    width = font3d.stringWidth(message) + 90;
+  		dx = (int) (width + Scales.margin * imageFontScaling);
+  		
+  	    g3d.drawStringNoSlab(message, font3d, g3d.getRenderWidth() - dx, 2*dy, 0);
+      }
+      
+      if (modelSet.message != null){
+      	for(int i = 0; i < modelSet.message.length; i++){	    	
+  	    	width = font3d.stringWidth(modelSet.message[i]) + 10;
+  	    	dx = (int) (width + Scales.margin * imageFontScaling);
+  	        
+  	    	g3d.drawStringNoSlab(modelSet.message[i], font3d, g3d.getRenderWidth() - dx, (i+4)*dy, 0);    	
+      	}
+      }
+      //End
+
+      
+
       for (int i = 0; i < JmolConstants.SHAPE_MAX && g3d.currentlyRendering(); ++i) {
         Shape shape = shapeManager.getShape(i);
         if (shape == null)
@@ -193,45 +232,6 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
       e.printStackTrace();
       Logger.error("rendering error? ");
     }
-
-    //Tuan added    
-    Graphics3D g3d = (Graphics3D) gdata;
-    JmolFont font3d = gdata.getFont3D("SansSerif","Bold",12);
-    float imageFontScaling = viewer.getImageFontScaling();
-    int ascent = font3d.getAscent();
-    
-    int currentChrom = modelSet.atoms[0].chrID;
-    StringBuilder chromSB = new StringBuilder("" + modelSet.atoms[0].chrID);
-    for(Atom atom : modelSet.atoms){
-    	if (atom.chrID != currentChrom){
-    		chromSB.append("," + atom.chrID);
-    		currentChrom = atom.chrID;
-    	}
-    }
-    String message = chromSB.substring(0, chromSB.length() <= 2 ? chromSB.length() : 2);
-    if (message.length() < chromSB.length()) message += " ...";
-    
-    int width, dx, dy;
-    dy = ascent;	
-    if (message.length() > 0){
-	    message = "Chrom: " + message;    
-	    width = font3d.stringWidth(message) + 90;
-		dx = (int) (width + Scales.margin * imageFontScaling);
-		
-	    g3d.drawStringNoSlab(message, font3d, g3d.getRenderWidth() - dx, 2*dy, 0);
-    }
-    
-    if (modelSet.message != null){
-    	for(int i = 0; i < modelSet.message.length; i++){	    	
-	    	width = font3d.stringWidth(modelSet.message[i]) + 10;
-	    	dx = (int) (width + Scales.margin * imageFontScaling);
-	        
-	    	g3d.drawStringNoSlab(modelSet.message[i], font3d, g3d.getRenderWidth() - dx, (i+4)*dy, 0);    	
-    	}
-    }
-    //End
-    
-    
     
   }
 

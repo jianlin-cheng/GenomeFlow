@@ -241,20 +241,20 @@ public class GuiMap {
     //Tuan added
     labels.put("PDB2GSSTip", "Click to convert PDB structure to GSS structure");
     labels.put("PDB2GSS", GT._("PDB to GSS"));
-    labels.put("1Dtools", GT._("1D-Tools"));
-    labels.put("2Dtools", GT._("2D-Tools"));
-    labels.put("3Dtools", GT._("3D-Tools"));
+    labels.put("1Dtools", GT._("1D-Functions"));
+    labels.put("2Dtools", GT._("2D-Funtions"));
+    labels.put("3Dtools", GT._("3D-Funtions"));
     labels.put("LorDG", GT._("LorDG-3D Modeller"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
-    labels.put("LoopDetector", GT._("Loop detection"));
+    labels.put("LoopDetector", GT._("Loop Detection"));
     labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
-    labels.put("Annotate", "Annotation");
+    labels.put("Annotate", "Model Annotation");
     labels.put("AnnotateTip", "Click to add annotation to the 3D model");
     labels.put("ExtractHiC", "Extract HiC");
     labels.put("ExtractHiCTip", "Extract HiC to sparse matrix format");
     labels.put("ConvertToHiC", "Convert To HiC");
     labels.put("ConvertToHiCTip", "Convert aligned reads to HiC format");
-    labels.put("NormalizeHiC", "Normalize HiC data");
+    labels.put("NormalizeHiC", "Normalize HiC Data");
     labels.put("NormalizeHiCTip", "Normalize HiC data");
     //end
     
