@@ -1,0 +1,1 @@
+GSM1551688_HIC143_merged_nodups.zip contain raw mapped Hi-C reads. This file is used as input for the function "Convert to HiC"
