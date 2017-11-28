@@ -1,2 +1,13 @@
-sample_data: contains sample input files for functions
-track_files: contains sample genomic track data in .bed format to annotate 3D models
+Flow with GenomeFlow!
+===================
+
+
+----------
+
+
+> - Start the program by executing the script: <kbd>genomeflow.sh</kbd>
+
+
+**Folders**
+> - sample_data: sample data to run functions
+> - track_files: genomic track to annotate 3D models
