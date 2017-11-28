@@ -68,6 +68,13 @@
 	</dependency>
 
 
+	<dependency> 
+		<groupId>juicebox</groupId> 
+		<artifactId>juicebox</artifactId> 
+		<scope>system</scope> 
+		<version>1.0</version>
+		<systemPath>${basedir}\lib\juicebox.jar</systemPath> 
+	</dependency>
 
 	<dependency> 
 		<groupId>Acme</groupId> 

@@ -52,9 +52,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -105,6 +103,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
+import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 import org.broad.igv.feature.Chromosome;
@@ -2233,18 +2232,18 @@ public void showStatus(String message) {
 		  gbc.gridx = 1;		  		  
 		  panel.add(chrom1List, gbc);
 		  
-		  
+		  /*
 		  NumberFormatter formatter = new NumberFormatter(NumberFormat.getIntegerInstance());
-		 
 		  formatter.setValueClass(Integer.class);
-		  formatter.setMinimum(0);
+		  //formatter.setMinimum(0);
 		  formatter.setMaximum(Integer.MAX_VALUE);
 		  formatter.setAllowsInvalid(true);
+		  */
 		  		  
 		  
 		  gbc.gridx = 2;
 		  gbc.gridy = y;
-		  JFormattedTextField chr1FromField = new JFormattedTextField(formatter);
+		  JFormattedTextField chr1FromField = new JFormattedTextField();
 		  chr1FromField.setPreferredSize(new Dimension(100,20));
 		  chr1FromField.setEnabled(false);
 		  panel.add(chr1FromField, gbc);
@@ -2253,7 +2252,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 3;
 		  gbc.gridy = y;
 		  //JTextField chr1ToField = new JTextField();
-		  JFormattedTextField chr1ToField = new JFormattedTextField(formatter);
+		  JFormattedTextField chr1ToField = new JFormattedTextField();
 		  chr1ToField.setPreferredSize(new Dimension(100,20));
 		  chr1ToField.setEnabled(false);
 		  panel.add(chr1ToField, gbc);
@@ -2504,8 +2503,13 @@ public void showStatus(String message) {
 				if (chr1FromField.getText().length() > 0 || chr1ToField.getText().length() > 0 /* ||
 						chr2FromField.getText().length() > 0 || chr2ToField.getText().length() > 0*/){
 					
-					if (chr1FromField.getText().length() > 0) chr1From = Integer.max(chr1From, Integer.parseInt(chr1FromField.getText().replace(",", "")));
-					if (chr1ToField.getText().length() > 0) chr1To = Integer.min(Integer.parseInt(chr1ToField.getText().replace(",", "")), chr1To);
+					try{
+						if (chr1FromField.getText().length() > 0) chr1From = Integer.max(chr1From, Integer.parseInt(chr1FromField.getText().replace(",", "")));
+						if (chr1ToField.getText().length() > 0) chr1To = Integer.min(Integer.parseInt(chr1ToField.getText().replace(",", "")), chr1To);					
+					}catch(Exception ex){
+						JOptionPane.showMessageDialog(null, "Error! Please check if data in From or To fields are correct!");
+						return;
+					}
 					
 					//if (chr2FromField.getText().length() > 0) chr2From = Integer.max(chr2From, Integer.parseInt(chr2FromField.getText().replace(",", "")));
 					//if (chr2ToField.getText().length() > 0) chr2To = Integer.min(Integer.parseInt(chr2ToField.getText().replace(",", "")), chr2To);

@@ -181,7 +181,9 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
 	      
 	      if (modelSet.atoms != null && modelSet.atoms.length > 1) currentChrom = modelSet.atoms[0].chrID;
 	      
-	      StringBuilder chromSB = new StringBuilder("" + currentChrom);
+	      StringBuilder chromSB = new StringBuilder();
+	      if (currentChrom > 0) chromSB.append(currentChrom);
+	      
 	      for(Atom atom : modelSet.atoms){
 	      	if (atom.chrID != currentChrom){
 	      		chromSB.append("," + atom.chrID);
