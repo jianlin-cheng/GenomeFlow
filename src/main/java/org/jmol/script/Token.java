@@ -378,6 +378,13 @@ public class Token {
   public final static int extractHiC = scriptCommand | 79 | deprecatedparam;
   public final static int convertToHiC = scriptCommand | 80 | deprecatedparam;
   public final static int normalizeHiC = scriptCommand | 81 | deprecatedparam;
+
+
+  //Tosin added for 3D genome functions
+  public final static int struct_3DMax = scriptCommand | 82 | deprecatedparam;
+  public final static int Heatmap2D = scriptCommand | 83 | deprecatedparam;
+  public final static int FindTAD2D = scriptCommand | 84 | deprecatedparam;
+
   //end
   
   // shapes:
@@ -2486,8 +2493,12 @@ public class Token {
       "convertToHiC", new Token(convertToHiC),
       "normalizeHiC", new Token(normalizeHiC),
       //end
-
-
+      
+      // Tosin added for 3D genome function
+      "struct_3DMax",							new Token(struct_3DMax),
+      // 2D visualization
+      "Heatmap2D",							new Token(Heatmap2D ),
+      "FindTAD2D",							new Token(FindTAD2D ),
     };
 
     Token tokenLast = null;

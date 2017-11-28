@@ -241,9 +241,11 @@ public class GuiMap {
     //Tuan added
     labels.put("PDB2GSSTip", "Click to convert PDB structure to GSS structure");
     labels.put("PDB2GSS", GT._("PDB to GSS"));
+
     labels.put("1Dtools", GT._("1D-Functions"));
     labels.put("2Dtools", GT._("2D-Funtions"));
     labels.put("3Dtools", GT._("3D-Funtions"));
+    
     labels.put("LorDG", GT._("LorDG-3D Modeller"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
     labels.put("LoopDetector", GT._("Loop Detection"));
@@ -257,6 +259,17 @@ public class GuiMap {
     labels.put("NormalizeHiC", "Normalize HiC Data");
     labels.put("NormalizeHiCTip", "Normalize HiC data");
     //end
+
+    //Tosin added
+    labels.put("Visualize", GT._("Visualize Dataset"));
+    labels.put("Find-TAD", GT._("Identify TAD"));
+    labels.put("Find-TADTip", GT._("Click to Visualize TAD for Input Dataset"));
+    
+    labels.put("3DMaxTip", GT._("Click to Visualize reconstructed 3D chromosome/genome model"));
+    
+  //Tosin added
+    labels.put("3DMax", GT._("3DMax-3D Modeller"));
+    labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
     
   }
 
@@ -270,7 +283,6 @@ public class GuiMap {
   JMenu newJMenu(String key) {
 	//  System.out.println("try" + getLabel(key));
     return new KeyJMenu(key, getLabel(key), map);
-    
   }
   
   JMenuItem newJMenuItem(String key) {

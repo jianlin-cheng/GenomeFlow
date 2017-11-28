@@ -41,6 +41,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -103,7 +105,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
-import javax.swing.text.MaskFormatter;
 import javax.swing.text.NumberFormatter;
 
 import org.broad.igv.feature.Chromosome;
@@ -132,10 +133,13 @@ import org.openscience.jmol.app.jsonkiosk.KioskFrame;
 import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
+import edu.missouri.chenglab.ClusterTAD.Parameter;
+import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+import edu.missouri.chenglab.struct3DMax.Input;
 import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.NormalizeHiCWorker;
@@ -147,6 +151,14 @@ import juicebox.tools.utils.original.Preprocessor;
 import juicebox.windowui.HiCZoom;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
+
+//added -hcf
+
+/*import juicebox.data.Dataset;
+import juicebox.data.HiCFileTools;
+import juicebox.tools.clt.old.Dump;
+*/
+
 
 public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient {
 
@@ -193,7 +205,9 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private ConvertToHiCAction convertToHiCAction = new ConvertToHiCAction(); //Tuan added
   private NormalizeHiCAction normalizeHiCAction = new NormalizeHiCAction(); //Tuan added
   
-  
+  private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
+  private HeatmapVisualizeAction heatmap2DvisualizeAction = new HeatmapVisualizeAction(); //Tosin added
+  private FindTADAction findTADAction = new FindTADAction(); //Tosin added
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -233,8 +247,15 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String loopDetectorAction = "LoopDetector";//Tuan added
   private static final String annotateAction = "Annotate";//Tuan added
   private static final String extractHiC = "ExtractHiC";//Tuan added
+
   private static final String converToHiC = "ConvertToHiC";//Tuan added
   private static final String normalizeHiC = "NormalizeHiC";//Tuan added
+
+  private static final String structure3DMAXAction = "3DMax";//Tosin added
+  private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
+  private static final String findTadAction = "Find-TAD"; //Tosin added
+  
+
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1124,8 +1145,11 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(), extractPDBAction, 
-      				pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction}//last four added -hcf, Tuan added pdb2GSSAction
+      new searchGenomeSequenceTableAction(),  
+
+      extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction,////last four added -hcf, Tuan added pdb2GSSAction
+      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
+
   ;
 
   class CloseAction extends AbstractAction {
@@ -1362,6 +1386,7 @@ public void showStatus(String message) {
   
   
   //added end -hcf
+
   
   class NormalizeHiCAction extends NewAction{
 	  
@@ -1513,6 +1538,7 @@ public void showStatus(String message) {
 					minRes = Integer.parseInt(minResolutionField.getText());
 				}
 				
+
 				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
 				final JDialog dialog = new JDialog(win, "Normalizing data ... please wait !", ModalityType.APPLICATION_MODAL);
 				dialog.setPreferredSize(new Dimension(300,80));
@@ -1573,7 +1599,7 @@ public void showStatus(String message) {
 			    dialog.setLocationRelativeTo(win);
 			    dialog.setVisible(true);
 				
-				
+
 			}
 		  });
 		  
@@ -3659,8 +3685,738 @@ public void showStatus(String message) {
 	    }
   }
 
- 
-//end
+  /*
+   *  Tosin created a new button for 3DMax Modeller
+   */
+  class Structure_3DMaxModeller extends NewAction{
+	  Structure_3DMaxModeller() {
+		  super(structure3DMAXAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField = new JTextField();      
+	        
+	        JTextField outputGSSFileField = new JTextField();
+	               
+	        JButton openContactFileButton = new JButton("Browse File");
+	        
+	        openContactFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField.setText(fileName);
+					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+				}
+			});
+	        
+	        
+	        JButton outputGSSFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputGSSFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputGSSFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        	        	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input contact file:",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton, gbc);
+	        	        
+	     
+	        
+	        ///////////////////////////////////////////////
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        JLabel res = new JLabel("Data Resolution[1MB or 10KB]:",JLabel.LEFT);
+	        
+	        panel.add(res, gbc);	        
+	        
+	        JTextField IFResolutionField = new JTextField("1000000"); 
+	      
+	        IFResolutionField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = IFResolutionField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB");
+						
+						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
+	        panel.add( IFResolutionField, gbc);
+	        
+	        res.setVisible(false);
+	        IFResolutionField.setVisible(false);     
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output 3D model folder:"), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputGSSFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputGSSFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputGSSFileButton, gbc);
+	        ///////////////////////////////////////////////
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        JLabel ConvFactormin =  new JLabel("Conversion Factor:");
+	        panel.add(ConvFactormin, gbc);	        
+	        
+	        JTextField minconversionFactorField = new JTextField("0.4"); 
+	        
+	        minconversionFactorField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = minconversionFactorField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in number only");
+						
+						minconversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        minconversionFactorField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(minconversionFactorField, gbc);
+	       
+	        
+			////////////////////////////////////////////////
+	        
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        JLabel ConvFactormax =  new JLabel("Conversion Factor (Max):");
+	        panel.add(ConvFactormax, gbc);	         
+	        
+	        JTextField maxconversionFactorField = new JTextField("2.0"); 
+	        
+	        maxconversionFactorField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = maxconversionFactorField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in number only");
+						
+						maxconversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        maxconversionFactorField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(maxconversionFactorField, gbc);        
+	           
+	        ConvFactormax.setVisible(false);
+	        maxconversionFactorField.setVisible(false);
+	        
+	        
+	        ///////////////////////////////////////////////	  
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Learning rate:"), gbc);	        
+	        
+	        JTextField learningRateField = new JTextField("1"); 
+	        
+	        learningRateField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = learningRateField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in number only");
+						
+						learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        learningRateField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(learningRateField, gbc);	        	        
+	
+	        ///////////////////////////////////////////////	
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
+	      	        
+	        JTextField maxIterationField = new JTextField("1000"); 	
+	        maxIterationField.addKeyListener(new KeyAdapter() {								
+				@Override
+				public void keyReleased(KeyEvent e) {
+					
+					String currentTxt = maxIterationField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+	        		
+					if (!Character.isDigit(chr)){
+						JOptionPane.showMessageDialog(null, "Please key in number only");						
+						maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}				
+			});
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        maxIterationField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(maxIterationField, gbc);             
+	        
+	      ///////////////////////////////////////////////	
+		y++;
+		JCheckBox isMatrix = new JCheckBox("Load input as a Normalized Contact Matrix(comma seperated)");
+		gbc.gridx = 1;
+		gbc.gridy = y;
+		gbc.gridwidth = 2;
+		panel.add(isMatrix , gbc);
+				
+		isMatrix .addChangeListener(new ChangeListener() {
+			
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (isMatrix.isSelected()){					
+					  res.setVisible(true);
+				      IFResolutionField.setVisible(true);
+				}
+				else {					
+					  res.setVisible(false);
+				      IFResolutionField.setVisible(false);
+				}
+				
+				
+			}
+		});
+	        
+	        /////////////////////////////////////////////// 
+			
+			y++;
+			JCheckBox clusterTAD = new JCheckBox("Specify a Minimum and Maximum Conversion Factor");
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			panel.add(clusterTAD , gbc);
+					
+			clusterTAD .addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (clusterTAD.isSelected()){
+						
+						 ConvFactormin.setText("Conversion Factor (Min):");
+						 ConvFactormax.setVisible(true);
+					     maxconversionFactorField.setVisible(true);
+					  
+					}else{
+						 ConvFactormin.setText("Conversion Factor:");
+						 ConvFactormax.setVisible(false);
+					     maxconversionFactorField.setVisible(false);
+					}
+					
+				}
+			});
+	        	        
+			JOptionPane.showMessageDialog(null, "On average for this algorithm, Best structures are produced between Min = 0.3 and Max = 0.6");
+	        y++;
+	        JButton runButton = new JButton("Run");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 1;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        runButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        stopButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(stopButton, gbc);
+	        	        	        
+	        
+	        Frame Structure_3DMaxFrame = new JFrame();
+	        Structure_3DMaxFrame.setSize(new Dimension(670,380));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	        
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        
+	        
+	        
+	        
+	        runButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Input.stoprunning = false;
+					double minlearn = Double.parseDouble(minconversionFactorField.getText());
+					double maxlearn = Double.parseDouble(maxconversionFactorField.getText());
+					String input = inputContactFileField.getText();
+					String output = outputGSSFileField.getText();
+					double learningRate = Double.parseDouble(learningRateField.getText());
+					int maxIteration = Integer.parseInt(maxIterationField.getText());
+					String inputdata_type = Input.inputtype_Tuple;
+					if (maxIteration > 10000){
+						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!, Maximum is 10000");
+						maxIterationField.setText("5000");
+						return;
+					}
+					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
+						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !");						
+						return;
+					}
+					
+					if (maxlearn < minlearn) {
+						JOptionPane.showMessageDialog(null, "Maximum conversion factor cannot be less than minimum!");
+						maxconversionFactorField.setText("2.0");
+						return;
+					}
+							
+					if (minlearn < 0.1 || minlearn > 2 || maxlearn < 0.1 || maxlearn > 2) {
+						JOptionPane.showMessageDialog(null, "The minimum or maximum conversion factor is out of range for this algorithm");
+						JOptionPane.showMessageDialog(null, "Value Reset done, Min = 0.1 and Max = 2.0");
+						minconversionFactorField.setText("0.1");
+						maxconversionFactorField.setText("2.0");
+						return;
+					}
+										
+					
+					if (learningRate > 1) {
+						JOptionPane.showMessageDialog(null, "The learning Range is out of range for this algorithm. For this algorithm, learning Rate cannot be greater than 1");
+						JOptionPane.showMessageDialog(null, "Value Reset done, Conversion factor = 1");
+						learningRateField.setText("1");
+						return;
+					}
+					
+					if (isMatrix.isSelected()){
+						inputdata_type = Input.inputtype_Matrix; // 1						
+					} 
+					
+					
+					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
+		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());		        	
+		        	viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minconversionFactorField.getText());
+		        	viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, minconversionFactorField.getText());
+		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
+		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
+		        	viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
+		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
+		        	if (clusterTAD.isSelected()) viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxconversionFactorField.getText());
+		        	
+		        	
+		        	
+		        	script = "struct_3DMax";
+			    	viewer.script(script);	 
+			    	
+			    	
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Input.stoprunning = true;
+				
+				}
+			});
+	        
+	  }
+  }
+
+  
+  /*
+   *  Tosin created a new button for Visualize HEatmap
+   */
+  class HeatmapVisualizeAction extends NewAction{
+	  HeatmapVisualizeAction() {
+		  super(heatmap2DVisualizeAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			 //Launch the Heatmap Interface   	
+		    script = "Heatmap2D";
+	    	viewer.script(script);	
+	  }
+  }
+  
+  
+  
+  
+  /*
+   *  Tosin created a new button for 3DMax Modeller
+   */
+  public class FindTADAction extends NewAction{
+	  public FindTADAction() {
+		  super(findTadAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField = new JTextField();      
+	        
+	        JTextField outputGSSFileField = new JTextField();
+	               
+	        JButton openContactFileButton = new JButton("Browse File");
+	        
+	        openContactFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField.setText(fileName);
+					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+				}
+			});
+	        
+	        
+	        JButton outputGSSFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputGSSFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputGSSFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        	        	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input contact file:",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton, gbc);
+	        	       
+	                     
+	        
+	        ///////////////////////////////////////////////
+	        y++;	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        JLabel resolution =  new JLabel("Data Resolution:",JLabel.LEFT);	
+	        resolution.setVisible(false);
+	        panel.add(resolution, gbc);	          
+	        
+	        JTextField IFResolutionField = new JTextField("40000"); 
+	        IFResolutionField.setVisible(false);
+	        IFResolutionField .addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = IFResolutionField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert!",JOptionPane.ERROR_MESSAGE);
+						
+						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
+	        panel.add( IFResolutionField, gbc);
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output folder:",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputGSSFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputGSSFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputGSSFileButton, gbc);
+	
+	            
+	        
+	      ///////////////////////////////////////////////	
+			y++;
+			JCheckBox isMatrix = new JCheckBox("Input IsMatrix ?");
+			gbc.gridx = 0;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			panel.add(isMatrix , gbc);
+			isMatrix .addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (isMatrix.isSelected()){
+						resolution.setVisible(true);
+						IFResolutionField.setVisible(true);
+					}
+					
+				}
+			});   
+	        /////////////////////////////////////////////// 
+			
+			//y++;
+			JCheckBox clusterTAD = new JCheckBox("Run ClusterTAD Algorithm");
+			gbc.gridx = 2;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			
+			clusterTAD.setSelected(true);
+			panel.add(clusterTAD , gbc);
+			        	        
+	        //////////////////////////////////////////////
+	        y++;
+	        JButton runButton = new JButton("Run");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 1;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        runButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        stopButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(stopButton, gbc);
+	        	        	        
+	        
+	        Frame Structure_3DMaxFrame = new JFrame();
+	        Structure_3DMaxFrame.setSize(new Dimension(580,210));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	        
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        
+	        
+	        
+	        
+	        runButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					String input = inputContactFileField.getText();
+					String output = outputGSSFileField.getText();		
+					int resolution = Integer.parseInt(IFResolutionField.getText());
+					String inputdata_type = Parameter.inputtype_Tuple;
+					String res = "";
+					String algorithm= "";
+					String startlocation = "0";
+					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
+						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					if (IFResolutionField.isVisible()) {
+						if ( resolution > 100000 ) {
+							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Minimum Resolution = 100KB ","Alert!",JOptionPane.ERROR_MESSAGE);
+							IFResolutionField.setText("50000");
+							return;
+						}
+					}
+					
+					if (isMatrix.isSelected()){
+						inputdata_type = Input.inputtype_Matrix; // 1	
+						viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
+						viewer.setStringProperty(Constants.STARTLOCATION,  startlocation);
+					} else {
+						try {
+							int Res = LoadHeatmap.Resolution(input);
+							res = String.valueOf(Res);
+							int sloc = LoadHeatmap.Startlocation;
+							startlocation = String.valueOf(sloc);
+							
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+						viewer.setStringProperty(Constants.IFRESOLUTION, res);
+						viewer.setStringProperty(Constants.STARTLOCATION,  startlocation);
+						
+						resolution = Integer.parseInt(res);
+						if ( resolution > 100000 ) {
+							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Minimum Resolution = 100KB. Get new datasets ","Alert!",JOptionPane.ERROR_MESSAGE);							
+							return;
+						}
+					}
+					
+					
+					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
+		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());			        	
+		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
+		        	
+		        if (!clusterTAD.isSelected()) {
+		        		JOptionPane.showMessageDialog(null, "Please select atleast one algorithm");
+		        		return;
+		        	}
+		        
+		        if (clusterTAD.isSelected()) {
+	        		algorithm = "FindTAD2D";	        		
+		        }
+		       
+		        	
+		        script = algorithm;
+			    viewer.script(script);	 
+			    	
+			    	
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "TAD Identification Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+  
+  
+  
+  
+  
+  
+  //end
+  
+  
+  
+  
+  
+  
   
   class OpenUrlAction extends NewAction {
 

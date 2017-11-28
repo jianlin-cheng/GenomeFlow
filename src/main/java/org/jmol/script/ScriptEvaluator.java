@@ -25,6 +25,8 @@ package org.jmol.script;
 
 import static org.biojava3.ws.alignment.qblast.BlastOutputParameterEnum.FORMAT_TYPE;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
@@ -43,6 +45,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
@@ -128,6 +133,11 @@ import uk.ac.roslin.ensembl.dao.database.DBSpecies;
 import uk.ac.roslin.ensembl.exception.ConfigurationException;
 import uk.ac.roslin.ensembl.exception.DAOException;
 import uk.ac.roslin.ensembl.model.core.Chromosome;
+
+//Tosin
+import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
+import edu.missouri.chenglab.Heatmap.HeatMapDemo;
+import edu.missouri.chenglab.ClusterTAD.*;
 
 public class ScriptEvaluator {
 
@@ -237,7 +247,10 @@ public class ScriptEvaluator {
 
 	public static final String SCRIPT_COMPLETED = "Script completed";
 	protected BufferedReader reader;
-	//added lxq35
+	// Tosin added
+	public HeatMapDemo hmd;
+	
+		//added lxq35
 	public boolean threadStop = false; 
 
 	public ScriptEvaluator(Viewer viewer) {
@@ -5903,19 +5916,27 @@ public class ScriptEvaluator {
 				//Tuan added for 3D genome functions
 				case Token.pdb2gss:
 					convertPDB2GSS();
-					break;
-				
+					break;				
 				case Token.lorDG:
 					lorDG3DModeller();
 					break;
-				
 				case Token.loopDetector:
 					loopIdentifier();
 					break;
 				case Token.annotate:
 					annotate();
 					break;
-				//end				
+				//end
+				// Tosin added for 3D genome functions	
+				case Token.struct_3DMax:
+					Structure_3DMax();
+					break;
+				case Token.Heatmap2D:
+					Heatmap_Visualization();
+					break;
+				case Token.FindTAD2D:
+					Find_TAD();
+					break;
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
@@ -6060,11 +6081,107 @@ public class ScriptEvaluator {
 		try{
 			generator.generateStructure();
 		}catch(Exception ex){
+			
 			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
+
     	
 	}
+
+	
+	/**
+	 * @author-Tosin
+	 * To reconstruct 3D model using 3DMax
+	 */
+	private void Structure_3DMax() {
+		String[] Input = new String[8];
+		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
+		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);		
+		 Input[2] = (String)viewer.getParameter(Constants.MINCONVERSIONFACTOR);
+		 Input[3] = (String)viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
+		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);
+		 Input[5] = (String)viewer.getParameter(Constants.MAXITERATION);
+		 Input[6] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
+		 Input[7] = (String)viewer.getParameter(Constants.ISMATRIX);	
+		// Call the Structure_3DMax
+		 
+		try{
+						
+			@SuppressWarnings("unused")
+			Structure_3DMax obj = new Structure_3DMax(Input,viewer);
+		}catch(Exception ex){
+		    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output");
+			viewer.displayMessage(new String[]{ex.getMessage()});
+			ex.printStackTrace();
+		}
+		
+	}
+	
+	/**
+	 * @author-Tosin
+	 * To Find the TAD
+	 */
+	private void Find_TAD() {
+		String[] Input = new String[5];
+		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
+		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);	
+		 Input[2] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
+		 Input[3] = (String)viewer.getParameter(Constants.ISMATRIX);	
+		 Input[4] = (String)viewer.getParameter(Constants.STARTLOCATION);	
+		// Call the ClusteTAD
+		 
+		try{
+						
+			@SuppressWarnings("unused")
+			ClusterTAD ctad = new ClusterTAD(Input,viewer);			
+			
+		}catch(Exception ex){
+		    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output","Alert!",JOptionPane.ERROR_MESSAGE);
+			viewer.displayMessage(new String[]{ex.getMessage()});
+			ex.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+	/**
+	 * @author Tosin
+	 * To visualize the HeatMap
+	 */
+	
+	private void Heatmap_Visualization() {
+		
+		 SwingUtilities.invokeLater(new Runnable()
+	        {
+	            public void run()
+	            {
+	                try
+	                {	 
+	                	// get the screen size as a java dimension
+	                	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	                	// get 2/3 of the height, and 2/3 of the width
+	                	int height = screenSize.height* 8 / 10;
+	                	int width = screenSize.width* 8 / 10;
+	                	
+
+	                	 hmd = new HeatMapDemo(); //Tosin added Filename
+	                     hmd.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);	                  
+	                    // hmd.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
+	                     hmd.setSize(width, height);
+	                     hmd.setMinimumSize(new Dimension(800, 900));
+	                     hmd.setVisible(true);
+	                }
+	                catch (Exception e)
+	                {
+	                    System.err.println(e);
+	                    e.printStackTrace();
+	                }
+	            }
+	        });
+	}
+	
 	
 	///
 	private void cache() throws ScriptException {
