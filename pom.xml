@@ -104,13 +104,7 @@
 		<version>1.0</version>
 		<systemPath>${basedir}\lib\biojava3-ws-3.1.0.jar</systemPath> 
 	</dependency>
-	<dependency> 
-		<groupId>htsjdk-1.139</groupId> 
-		<artifactId>htsjdk-1.139</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\broadinstitute\htsjdk-1.139.jar</systemPath> 
-	</dependency>
+
 	<dependency> 
 		<groupId>igv</groupId> 
 		<artifactId>igv</artifactId> 
@@ -118,6 +112,7 @@
 		<version>1.0</version>
 		<systemPath>${basedir}\lib\broadinstitute\igv.jar</systemPath> 
 	</dependency>
+	
 	<dependency> 
 		<groupId>cglib-2.1_3</groupId> 
 		<artifactId>cglib-2.1_3</artifactId> 
@@ -287,34 +282,7 @@
 		<version>1.0</version>
 		<systemPath>${basedir}\lib\ensembl-test-1.15.jar</systemPath> 
 	</dependency>
-	<dependency> 
-		<groupId>guava-18.0</groupId> 
-		<artifactId>guava-18.0</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\general\guava-18.0.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jahmm-0.6.1</groupId> 
-		<artifactId>jahmm-0.6.1</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\general\jahmm-0.6.1.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jsi1.1</groupId> 
-		<artifactId>jsi1.1</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\general\jsi1.1.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>VectorGraphics2D-0.11</groupId> 
-		<artifactId>VectorGraphics2D-0.11</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\general\VectorGraphics2D-0.11.jar</systemPath> 
-	</dependency>
+
 	<dependency> 
 		<groupId>gnujaxp-onlysax</groupId> 
 		<artifactId>gnujaxp-onlysax</artifactId> 
@@ -335,48 +303,6 @@
 		<scope>system</scope> 
 		<version>1.0</version>
 		<systemPath>${basedir}\lib\itext-1.4.5.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcuda-0.7.5</groupId> 
-		<artifactId>jcuda-0.7.5</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcuda-0.7.5.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcuda-0.8.0RC.linux</groupId> 
-		<artifactId>jcuda-0.8.0RC.linux</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcuda-0.8.0RC.linux.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcuda-0.8.0RC.windows</groupId> 
-		<artifactId>jcuda-0.8.0RC.windows</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcuda-0.8.0RC.windows.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcuda-natives-0.8.0RC-linux-x86_64</groupId> 
-		<artifactId>jcuda-natives-0.8.0RC-linux-x86_64</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcuda-natives-0.8.0RC-linux-x86_64.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcuda-natives-0.8.0RC-windows-x86_64</groupId> 
-		<artifactId>jcuda-natives-0.8.0RC-windows-x86_64</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcuda-natives-0.8.0RC-windows-x86_64.jar</systemPath> 
-	</dependency>
-	<dependency> 
-		<groupId>jcudaUtils-0.0.4</groupId> 
-		<artifactId>jcudaUtils-0.0.4</artifactId> 
-		<scope>system</scope> 
-		<version>1.0</version>
-		<systemPath>${basedir}\lib\jcuda\jcudaUtils-0.0.4.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>jensembl-bundle-no-config-1.15</groupId> 
