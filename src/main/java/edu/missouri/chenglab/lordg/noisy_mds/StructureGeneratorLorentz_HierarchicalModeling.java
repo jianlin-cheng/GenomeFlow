@@ -554,7 +554,10 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		double convertFactor = inputParameters.getConvert_factor();
 		
 		if (convertFactor == -1){
-			convertFactor = Constants.START_CONVERT_FACTOR;
+			
+			//convertFactor = Constants.START_CONVERT_FACTOR;
+			convertFactor = inputParameters.getMinConversionFactor();
+			
 			double cor, minCor = 1.0; //correlation between IFs and distances
 			double bestConvertFactor = Constants.DEFAULT_CONVERT_FACTOR;//default
 			
@@ -603,7 +606,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			executor.shutdown();
 			*/
 			
-			for(; convertFactor <= Constants.END_CONVERT_FACTOR; convertFactor += 0.1){
+			for(; convertFactor <= inputParameters.getMaxConversionFactor(); convertFactor += 0.1){
 				try {
 					inputParameters.setNumber_threads(1);
 					inputParameters.setConvert_factor(convertFactor);

@@ -26,6 +26,10 @@ public class GradientAscent {
 	//the derivatives
 	private double[] derivatives;
 	
+	private double[] prevDirection;
+	private double[] newDirection;
+	
+	
 	private HashMap<Integer,Integer> idToChr;
 	
 	//the objective function to be optimized
@@ -107,6 +111,10 @@ public class GradientAscent {
 		if (variables != null){
 			derivatives = new double[variables.length];			
 			triedVariables = new double[variables.length];
+			
+			prevDirection = new double[variables.length];
+			newDirection = new double[variables.length];
+			
 		}
 		
 		gradientNorm = 0;
@@ -121,7 +129,9 @@ public class GradientAscent {
 	 */
 	public void performGradientAscent(InputParameters inputPara) throws Exception{
 		int count = 0;
-				
+		double[] tmp;
+		double beta = 0.1;
+		
 		initialize();
 		
 		//initial objective function value
@@ -138,6 +148,10 @@ public class GradientAscent {
 		
 		Helper helper = Helper.getHelperInstance();
 		
+		for(int i = 0; i < derivatives.length; i++){
+			prevDirection[i] = derivatives[i];
+		}
+		
 		while(! isConvergence() && count < inputPara.getMax_iteration()){
 			
 			count++;			
@@ -145,11 +159,16 @@ public class GradientAscent {
 			
 			objectiveFn = optimizedObject.calGradientAndObjective(variables, derivatives);
 			
+			for(int i = 0; i < derivatives.length; i++){
+				newDirection[i] = prevDirection[i] * beta + derivatives[i];
+			}
+			
 			//if the objective doesn't increase, it is like taking a step backward, accept it and 
 			//recalculate the step size
 			if (objectiveFn < oldObj){		
 				try{
-					step_size = lineSearch(variables, derivatives, objectiveFn);
+					//step_size = lineSearch(variables, derivatives, objectiveFn);
+					step_size = lineSearch(variables, newDirection, objectiveFn);
 				}catch(Exception ex){
 					break;
 				}
@@ -161,8 +180,16 @@ public class GradientAscent {
 			}
 			
 			//update variables with gradient
-			updateVariables(variables, derivatives, step_size);					
+			//updateVariables(variables, derivatives, step_size);					
 			//step_size = initialLearingRate / (Math.sqrt(count));
+			
+			updateVariables(variables, newDirection, step_size);
+			
+			//update previous direction
+			tmp = prevDirection;
+			prevDirection = newDirection;
+			newDirection = tmp;
+			
 			
 			if (tmpFolder != null && (count % 30 == 0 || count < 100) ){			
 				

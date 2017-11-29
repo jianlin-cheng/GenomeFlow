@@ -42,6 +42,9 @@ public class InputParameters {
 	private String chrom = "1";
 	private String genomeID = "hg19";
 	
+	private double minConversionFactor = 0.1;
+	private double maxConversionFactor = 3.0;
+	
 	public InputParameters copy(){
 		InputParameters inputParameter = new InputParameters();
 		inputParameter.setNum(num);
@@ -72,10 +75,33 @@ public class InputParameters {
 		inputParameter.setChrom(chrom);
 		inputParameter.setGenomeID(genomeID);
 		
+		inputParameter.setMinConversionFactor(minConversionFactor);
+		inputParameter.setMaxConversionFactor(maxConversionFactor);
+		
 		return inputParameter;
 	}
 	
 	
+	public double getMinConversionFactor() {
+		return minConversionFactor;
+	}
+
+
+	public void setMinConversionFactor(double minConversionFactor) {
+		this.minConversionFactor = minConversionFactor;
+	}
+
+
+	public double getMaxConversionFactor() {
+		return maxConversionFactor;
+	}
+
+
+	public void setMaxConversionFactor(double maxConversionFactor) {
+		this.maxConversionFactor = maxConversionFactor;
+	}
+
+
 	public String getChrom() {
 		return chrom;
 	}
