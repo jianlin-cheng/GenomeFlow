@@ -3394,7 +3394,8 @@ public void showStatus(String message) {
 	        doubleFormatter.setMaximum(4.0);
 	        //doubleFormatter.setAllowsInvalid(false);
 	        
-			JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
+			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
+	        JTextField conversionFactorField = new JTextField();
 			conversionFactorField.setText("1.0");
 	        
 	        gbc.gridx = 1;
@@ -3616,12 +3617,41 @@ public void showStatus(String message) {
 					}
 					
 					double conversion = 0.0;
+					double minConversion = 0.1, maxConversion = 3.0;
 					if (conversionFactorField.getText().length() > 0){
-						conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
-						if (conversion < 0.2 && conversion > 3.5){
-							JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
-							conversionFactorField.setText("1.0");
-							return;
+						
+						if (!conversionFactorField.getText().contains("-")){
+							
+							try{
+								conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
+							}catch(Exception ex){
+								JOptionPane.showMessageDialog(null, "Please put a number!");
+								conversionFactorField.setText("1.0");
+								return;
+							}
+							
+							if (conversion < 0.2 && conversion > 3.5){
+								JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
+								conversionFactorField.setText("1.0");
+								return;
+							}
+							
+						}else{
+							String[] st = conversionFactorField.getText().split("[-\\s+]+");
+							if (st.length != 2){
+								JOptionPane.showMessageDialog(null, "Please specify the range with this format: 0.5 - 1.0");
+								conversionFactorField.setText("0.5 - 1.0");
+								return;
+							}
+							
+							try{
+								minConversion = Double.parseDouble(st[0]);
+								maxConversion = Double.parseDouble(st[1]);
+							}catch(Exception ex){
+								JOptionPane.showMessageDialog(null, "Please put numbers in the conversion factor range!");
+								conversionFactorField.setText("0.5 - 1.0");
+								return;
+							}
 						}
 					}
 					
@@ -3646,7 +3676,17 @@ public void showStatus(String message) {
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
 		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
-		        	viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversionFactorField.getText().replace(",", ""));
+		        	
+		        	if (conversion > 0){
+		        		viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversion + "");
+		        		viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, "");
+		        		viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, "");
+		        	}else{
+		        		viewer.setStringProperty(Constants.CONVERSIONFACTOR, "");
+		        		viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minConversion + "");
+		        		viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxConversion + "");
+		        	}
+		        	
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
 		        	
 		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOME, "1");
@@ -3658,6 +3698,7 @@ public void showStatus(String message) {
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
 		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        	else viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
 		        	
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	

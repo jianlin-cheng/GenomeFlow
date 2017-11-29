@@ -6016,11 +6016,20 @@ public class ScriptEvaluator {
 		
 		
 		
-		double conversionFactor = 0;
+		double conversionFactor = 0, minConversionFactor = 0.1, maxConversionFactor = 3.0;
+		
 		String conversionFactorStr = (String)viewer.getParameter(Constants.CONVERSIONFACTOR);
-		if (conversionFactorStr.length() > 0){
-			conversionFactor = Double.parseDouble(conversionFactorStr);
-		}
+		String minConversion = (String) viewer.getParameter(Constants.MINCONVERSIONFACTOR);
+		String maxConversion = (String) viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
+		
+		if (conversionFactorStr.length() > 0) conversionFactor = Double.parseDouble(conversionFactorStr);
+		
+		if (minConversion.length() > 0) minConversionFactor = Double.parseDouble(minConversion);
+		if (maxConversion.length() > 0) maxConversionFactor = Double.parseDouble(maxConversion);
+		
+		
+		
+		
 		double learningRate = Double.parseDouble((String)viewer.getParameter(Constants.LEARNINGRATE));
 		int maxIteration = Integer.parseInt((String)viewer.getParameter(Constants.MAXITERATION));
 		
@@ -6047,7 +6056,12 @@ public class ScriptEvaluator {
 		inputParameter.setInput_file(contactFile);
 		inputParameter.setLearning_rate(learningRate);
 		inputParameter.setNumber_threads(1);
-		if (conversionFactor > 0) inputParameter.setConvert_factor(conversionFactor);
+		
+		if (conversionFactor > 0.001) inputParameter.setConvert_factor(conversionFactor);
+		
+		inputParameter.setMinConversionFactor(minConversionFactor);
+		inputParameter.setMaxConversionFactor(maxConversionFactor);
+		
 		inputParameter.setMax_iteration(maxIteration);
 		
 		inputParameter.setChrom(chrom);
