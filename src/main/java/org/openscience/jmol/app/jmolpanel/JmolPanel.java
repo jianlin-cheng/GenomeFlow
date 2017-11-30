@@ -304,7 +304,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
     } catch (Exception e) {
     }
 
-    frame.setTitle("Gmol"); //modified lxq35
+    frame.setTitle("GenomeFlow"); //modified lxq35
     frame.getContentPane().setBackground(Color.lightGray);
     frame.getContentPane().setLayout(new BorderLayout());
 
@@ -617,7 +617,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
       }
 
     if (splash != null)
-      splash.showStatus(GT._("Initializing GMOL..."));
+      splash.showStatus(GT._("Initializing GenomeFlow..."));
 
     Jmol window = new Jmol(jmolApp, splash, frame, null, jmolApp.startupWidth,
         jmolApp.startupHeight, jmolApp.info, null);
