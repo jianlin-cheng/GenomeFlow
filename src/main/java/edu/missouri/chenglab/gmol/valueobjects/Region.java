@@ -56,6 +56,16 @@ public class Region implements Comparable<Region> {
 	}
 	
 	@Override
+	public boolean equals(Object o){
+		if (! (o instanceof Region)) {
+			return false;			
+		};
+		
+		Region tmp = (Region) o;		
+		return tmp.chrID == this.chrID && tmp.start ==  this.start && tmp.end == this.end;		
+	}
+	
+	@Override
 	public int hashCode(){
 		return chrID + start + end;
 	}

@@ -38,7 +38,7 @@ public class Frank extends FontShape {
   final static int defaultFontSize = 16;
   public final static int frankMargin = 4;
 
-  public String frankString = "GMOL";//modified -hcf
+  public String frankString = "GenomeFlow";//modified -hcf
   JmolFont currentMetricsFont3d;
   JmolFont baseFont3d;
   public int frankWidth;

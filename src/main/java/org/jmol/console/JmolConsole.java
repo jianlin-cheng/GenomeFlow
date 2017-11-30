@@ -83,7 +83,7 @@ public abstract class JmolConsole implements JmolCallbackListener, ActionListene
   protected String getLabel(String key) {
     if (labels == null) {
       labels = new Hashtable<String, String>();
-      labels.put("title", GT._("Gmol Script Console") + " " + Viewer.getJmolVersion());
+      labels.put("title", GT._("GenomeFlow Script Console") + " " + Viewer.getJmolVersion());
       setupLabels();
     }
     return labels.get(key);

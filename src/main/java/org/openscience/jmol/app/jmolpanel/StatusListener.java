@@ -130,7 +130,7 @@ public boolean notifyEnabled(EnumCallback type) {
         String menuName = (String) data[2];
         display.status.setStatus(1, menuName);
         if (jmol.frame != null)
-          jmol.frame.setTitle("Gmol"); //modified lxq35 menuName->"Gmol"
+          jmol.frame.setTitle("GenomeFlow"); //modified lxq35 menuName->"Gmol"
       }
       return;
     case SCRIPT:
