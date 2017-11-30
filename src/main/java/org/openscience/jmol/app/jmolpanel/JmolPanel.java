@@ -1416,7 +1416,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.anchor = GridBagConstraints.WEST;
-		  panel.add(new JLabel("Input file:"), gbc);
+		  panel.add(new JLabel("Input File:"), gbc);
 		  
 		  JTextField inputField = new JTextField();
 		  inputField.setPreferredSize(new Dimension(300,20));
@@ -1652,7 +1652,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.anchor = GridBagConstraints.WEST;
-		  panel.add(new JLabel("Input file:"), gbc);
+		  panel.add(new JLabel("Input File:"), gbc);
 		  
 		  JTextField inputField = new JTextField();
 		  inputField.setPreferredSize(new Dimension(300,20));
