@@ -802,6 +802,9 @@ public class Helper {
 		for(int i = 3; i < structure.length; i += 3){
 			id = i / 3;
 			
+			if (!idToChr.containsKey(id)){
+				break;
+			}
 			if (idToChr.get(id) == idToChr.get(id - 1)) continue;
 			
 			end = id  - 1;

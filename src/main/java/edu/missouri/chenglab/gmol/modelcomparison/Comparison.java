@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,6 +20,8 @@ import org.apache.commons.math3.linear.SingularValueDecomposition;
 import org.apache.commons.math3.stat.StatUtils;
 import org.jmol.adapter.smarter.Atom;
 
+import edu.missouri.chenglab.lordg.utility.Helper;
+
 /**
  * This class is to calculate RMSE and Spearman's correlation for 2 models in GSS files
  * Only loci in both models are considered
@@ -29,7 +33,8 @@ public class Comparison {
 	
 	public static void main(String[] args) throws Exception{
 		String inputFile1 = "C:/Users/Tuan/workspace/Gmol/output/chr11_10kb_gm12878_list_125mb_135mb_1512086718696.gss";
-		String inputFile2 = "C:/Users/Tuan/workspace/Gmol/output/chr11_10kb_gm12878_list_125mb_135mb_1512068595242.gss";
+		String inputFile2 = "C:/Users/Tuan/workspace/Gmol/output/chr11_10kb_gm12878_list_125mb_135mb_1512086718696.gss";
+		//String inputFile2 = "C:/Users/Tuan/workspace/Gmol/output/chr11_10kb_gm12878_list_125mb_135mb_1512068595242.gss";
 		
 		Comparison comp = new Comparison();
 		
@@ -41,16 +46,26 @@ public class Comparison {
 		List<AtomRegion> atomList1 = readModel(inputFile1);
 		List<AtomRegion> atomList2 = readModel(inputFile2);
 		
+		double testc = 5.5;
+		double[] translate = new double[]{10.0, 2.0, 5.0};
+		for(AtomRegion atom : atomList1){
+			atom.x *= testc;
+			atom.y *= testc;
+			atom.z *= testc;
+			
+			atom.x += translate[0];
+			atom.y += translate[1];
+			atom.z += translate[2];
+		}
+		
 		Set<AtomRegion> set1 = new HashSet<AtomRegion>(atomList2);
 		Set<AtomRegion> set2 = new HashSet<AtomRegion>(atomList2);
 		
 		atomList1 = atomList1.stream().filter(a -> set2.contains(a)).collect(Collectors.toList());
 		atomList2 = atomList2.stream().filter(a -> set1.contains(a)).collect(Collectors.toList());
-			
+		
 		center(atomList1);
 		center(atomList2);
-		
-		
 		
 		
 		RealMatrix matrix1 = getCoordinateMatrix(atomList1);
@@ -86,7 +101,75 @@ public class Comparison {
 		RealMatrix t = MatrixUtils.createRowRealMatrix(new double[]{StatUtils.mean(matrix1.getColumn(0)), StatUtils.mean(matrix1.getColumn(1)), StatUtils.mean(matrix1.getColumn(2))}).subtract(
 				MatrixUtils.createRowRealMatrix(new double[]{StatUtils.mean(matrix2.getColumn(0)), StatUtils.mean(matrix2.getColumn(1)), StatUtils.mean(matrix2.getColumn(2))}).multiply(r.scalarMultiply(scale)));
 		
-		System.out.println(t);
+		
+		//MatrixUtils
+		
+		RealMatrix matrix1Converted = matrix1.multiply(r.scalarMultiply(scale));
+		
+		//translate
+		for(int i = 0; i < matrix1Converted.getRowDimension(); i++){
+			RealMatrix tmp = matrix1Converted.getRowMatrix(i).subtract(t);		
+			matrix1Converted.setRowMatrix(i, tmp);
+		}
+		
+		
+		RealMatrix error = matrix1Converted.subtract(matrix2);
+		double totalError = 0;
+		for(int i = 0; i < error.getRowDimension(); i++){
+			totalError += StatUtils.sumSq(error.getRow(0));
+		}
+		
+		System.out.println("Total error :" + totalError);
+		
+		
+		Helper helper = Helper.getHelperInstance();
+		
+		double[] str = new double[matrix2.getRowDimension() * 2 * 3];
+		
+		List<Integer> lstPos = new ArrayList<Integer>();
+		HashMap<Integer, Integer> idToChr = new HashMap<Integer,Integer>();
+		String chrom = "1";
+		String genomeID = "test";
+		
+		
+		int k = 0;
+		for(int i = 0; i < matrix2.getRowDimension(); i ++){
+			
+			idToChr.put(k/3, 1); 
+			
+			str[k++] = matrix2.getRow(i)[0];
+			str[k++] = matrix2.getRow(i)[1];
+			str[k++] = matrix2.getRow(i)[2];	
+			
+			lstPos.add(atomList1.get(i).fromPos);
+			
+			
+		}
+		
+//		for(int i = 0; i < matrix1Converted.getRowDimension(); i ++){
+//			
+//			idToChr.put(k/3, 2);
+//			
+//			str[k++] = matrix1Converted.getRow(i)[0];
+//			str[k++] = matrix1Converted.getRow(i)[1];
+//			str[k++] = matrix1Converted.getRow(i)[2];
+//			
+//			lstPos.add(atomList2.get(i).fromPos);
+//		}
+		
+		for(int i = 0; i < matrix1.getRowDimension(); i ++){
+			
+			idToChr.put(k/3, 2);
+			
+			str[k++] = matrix1.getRow(i)[0];
+			str[k++] = matrix1.getRow(i)[1];
+			str[k++] = matrix1.getRow(i)[2];
+			
+			lstPos.add(atomList2.get(i).fromPos);
+		}		
+		
+		String outputFileGSS = "alignment_result.gss";
+		helper.writeStructureGSS(outputFileGSS, str, lstPos, idToChr, chrom, genomeID);
 		
 		
 	}

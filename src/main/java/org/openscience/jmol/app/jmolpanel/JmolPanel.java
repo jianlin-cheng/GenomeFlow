@@ -3472,13 +3472,19 @@ public void showStatus(String message) {
 				
 				@Override
 				public boolean verify(JComponent input) {
-					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
+					Set<String> validChromIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
 							"18","19","20","21","22","23","X","Y"));
 					
 					JTextField field = (JTextField) input;
-					if (field.getText().length() == 0 || validGenomeIDs.contains(field.getText())) return true;
+					if (field.getText().length() == 0 || validChromIDs.contains(field.getText())) return true;
 					
-					return false;
+					String text = field.getText();
+					String[] st = text.split("[,\\s]+");
+					for (int i = 0; i < st.length; i++){
+						if (!validChromIDs.contains(st[i])) return false;
+					}
+					
+					return true;
 				}
 			});
 

@@ -4,6 +4,8 @@ import static edu.missouri.chenglab.lordg.valueObject.Constants.NEAR_ZERO;
 
 import java.util.HashMap;
 
+import org.apache.commons.math3.stat.StatUtils;
+
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.Constants;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
@@ -163,6 +165,7 @@ public class GradientAscent {
 				newDirection[i] = prevDirection[i] * beta + derivatives[i];
 			}
 			
+			
 			//if the objective doesn't increase, it is like taking a step backward, accept it and 
 			//recalculate the step size
 			if (objectiveFn < oldObj){		
@@ -262,6 +265,7 @@ public class GradientAscent {
 		double alpha = initialLearingRate * 2;
 
 		double f1,f2;
+		double directionLen = Math.sqrt(StatUtils.sumSq(newDirection));
 		
 		do{
 			alpha = 0.5 * alpha;
@@ -269,7 +273,9 @@ public class GradientAscent {
 			updateVariables(triedVariables,variables,direction,alpha);
 			
 			f1 = optimizedObject.calObjective(triedVariables);
-			f2 = currentFn + 0.5 * alpha * gradientNorm * gradientNorm;
+			//f2 = currentFn + 0.5 * alpha * gradientNorm * gradientNorm;
+			f2 = currentFn + 0.5 * alpha * directionLen * directionLen;
+			
 			
 		}while ( f1 < f2 && alpha >= NEAR_ZERO);
 		
