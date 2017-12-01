@@ -503,6 +503,12 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		
 		str = new double[n * 3];
 		
+		if (str.length / 3 != idToChr.size()){
+			System.out.println("Incorrect lengths of chromosomes");
+			throw new Exception("Error!!! Lengths detected in data is different from lengths from input!");
+		}
+		
+		
 		if (inputParameters != null && inputParameters.getInitial_str_file() != null){
 			
 			System.out.println("Initializing from an existing model");
@@ -549,6 +555,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 
 	public double generateStructure() throws Exception {
 		
+
 		if (parameterFile != null) readParameters(parameterFile);
 		
 		double convertFactor = inputParameters.getConvert_factor();
@@ -686,6 +693,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			inputParameters.setInput_file(inputParameters.getFiltered_input_file());
 			
 			initializeStructure();
+			
+
 			GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder());
 			if (inputParameters.getLearning_rate() != 0){
 				gradientAscent.setInitialLearingRate(inputParameters.getLearning_rate());
