@@ -204,6 +204,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
   private ConvertToHiCAction convertToHiCAction = new ConvertToHiCAction(); //Tuan added
   private NormalizeHiCAction normalizeHiCAction = new NormalizeHiCAction(); //Tuan added
+  private CompareModelsAction compareModels = new CompareModelsAction();//
   
   private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
   private HeatmapVisualizeAction heatmap2DvisualizeAction = new HeatmapVisualizeAction(); //Tosin added
@@ -250,6 +251,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
 
   private static final String converToHiC = "ConvertToHiC";//Tuan added
   private static final String normalizeHiC = "NormalizeHiC";//Tuan added
+  private static final String compareModel = "Compare";
 
   private static final String structure3DMAXAction = "3DMax";//Tosin added
   private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
@@ -1145,9 +1147,9 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(),  
+      new searchGenomeSequenceTableAction(),  ////last four added -hcf,
 
-      extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction,////last four added -hcf, Tuan added pdb2GSSAction
+      extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction, compareModels,// Tuan added
       structure3DMaxAction, heatmap2DvisualizeAction,findTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
 
   ;
@@ -1387,7 +1389,162 @@ public void showStatus(String message) {
   
   //added end -hcf
 
+ 
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class CompareModelsAction extends NewAction{
+	  
+
+	  
+	  CompareModelsAction(){
+		  super(compareModel);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(800, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y = 0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Model File 1:"), gbc);
+		  
+		  JTextField inputField1 = new JTextField();
+		  inputField1.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField1, gbc);
+		  
+		  JButton browserFile1Button = new JButton("Browse file");
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFile1Button, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Model File 2:"), gbc);
+		  
+		  JTextField inputField2 = new JTextField();
+		  inputField2.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField2, gbc);
+		  
+		  JButton browserFile2Button = new JButton("Browse file");		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFile2Button, gbc);
+		  		  
+		  
+		  browserFile1Button.addActionListener(event -> {				
+				
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				if (fileName == null) return;
+				
+				inputField1.setText(fileName);
+				
+				if (!fileName.endsWith(".gss")){
+					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
+					return;
+				}
+					
+		  });
+		  
+		  
+		  browserFile2Button.addActionListener(event -> {				
+				
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				if (fileName == null) return;
+				
+				inputField2.setText(fileName);
+				
+				if (!fileName.endsWith(".gss")){
+					JOptionPane.showMessageDialog(null, "Please specify input file 2!");
+					return;
+				}
+					
+		  });
+		  
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 4;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  JButton compareButton = new JButton("Compare");
+		  panel.add(compareButton, gbc);
+		  
+		  compareButton.addActionListener(event -> {
+		
+				if (inputField1.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
+					return;
+				}
+				if (inputField2.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify output file 2!");
+					return;
+				}
+				
+
+				viewer.setStringProperty(Constants.INPUTFILE1, inputField1.getText());
+				viewer.setStringProperty(Constants.INPUTFILE2, inputField2.getText());
+		    	
+	        	script = "compareModels";        	
+		    	viewer.script(script);
+				
+
+			}
+		  );
+		  
+		  
+		  
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		  scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		  
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(800, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+		  subFrame.setTitle("Normalize HiC Data");
+	  }
+  }
   
+  
+  /**
+   * 
+   * @author Tuan
+   *
+   */
   class NormalizeHiCAction extends NewAction{
 	  
 	  //Pre dump = new Dump();
@@ -3724,11 +3881,7 @@ public void showStatus(String message) {
 					}
 					
 				}
-			});
-	        
-	        
-	        
-	            
+			});	        	            
 	    }
   }
 
