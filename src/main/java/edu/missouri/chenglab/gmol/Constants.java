@@ -31,6 +31,8 @@ public interface Constants {
 	String INPUTFILE1 = "INPUTFILE1";
 	String INPUTFILE2 = "INPUTFILE2";
 	
+	double AVG_DIST_MODEL = 0.01;
+	
 	//Tosin addded
 	String MINCONVERSIONFACTOR = "minconversionFactor";
 	String MAXCONVERSIONFACTOR = "maxconversionFactor";
@@ -38,6 +40,6 @@ public interface Constants {
 	String ISMATRIX = "1";
 	String STARTLOCATION = "startinggenomelocation";
 	
-
+	
 
 }

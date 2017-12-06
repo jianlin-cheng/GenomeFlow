@@ -21,6 +21,7 @@ import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import org.jmol.adapter.smarter.Atom;
 import org.jmol.viewer.Viewer;
 
+import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.utility.Helper;
 
@@ -53,6 +54,13 @@ public class Comparison {
 		
 		atomList1 = atomList1.stream().filter(a -> set2.contains(a)).collect(Collectors.toList());
 		atomList2 = atomList2.stream().filter(a -> set1.contains(a)).collect(Collectors.toList());
+		
+		if (atomList1.size() == 0){
+			viewer.displayMessage(new String[]{"Check your models!!!, they have no common regions!"});
+			return;
+		}
+		
+		normalize(atomList2);
 		
 		center(atomList1);
 		center(atomList2);
@@ -124,15 +132,14 @@ public class Comparison {
 			matrix1Converted.setRowMatrix(i, tmp);
 		}
 		
-		
+		/*
 		RealMatrix errorMatrix = matrix1Converted.subtract(matrix2);
 		double totalError = 0;
 		for(int i = 0; i < errorMatrix.getRowDimension(); i++){
 			totalError += StatUtils.sumSq(errorMatrix.getRow(i));
-		}
-		
+		}		
 		System.out.println("Total error :" + totalError);
-		
+		*/
 		
 		Helper helper = Helper.getHelperInstance();
 		
@@ -179,26 +186,32 @@ public class Comparison {
 		
 		
 		k = 0;
-		totalError = 0.0;
+		double totalError = 0.0;
 		for(int i = 0; i < n; i++){
 			for(int j = i + 1; j < n; j++){
-				dist1[k] = helper.calEuclidianDist(matrix1Converted.getRow(i)[0],  matrix1Converted.getRow(i)[1], matrix1Converted.getRow(i)[2], 
-						matrix1Converted.getRow(j)[0],  matrix1Converted.getRow(j)[1], matrix1Converted.getRow(j)[2]);
+				dist1[k] = Math.sqrt(helper.calEuclidianDist(matrix1Converted.getRow(i)[0],  matrix1Converted.getRow(i)[1], matrix1Converted.getRow(i)[2], 
+						matrix1Converted.getRow(j)[0],  matrix1Converted.getRow(j)[1], matrix1Converted.getRow(j)[2]));
 				
 				
-				dist2[k] = helper.calEuclidianDist(matrix2.getRow(i)[0], matrix2.getRow(i)[1], matrix2.getRow(i)[2], 
-						matrix2.getRow(j)[0], matrix2.getRow(j)[1], matrix2.getRow(j)[2]);
+				dist2[k] = Math.sqrt(helper.calEuclidianDist(matrix2.getRow(i)[0], matrix2.getRow(i)[1], matrix2.getRow(i)[2], 
+						matrix2.getRow(j)[0], matrix2.getRow(j)[1], matrix2.getRow(j)[2]));
 				
-				totalError = (dist1[k] - dist2[k]) * (dist1[k] - dist2[k]);
+				totalError += (dist1[k] - dist2[k]) * (dist1[k] - dist2[k]);
 				k++;
 			}
 		}
 		
-		totalError /= dist1.length;
+		totalError = Math.sqrt(totalError) / dist1.length;
+		
+		//totalError /= Constants.AVG_DIST_MODEL;
+		
 		double cor = spearmanCor.correlation(dist1, dist2);
 		
-		viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.3f",totalError), String.format("Spearman correlation: %.3f",cor)});
-		CommonFunctions.delete_file(outputFileGSS);
+		viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.8f",totalError), String.format("Spearman correlation: %.2f",cor)});
+		
+		viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 5; color group;select atomno >= %d and atomno <= %d;wireframe 15; color group",1,n, n+1, n + n));
+		
+		//CommonFunctions.delete_file(outputFileGSS);
 		
 	}
 	
@@ -211,6 +224,36 @@ public class Comparison {
 		}
 		
 		return MatrixUtils.createRealMatrix(a);
+	}
+
+	/**
+	 * Normalize models so that RMSE is comparable for different cases
+	 * @param atomList
+	 */
+	private void normalize(List<AtomRegion> atomList){
+		
+		
+		Helper helper = Helper.getHelperInstance();
+		//make average adjacent distance = 10
+		double avgDist = 0;
+		int count = 0;
+		for(int i = 1; i < atomList.size(); i++){
+			if (atomList.get(i).chrID == atomList.get(i - 1).chrID){
+				avgDist += helper.calEuclidianDist(atomList.get(i).x, atomList.get(i).y, atomList.get(i).z, 
+						atomList.get(i-1).x, atomList.get(i-1).y, atomList.get(i-1).z);
+				count++;
+			}
+		}
+		
+		avgDist /= count;
+		
+		double ratio = Constants.AVG_DIST_MODEL/avgDist;
+		
+		for(AtomRegion atom: atomList){
+			atom.x *= ratio;
+			atom.y *= ratio;
+			atom.z *= ratio;
+		}
 	}
 	
 	private void center(List<AtomRegion> atomList){
@@ -231,8 +274,6 @@ public class Comparison {
 			atom.y -= center[1];
 			atom.z -= center[2];
 		}
-		
-		
 	}
 	
 
