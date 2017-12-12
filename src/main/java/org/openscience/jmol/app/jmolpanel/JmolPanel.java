@@ -133,6 +133,8 @@ import org.openscience.jmol.app.jsonkiosk.KioskFrame;
 import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
+import com.icl.saxon.exslt.Common;
+
 import edu.missouri.chenglab.ClusterTAD.Parameter;
 import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 import edu.missouri.chenglab.gmol.Constants;
@@ -2649,7 +2651,12 @@ public void showStatus(String message) {
 				
 				
 				if (outputFileField.getText().length() == 0) {
-					JOptionPane.showMessageDialog(null, "Please Select Output File!");
+					JOptionPane.showMessageDialog(null, "Please specify an output file!");
+					return;
+				}
+				
+				if (CommonFunctions.isFolder(outputFileField.getText())) {
+					JOptionPane.showMessageDialog(null, "Please specify a file!");
 					return;
 				}
 				
@@ -2916,7 +2923,8 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
+							|| viewer.getModelSetName().equals("GenomeFlow") ){
 			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
 			    		return;
 			    	}
@@ -3370,7 +3378,9 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
+			    			|| viewer.getModelSetName().equals("GenomeFlow") ){
+			    		
 			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
 			    		return;
 			    	}

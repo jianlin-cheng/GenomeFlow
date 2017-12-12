@@ -207,7 +207,7 @@ public class Comparison {
 		
 		double cor = spearmanCor.correlation(dist1, dist2);
 		
-		viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.8f",totalError), String.format("Spearman correlation: %.2f",cor)});
+		viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.8f",totalError), String.format("Spearman correlation: %.4f",cor)});
 		
 		viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 5; color group;select atomno >= %d and atomno <= %d;wireframe 15; color group",1,n, n+1, n + n));
 		

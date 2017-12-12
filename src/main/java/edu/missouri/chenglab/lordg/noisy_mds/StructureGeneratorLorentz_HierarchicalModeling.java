@@ -20,6 +20,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+
 import edu.missouri.chenglab.lordg.evaluation.CalRMSD;
 import edu.missouri.chenglab.lordg.optimization.GradientAscent;
 import edu.missouri.chenglab.lordg.optimization.OptimizedObject;
@@ -188,14 +190,20 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		int avgAdjCount = 0;
 		double d;
 		
+		DescriptiveStatistics descStat = new DescriptiveStatistics();
+		
 		//compute average adjacent IF
 		for(Constraint con : lstCons){
 			if (Math.abs(con.getPos1() - con.getPos2()) == 1 && idToChr.get(con.getPos1()) == idToChr.get(con.getPos2())) {
 				avgAdjIF += con.getIF();
 				avgAdjCount++;
+				
+				descStat.addValue(con.getIF());
 			}
 		}		
-		avgAdjIF /= avgAdjCount;
+		//avgAdjIF /= avgAdjCount;
+		avgAdjIF = descStat.getPercentile(75);
+		
 		
 		System.out.println("Adding adjacent contacts: " + avgAdjIF);
 		addAdjacentContacts(avgAdjIF);
@@ -505,7 +513,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		
 		if (str.length / 3 != idToChr.size()){
 			System.out.println("Incorrect lengths of chromosomes");
-			throw new Exception("Error!!! Lengths detected in data is different from lengths from input!");
+			throw new Exception(String.format("Error!!! Lengths detected in data is different from lengths from input, data: %d vs. input: %d!",str.length/3, idToChr.size()));
 		}
 		
 		
@@ -949,9 +957,9 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 //				ifr = ifr * ifr;
 				
 				//if (Math.abs(lstPos.get(i) - lstPos.get(j)) == 1 && idToChr.get(i) == idToChr.get(j)){
-				if (Math.abs(i - j) == 1 && idToChr.get(i) == idToChr.get(j)){
-					ifr = Math.max(ifr, adjacentIF);
-				}				
+				//if (Math.abs(i - j) == 1 && idToChr.get(i) == idToChr.get(j)){					
+					//ifr = Math.max(ifr, adjacentIF);
+				//}				
 //				else {
 //					ifr = 1.0;
 //				}
