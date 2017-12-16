@@ -11,11 +11,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import edu.missouri.chenglab.lordg.valueObject.Constraint;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 public class Helper {	
@@ -38,7 +40,29 @@ public class Helper {
 		return helper;
 	}
 	
-
+	/**
+	 * 
+	 * @param fileName: each line contains (id chr start end)
+	 * @return
+	 * @throws Exception
+	 */
+	public Map<Integer,GenomicLocation> readGenomicLocation(String fileName) throws Exception{
+		Map<Integer,GenomicLocation> map = new HashMap<Integer,GenomicLocation>();
+		BufferedReader br = new BufferedReader(new FileReader(new File(fileName)));
+		String ln, st[];
+		int id, chr, start, end;
+		while((ln = br.readLine()) != null) {
+			st = ln.split("\\s+");
+			id = Integer.parseInt(st[0]);
+			chr = Integer.parseInt(st[1]);
+			start = Integer.parseInt(st[2]);
+			end = Integer.parseInt(st[3]);
+			map.put(id, new GenomicLocation(-1,chr,start, end));
+		}
+		br.close();
+		return map;
+	}
+	
 
 	/**
 	 * Read contact matrix file
@@ -785,7 +809,7 @@ public class Helper {
 	 * @param structure: every 3 consecutive points is one point in 3D
 	 * @param
 	 */
-	public void writeStructureGSS(String pathFilename, double[] structure, List<Integer> lstPos, HashMap<Integer,Integer> idToChr, String chrom, String genomeID) throws IOException{
+	public void writeStructureGSS(String pathFilename, double[] structure, Map<Integer,GenomicLocation> idToChr, String chrom, String genomeID) throws IOException{
 
 		PrintWriter pw = new PrintWriter(pathFilename);
 		pw.println(String.format("<sp>%s</sp>", genomeID));
@@ -811,14 +835,14 @@ public class Helper {
 			n = end - start + 1;
 			pw.printf("<lt>%d</lt>\n", n);
 			
-			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);
+			writeStructureGSS(pw, structure, idToChr, radius, start * 3, end * 3);
 			
 			pw.println("</cs>");
 			
 			start = id;
 			
 			if (i < structure.length){
-				chrID = idToChr.get(id) + 1;
+				chrID = idToChr.get(id).getChr() + 1;
 				pw.println("<ens-chr>" + chrID + "</ens-chr>");
 				pw.println("<lc-seq>unknown</lc-seq>");
 				pw.println("<cs>" + chrID);
@@ -829,7 +853,7 @@ public class Helper {
 		n = end - start + 1;
 		if (end > start){
 			pw.printf("<lt>%d</lt>\n", n);		
-			writeStructureGSS(pw, structure, lstPos, radius, start * 3, end * 3);		
+			writeStructureGSS(pw, structure, idToChr, radius, start * 3, end * 3);		
 			pw.println("</cs>");
 		}
 		
@@ -837,12 +861,12 @@ public class Helper {
 		pw.close();			
 	}
 	
-	public void writeStructureGSS(PrintWriter pw, double[] a,List<Integer> lstPos, double radius, int start, int end){ // start, end are included
+	public void writeStructureGSS(PrintWriter pw, double[] a, Map<Integer,GenomicLocation> idToChr, double radius, int start, int end){ // start, end are included
 		int id;
 		for(int i = start; i <= end; i += 3){
 			id = i / 3;
 			pw.printf("<un %d>%.3f %.3f %.3f %.1f</un><seq>%d %d</seq>\n", 
-					id+1, a[i], a[i + 1], a[i + 2], radius, lstPos.get(id), (id + 1 < lstPos.size() ? lstPos.get(id + 1) - 1 : lstPos.get(id) + 1));
+					id+1, a[i], a[i + 1], a[i + 2], radius, idToChr.get(id).getStart(), idToChr.get(i).getEnd());
 			
 		}
 	}

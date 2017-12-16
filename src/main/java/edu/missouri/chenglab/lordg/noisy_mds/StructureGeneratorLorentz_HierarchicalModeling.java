@@ -12,11 +12,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
@@ -28,6 +26,7 @@ import edu.missouri.chenglab.lordg.optimization.OptimizedObject;
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.Constants;
 import edu.missouri.chenglab.lordg.valueObject.Constraint;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 public class StructureGeneratorLorentz_HierarchicalModeling implements OptimizedObject{
@@ -97,7 +96,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 	
 	//private double contactThres;
 	//private int[] chrLens = null;
-	private HashMap<Integer,Integer> idToChr;// = new HashMap<Integer,Integer>(); //to map index to chromosome
+	private HashMap<Integer,GenomicLocation> idToChr;// = new HashMap<Integer,Integer>(); //to map index to chromosome
 	
 	public StructureGeneratorLorentz_HierarchicalModeling(String parameterFile){
 		this.parameterFile = parameterFile;
@@ -145,25 +144,48 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		//calculate chromosome number for each index
 		int[] chrLens = inputParameters.getChr_lens();
 		
-		idToChr = new HashMap<Integer,Integer>(); //to map index to chromosome
+		idToChr = new HashMap<Integer,GenomicLocation>(); //to map index to chromosome
+		
 		if (chrLens != null){
 			
 			for(int i = 1; i <chrLens.length; i++){
 				chrLens[i] = chrLens[i - 1] + chrLens[i];
 			}
 			for(int j = 0; j < chrLens[0]; j++){
-				idToChr.put(j, 0);
+				idToChr.put(j, new GenomicLocation(j, 0, lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
 			}
 			for(int i = 1; i < chrLens.length; i++){
 				for(int j = chrLens[i-1]; j < chrLens[i]; j++){
-					idToChr.put(j, i);
+					idToChr.put(j, new GenomicLocation(j, i, lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
+					//idToChr.put(j, i);
 				}
 			}
 			
+		}else if (inputParameters.getIdToGenomLocation() != null) {
+			for(int i = 0; i < lstPos.size(); i++) {
+				inputParameters.getIdToGenomLocation().get(lstPos.get(i)).setId(i);
+				inputParameters.getIdToGenomLocation().get(lstPos.get(i)).setOriginalID(lstPos.get(i));
+				idToChr.put(i, inputParameters.getIdToGenomLocation().get(lstPos.get(i)));
+			}
+			
+			
 		}else{
+			
 			//if idToChr is null, make the whole as one chromosome
+			int x = 23, y = 24;
+			if (inputParameters.getGenomeID().contains("mm")) {
+				x = 20;
+				y = 21;
+			}
+			
+			
+			int chrId = 0;
+			if (inputParameters.getChrom().equalsIgnoreCase("x")) chrId = x;
+			else if (inputParameters.getChrom().equalsIgnoreCase("y")) chrId = y;
+			else chrId = Integer.parseInt(inputParameters.getChrom());
+			
 			for(int i = 0; i < n; i++){				
-				idToChr.put(i, 0);				
+				idToChr.put(i, new GenomicLocation(i, chrId,  lstPos.get(i), i + 1 < lstPos.size() ? lstPos.get(i + 1) - 1 : lstPos.get(i) + 1));				
 			}
 		}				
 		
@@ -714,7 +736,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 						
 			fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis + ".pdb" ;			
 			String newInitialModel = inputParameters.getOutput_folder() + "/" + fileName;	
-			helper.writeStructure(newInitialModel,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);
+			//helper.writeStructure(newInitialModel,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);
 			
 			//set new initial model
 			inputParameters.setInitial_str_file(newInitialModel);
@@ -758,8 +780,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
 				String outputFileGSS = outputFile + ".gss";
 				String outputFilePDB = outputFile + ".pdb";
-				helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
-				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
+				//helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
+				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
 				
 				if (inputParameters.getViewer() != null){
 					inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 

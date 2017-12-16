@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +25,7 @@ import org.jmol.viewer.Viewer;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.utility.Helper;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 
 /**
  * This class is to calculate RMSE and Spearman's correlation for 2 models in GSS files
@@ -146,7 +148,7 @@ public class Comparison {
 		double[] str = new double[matrix2.getRowDimension() * 2 * 3];
 		
 		List<Integer> lstPos = new ArrayList<Integer>();
-		HashMap<Integer, Integer> idToChr = new HashMap<Integer,Integer>();
+		Map<Integer, GenomicLocation> idToChr = new HashMap<Integer,GenomicLocation>();
 		String chrom = "1";
 		String genomeID = "-";
 		
@@ -154,7 +156,7 @@ public class Comparison {
 		int k = 0;
 		for(int i = 0; i < matrix2.getRowDimension(); i ++){
 			
-			idToChr.put(k/3, 1); 
+			idToChr.put(k/3, new GenomicLocation(k/3, 1, atomList1.get(i).fromPos, atomList1.get(i).endPos)); 
 			
 			str[k++] = matrix2.getRow(i)[0];
 			str[k++] = matrix2.getRow(i)[1];
@@ -165,7 +167,7 @@ public class Comparison {
 		
 		for(int i = 0; i < matrix1Converted.getRowDimension(); i ++){
 			
-			idToChr.put(k/3, 2);
+			idToChr.put(k/3, new GenomicLocation(k/3, 2, atomList2.get(i).fromPos, atomList2.get(i).endPos));
 			
 			str[k++] = matrix1Converted.getRow(i)[0];
 			str[k++] = matrix1Converted.getRow(i)[1];
@@ -176,7 +178,7 @@ public class Comparison {
 		  
 		String outputFileGSS = "superimpose_" + CommonFunctions.getFileNameFromPath(inputFile1).replace(".gss", "") 
 				+ CommonFunctions.getFileNameFromPath(inputFile2).replace(".gss", "") + ".gss";
-		helper.writeStructureGSS(outputFileGSS, str, lstPos, idToChr, chrom, genomeID);
+		helper.writeStructureGSS(outputFileGSS, str, idToChr, chrom, genomeID);
 		
 		int n = matrix1Converted.getRowDimension();
 		double[] dist1 = new double[n * (n - 1) / 2];

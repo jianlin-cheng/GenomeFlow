@@ -165,8 +165,12 @@ public String getOpenFileNameFromDialog(Map<String, Object> viewerOptions,
     boolean doAppend = (allowAppend && openPreview != null && openPreview.isAppendSelected());
     boolean doCartoons = (allowAppend && openPreview != null && openPreview.isCartoonsSelected());
     closePreview();
-    if (fileName.startsWith("/"))
-      fileName = "file://" + fileName; // for Macs
+    
+    //Tuan remove because it doesn't work for macs
+    //if (fileName.startsWith("/"))
+    //  fileName = "file://" + fileName; // for Macs
+    
+    
     return (!allowAppend || doCartoons ? "" : "#NOC#;") + (doAppend ? "load append " + Escape.escapeStr(fileName) : fileName);
   }
 

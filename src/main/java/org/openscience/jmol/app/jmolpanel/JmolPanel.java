@@ -3498,7 +3498,18 @@ public void showStatus(String message) {
 				}
 			});
 	        
-	        	        	        
+	        	
+	        JLabel genomicLocationLabel = new JLabel("Genomic Location File");
+	        JTextField genomicLocationField = new JTextField();
+	        JButton genomicLocationButton = new JButton("Browse File");
+	        genomicLocationButton.addActionListener(a -> {
+	        
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				genomicLocationField.setText(fileName);
+	        });
+	        
 	        
 	        GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
@@ -3711,10 +3722,19 @@ public void showStatus(String message) {
 						chromLenLabel.setVisible(true);
 						chromLengthField.setVisible(true);
 						chromLenNoteLabel.setVisible(true);
+						
+						genomicLocationLabel.setVisible(true);
+						genomicLocationField.setVisible(true);
+						genomicLocationButton.setVisible(true);
+						
 					}else{
 						chromLenLabel.setVisible(false);
 						chromLengthField.setVisible(false);
 						chromLenNoteLabel.setVisible(false);
+						
+						genomicLocationLabel.setVisible(false);
+						genomicLocationField.setVisible(false);
+						genomicLocationButton.setVisible(false);
 					}
 					
 				}
@@ -3747,7 +3767,33 @@ public void showStatus(String message) {
 	        chromLenNoteLabel.setVisible(false);
 	        panel.add(chromLenNoteLabel, gbc);		 
 	        
-
+	        ///////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationLabel.setVisible(false);
+	        panel.add(genomicLocationLabel, gbc);	
+	        	        
+	        genomicLocationField.setPreferredSize(new Dimension(300, 21));
+	        
+	       
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 2;
+	        panel.add(genomicLocationField, gbc);
+	        
+	        genomicLocationField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationButton.setVisible(false);
+	        panel.add(genomicLocationButton, gbc);	
+	        
 	        
 	        ///////////////////////////////////////////////
 	        y++;
@@ -3838,6 +3884,7 @@ public void showStatus(String message) {
 					}
 					
 					if (isMultipleChrom.isSelected()){
+						
 						String st = chromLengthField.getText();
 						for(int i = 0 ; i < st.length(); i++){
 							if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') {
@@ -3845,6 +3892,8 @@ public void showStatus(String message) {
 								return;
 							};
 						}					
+						
+						
 					}
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
@@ -3870,8 +3919,21 @@ public void showStatus(String message) {
 		        	
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
-		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
-		        	else viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        	if (isMultipleChrom.isSelected()) {
+		        		if (genomicLocationField.getText().length() > 0) {
+		        			
+		        			viewer.setStringProperty(Constants.GENOMICLOCATIONFILE, genomicLocationField.getText());
+		        			
+		        		}else if (chromLengthField.getText().length() > 0) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        		else {
+		        			JOptionPane.showMessageDialog(null, "Please specify a genomic location file or lengths of chromosomes!");
+						return;
+		        		}
+		        		
+		        	}else {
+		        		viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        		viewer.setStringProperty(Constants.GENOMICLOCATIONFILE,"");
+		        	}
 		        	
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	
