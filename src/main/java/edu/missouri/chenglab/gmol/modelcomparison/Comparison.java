@@ -132,14 +132,14 @@ public class Comparison {
 			matrix1Converted.setRowMatrix(i, tmp);
 		}
 		
-		/*
-		RealMatrix errorMatrix = matrix1Converted.subtract(matrix2);
-		double totalError = 0;
-		for(int i = 0; i < errorMatrix.getRowDimension(); i++){
-			totalError += StatUtils.sumSq(errorMatrix.getRow(i));
-		}		
-		System.out.println("Total error :" + totalError);
-		*/
+		
+//		RealMatrix errorMatrix = matrix1Converted.subtract(matrix2);
+//		double totalError1 = 0;
+//		for(int i = 0; i < errorMatrix.getRowDimension(); i++){
+//			totalError1 += StatUtils.sumSq(errorMatrix.getRow(i));
+//		}		
+//		System.out.println("Total error :" + totalError1);
+		
 		
 		Helper helper = Helper.getHelperInstance();
 		
