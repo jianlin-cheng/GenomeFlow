@@ -57,7 +57,7 @@
 		<artifactId>commons-math3-3.5</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\commons-math3-3.5.jar</systemPath> 
+		<systemPath>${basedir}/lib/commons-math3-3.5.jar</systemPath> 
 	</dependency>
 	
 	 -->	
@@ -73,7 +73,7 @@
 		<artifactId>weka</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\weka.jar</systemPath> 
+		<systemPath>${basedir}/lib/weka.jar</systemPath> 
 	</dependency>
 
 	<dependency> 
@@ -81,7 +81,7 @@
 		<artifactId>juicebox</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\juicebox.jar</systemPath> 
+		<systemPath>${basedir}/lib/juicebox.jar</systemPath> 
 	</dependency>
 
 	<dependency> 
@@ -89,28 +89,28 @@
 		<artifactId>Acme</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\Acme.jar</systemPath> 
+		<systemPath>${basedir}/lib/Acme.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>asm-1.5.3</groupId> 
 		<artifactId>asm-1.5.3</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\asm-1.5.3.jar</systemPath> 
+		<systemPath>${basedir}/lib/asm-1.5.3.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>biojava3-core-3.0.3</groupId> 
 		<artifactId>biojava3-core-3.0.3</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\biojava3-core-3.0.3.jar</systemPath> 
+		<systemPath>${basedir}/lib/biojava3-core-3.0.3.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>biojava3-ws-3.1.0</groupId> 
 		<artifactId>biojava3-ws-3.1.0</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\biojava3-ws-3.1.0.jar</systemPath> 
+		<systemPath>${basedir}/lib/biojava3-ws-3.1.0.jar</systemPath> 
 	</dependency>
 
 	<dependency> 
@@ -118,7 +118,7 @@
 		<artifactId>igv</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\broadinstitute\igv.jar</systemPath> 
+		<systemPath>${basedir}/lib/broadinstitute/igv.jar</systemPath> 
 	</dependency>
 	
 	<dependency> 
@@ -126,21 +126,21 @@
 		<artifactId>cglib-2.1_3</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\cglib-2.1_3.jar</systemPath> 
+		<systemPath>${basedir}/lib/cglib-2.1_3.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>commons-cli-1.0</groupId> 
 		<artifactId>commons-cli-1.0</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\commons-cli-1.0.jar</systemPath> 
+		<systemPath>${basedir}/lib/commons-cli-1.0.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>commons-dbcp-1.2.2</groupId> 
 		<artifactId>commons-dbcp-1.2.2</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\commons-dbcp-1.2.2.jar</systemPath> 
+		<systemPath>${basedir}/lib/commons-dbcp-1.2.2.jar</systemPath> 
 	</dependency>
 	
 	<dependency> 
@@ -148,147 +148,147 @@
 		<artifactId>commons-pool-1.3</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\commons-pool-1.3.jar</systemPath> 
+		<systemPath>${basedir}/lib/commons-pool-1.3.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-config-1.70-sources</groupId> 
 		<artifactId>ensembl-config-1.70-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-config-1.70-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-config-1.70-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-config-1.70</groupId> 
 		<artifactId>ensembl-config-1.70</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-config-1.70.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-config-1.70.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-1.15-javadoc</groupId> 
 		<artifactId>ensembl-data-access-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-1.15-sources</groupId> 
 		<artifactId>ensembl-data-access-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-1.15</groupId> 
 		<artifactId>ensembl-data-access-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-interface-1.15-javadoc</groupId> 
 		<artifactId>ensembl-data-access-interface-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-interface-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-interface-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-interface-1.15-sources</groupId> 
 		<artifactId>ensembl-data-access-interface-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-interface-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-interface-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-data-access-interface-1.15</groupId> 
 		<artifactId>ensembl-data-access-interface-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-data-access-interface-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-data-access-interface-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datamapper-1.15-javadoc</groupId> 
 		<artifactId>ensembl-datamapper-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datamapper-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datamapper-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datamapper-1.15-sources</groupId> 
 		<artifactId>ensembl-datamapper-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datamapper-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datamapper-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datamapper-1.15</groupId> 
 		<artifactId>ensembl-datamapper-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datamapper-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datamapper-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datasource-aware-model-1.15-javadoc</groupId> 
 		<artifactId>ensembl-datasource-aware-model-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datasource-aware-model-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datasource-aware-model-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datasource-aware-model-1.15-sources</groupId> 
 		<artifactId>ensembl-datasource-aware-model-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datasource-aware-model-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datasource-aware-model-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-datasource-aware-model-1.15</groupId> 
 		<artifactId>ensembl-datasource-aware-model-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-datasource-aware-model-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-datasource-aware-model-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-model-1.15-javadoc</groupId> 
 		<artifactId>ensembl-model-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-model-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-model-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-model-1.15-sources</groupId> 
 		<artifactId>ensembl-model-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-model-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-model-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-model-1.15</groupId> 
 		<artifactId>ensembl-model-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-model-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-model-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-test-1.15-javadoc</groupId> 
 		<artifactId>ensembl-test-1.15-javadoc</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-test-1.15-javadoc.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-test-1.15-javadoc.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-test-1.15-sources</groupId> 
 		<artifactId>ensembl-test-1.15-sources</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-test-1.15-sources.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-test-1.15-sources.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>ensembl-test-1.15</groupId> 
 		<artifactId>ensembl-test-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\ensembl-test-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/ensembl-test-1.15.jar</systemPath> 
 	</dependency>
 
 	<dependency> 
@@ -296,35 +296,35 @@
 		<artifactId>gnujaxp-onlysax</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\gnujaxp-onlysax.jar</systemPath> 
+		<systemPath>${basedir}/lib/gnujaxp-onlysax.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>google-collections-1.0</groupId> 
 		<artifactId>google-collections-1.0</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\google-collections-1.0.jar</systemPath> 
+		<systemPath>${basedir}/lib/google-collections-1.0.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>itext-1.4.5</groupId> 
 		<artifactId>itext-1.4.5</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\itext-1.4.5.jar</systemPath> 
+		<systemPath>${basedir}/lib/itext-1.4.5.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>jensembl-bundle-no-config-1.15</groupId> 
 		<artifactId>jensembl-bundle-no-config-1.15</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\jensembl-bundle-no-config-1.15.jar</systemPath> 
+		<systemPath>${basedir}/lib/jensembl-bundle-no-config-1.15.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>JSpecView</groupId> 
 		<artifactId>JSpecView</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\JSpecView.jar</systemPath> 
+		<systemPath>${basedir}/lib/JSpecView.jar</systemPath> 
 	</dependency>
 
 	<dependency> 
@@ -332,63 +332,63 @@
 		<artifactId>log4j-1.2.16</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\log4j-1.2.16.jar</systemPath> 
+		<systemPath>${basedir}/lib/log4j-1.2.16.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>mybatis-3.0.2</groupId> 
 		<artifactId>mybatis-3.0.2</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\mybatis-3.0.2.jar</systemPath> 
+		<systemPath>${basedir}/lib/mybatis-3.0.2.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>mysql-connector-java-5.1.6</groupId> 
 		<artifactId>mysql-connector-java-5.1.6</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\mysql-connector-java-5.1.6.jar</systemPath> 
+		<systemPath>${basedir}/lib/mysql-connector-java-5.1.6.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>naga-2_1-r42</groupId> 
 		<artifactId>naga-2_1-r42</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\naga-2_1-r42.jar</systemPath> 
+		<systemPath>${basedir}/lib/naga-2_1-r42.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>netscape</groupId> 
 		<artifactId>netscape</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\netscape.jar</systemPath> 
+		<systemPath>${basedir}/lib/netscape.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>saxon</groupId> 
 		<artifactId>saxon</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\saxon.jar</systemPath> 
+		<systemPath>${basedir}/lib/saxon.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>slf4j-api-1.6.1</groupId> 
 		<artifactId>slf4j-api-1.6.1</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\slf4j-api-1.6.1.jar</systemPath> 
+		<systemPath>${basedir}/lib/slf4j-api-1.6.1.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>slf4j-log4j12-1.6.1</groupId> 
 		<artifactId>slf4j-log4j12-1.6.1</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\slf4j-log4j12-1.6.1.jar</systemPath> 
+		<systemPath>${basedir}/lib/slf4j-log4j12-1.6.1.jar</systemPath> 
 	</dependency>
 	<dependency> 
 		<groupId>vecmath1.2-1.14</groupId> 
 		<artifactId>vecmath1.2-1.14</artifactId> 
 		<scope>system</scope> 
 		<version>1.0</version>
-		<systemPath>${basedir}\lib\vecmath1.2-1.14.jar</systemPath> 
+		<systemPath>${basedir}/lib/vecmath1.2-1.14.jar</systemPath> 
 	</dependency>
   
   </dependencies>   

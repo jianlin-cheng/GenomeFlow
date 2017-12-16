@@ -128,6 +128,7 @@ import edu.missouri.chenglab.loopdetection.Detector;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.noisy_mds.StructureGeneratorLorentz_HierarchicalModeling;
 import edu.missouri.chenglab.lordg.utility.Helper;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 //Tosin
 import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
@@ -6111,6 +6112,19 @@ public class ScriptEvaluator {
 				e.printStackTrace();
 			}
 		}
+		
+		String genomicLocationFile = (String) viewer.getParameter(Constants.GENOMICLOCATIONFILE);
+		if (genomicLocationFile.length() > 0) {
+			try {
+				Map<Integer,GenomicLocation> map = helper.readGenomicLocation(genomicLocationFile);
+				inputParameter.setIdToGenomLocation(map);
+				
+			} catch (Exception e) {
+				viewer.displayMessage(new String[]{e.getMessage()});
+				e.printStackTrace();
+			}
+		}
+		
 		
 		viewer.setInput3DModeller(inputParameter);
 		
