@@ -228,7 +228,8 @@ public void render(GData gdata, ModelSet modelSet, boolean isFirstPass, int[] mi
         Shape shape = shapeManager.getShape(i);
         if (shape == null)
           continue;
-        getRenderer(i, g3d).render(g3d, modelSet,
+        ShapeRenderer shr = getRenderer(i, g3d);
+        if (shr != null) shr.render(g3d, modelSet,
         		shape);
         if (logTime)
           Logger.checkTimer("render time " + JmolConstants.getShapeClassName(i, false));

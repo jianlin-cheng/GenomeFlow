@@ -12,6 +12,8 @@ public interface Constants {
 	String CHROMOSOMELEN = "chromLength";
 	String LEARNINGRATE = "learningRate";
 	
+	String GENOMICLOCATIONFILE = "genomicLocationFile";
+	
 	String OUTPUTLOOPFILE = "outputLoopFile";
 	
 	String TRACKNAME = "trackName";

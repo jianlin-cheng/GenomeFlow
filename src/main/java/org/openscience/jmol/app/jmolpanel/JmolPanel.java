@@ -3498,8 +3498,6 @@ public void showStatus(String message) {
 				}
 			});
 	        
-	        	        	        
-	        
 	        GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
 	        
@@ -3563,7 +3561,7 @@ public void showStatus(String message) {
 	        
 			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
 	        JTextField conversionFactorField = new JTextField();
-			conversionFactorField.setText("1.0");
+			conversionFactorField.setText("0.6");
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3611,7 +3609,7 @@ public void showStatus(String message) {
 	        
 	        //JTextField maxIterationField = new JTextField("1000");
 	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
-	        maxIterationField.setText("1000");
+	        maxIterationField.setText("2000");
 	        
 	        	        
 	        gbc.gridx = 1;
@@ -3690,6 +3688,27 @@ public void showStatus(String message) {
 				}
 			});
 	        
+	        
+	        
+	        ///////////
+	        
+	        JLabel chromLenLabel = new JLabel("Length of Chromosomes");
+			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
+			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			
+	        JLabel genomicLocationLabel = new JLabel("Genomic Location File");
+	        JTextField genomicLocationField = new JTextField();
+	        JButton genomicLocationButton = new JButton("Browse File");
+	        genomicLocationButton.addActionListener(a -> {
+	        
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				genomicLocationField.setText(fileName);
+				chromLengthField.setText("");
+	        });
+	        JLabel orLabel = new JLabel("Or");
 	        //////////
 			
 			y++;
@@ -3699,9 +3718,9 @@ public void showStatus(String message) {
 			gbc.gridwidth = 2;
 			panel.add(isMultipleChrom, gbc);
 			
-			JLabel chromLenLabel = new JLabel("Length of Chromosomes");
-			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
-			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			
+			
 			
 			isMultipleChrom.addChangeListener(new ChangeListener() {
 				
@@ -3711,10 +3730,23 @@ public void showStatus(String message) {
 						chromLenLabel.setVisible(true);
 						chromLengthField.setVisible(true);
 						chromLenNoteLabel.setVisible(true);
+						
+						genomicLocationLabel.setVisible(true);
+						genomicLocationField.setVisible(true);
+						genomicLocationButton.setVisible(true);
+						
+						orLabel.setVisible(true);
+						
 					}else{
 						chromLenLabel.setVisible(false);
 						chromLengthField.setVisible(false);
 						chromLenNoteLabel.setVisible(false);
+						
+						genomicLocationLabel.setVisible(false);
+						genomicLocationField.setVisible(false);
+						genomicLocationButton.setVisible(false);
+						
+						orLabel.setVisible(false);
 					}
 					
 				}
@@ -3747,7 +3779,43 @@ public void showStatus(String message) {
 	        chromLenNoteLabel.setVisible(false);
 	        panel.add(chromLenNoteLabel, gbc);		 
 	        
-
+	        //////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        
+	        
+	        panel.add(orLabel, gbc);
+	        orLabel.setVisible(false);
+	        
+	        ///////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationLabel.setVisible(false);
+	        panel.add(genomicLocationLabel, gbc);	
+	        	        
+	        genomicLocationField.setPreferredSize(new Dimension(300, 21));
+	        
+	       
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 2;
+	        panel.add(genomicLocationField, gbc);
+	        
+	        genomicLocationField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationButton.setVisible(false);
+	        panel.add(genomicLocationButton, gbc);	
+	        
 	        
 	        ///////////////////////////////////////////////
 	        y++;
@@ -3769,12 +3837,12 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame lorDGFrame = new JFrame();
-	        lorDGFrame.setSize(new Dimension(650, 400));
+	        lorDGFrame.setSize(new Dimension(700, 450));
 	        lorDGFrame.setLocation(400, 400);
 	        
 	        lorDGFrame.add(panel);
 	        lorDGFrame.setVisible(true);
-	        lorDGFrame.setTitle("Reconstruct 3D Models from Contact Matrices");
+	        lorDGFrame.setTitle("LorDG - Reconstruction of 3D Models from Contact Matrices");
 	        
 	        
 	        
@@ -3838,6 +3906,7 @@ public void showStatus(String message) {
 					}
 					
 					if (isMultipleChrom.isSelected()){
+						
 						String st = chromLengthField.getText();
 						for(int i = 0 ; i < st.length(); i++){
 							if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') {
@@ -3845,6 +3914,8 @@ public void showStatus(String message) {
 								return;
 							};
 						}					
+						
+						
 					}
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
@@ -3870,8 +3941,21 @@ public void showStatus(String message) {
 		        	
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
-		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
-		        	else viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        	if (isMultipleChrom.isSelected()) {
+		        		if (genomicLocationField.getText().length() > 0) {
+		        			
+		        			viewer.setStringProperty(Constants.GENOMICLOCATIONFILE, genomicLocationField.getText());
+		        			
+		        		}else if (chromLengthField.getText().length() > 0) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        		else {
+		        			JOptionPane.showMessageDialog(null, "Please specify a genomic location file or lengths of chromosomes!");
+						return;
+		        		}
+		        		
+		        	}else {
+		        		viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        		viewer.setStringProperty(Constants.GENOMICLOCATIONFILE,"");
+		        	}
 		        	
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	
