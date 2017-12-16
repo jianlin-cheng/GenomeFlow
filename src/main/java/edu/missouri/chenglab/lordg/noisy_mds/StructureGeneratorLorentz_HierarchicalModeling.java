@@ -10,24 +10,27 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.concurrent.Callable;
+
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
+
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.evaluation.CalRMSD;
 import edu.missouri.chenglab.lordg.optimization.GradientAscent;
 import edu.missouri.chenglab.lordg.optimization.OptimizedObject;
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.Constants;
 import edu.missouri.chenglab.lordg.valueObject.Constraint;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 public class StructureGeneratorLorentz_HierarchicalModeling implements OptimizedObject{
@@ -97,7 +100,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 	
 	//private double contactThres;
 	//private int[] chrLens = null;
-	private HashMap<Integer,Integer> idToChr;// = new HashMap<Integer,Integer>(); //to map index to chromosome
+	private HashMap<Integer,GenomicLocation> idToChr;// = new HashMap<Integer,Integer>(); //to map index to chromosome
 	
 	public StructureGeneratorLorentz_HierarchicalModeling(String parameterFile){
 		this.parameterFile = parameterFile;
@@ -145,25 +148,51 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		//calculate chromosome number for each index
 		int[] chrLens = inputParameters.getChr_lens();
 		
-		idToChr = new HashMap<Integer,Integer>(); //to map index to chromosome
+		idToChr = new HashMap<Integer,GenomicLocation>(); //to map index to chromosome
+		
 		if (chrLens != null){
 			
 			for(int i = 1; i <chrLens.length; i++){
 				chrLens[i] = chrLens[i - 1] + chrLens[i];
 			}
 			for(int j = 0; j < chrLens[0]; j++){
-				idToChr.put(j, 0);
+
+				idToChr.put(j, new GenomicLocation(j, "0", lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
 			}
 			for(int i = 1; i < chrLens.length; i++){
 				for(int j = chrLens[i-1]; j < chrLens[i]; j++){
-					idToChr.put(j, i);
+					idToChr.put(j, new GenomicLocation(j, i + "", lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
+
+					//idToChr.put(j, i);
 				}
 			}
 			
+		}else if (inputParameters.getIdToGenomLocation() != null) {
+			for(int i = 0; i < lstPos.size(); i++) {
+				inputParameters.getIdToGenomLocation().get(lstPos.get(i)).setId(i);
+				inputParameters.getIdToGenomLocation().get(lstPos.get(i)).setOriginalID(lstPos.get(i));
+				idToChr.put(i, inputParameters.getIdToGenomLocation().get(lstPos.get(i)));
+			}
+			
+			
 		}else{
+			
 			//if idToChr is null, make the whole as one chromosome
+			int x = 23, y = 24;
+			if (inputParameters.getGenomeID().contains("mm")) {
+				x = 20;
+				y = 21;
+			}
+			
+			
+			int chrId = 0;
+			if (inputParameters.getChrom().equalsIgnoreCase("x")) chrId = x;
+			else if (inputParameters.getChrom().equalsIgnoreCase("y")) chrId = y;
+			else chrId = Integer.parseInt(inputParameters.getChrom());
+			
 			for(int i = 0; i < n; i++){				
-				idToChr.put(i, 0);				
+
+				idToChr.put(i, new GenomicLocation(i, chrId + "",  lstPos.get(i), i + 1 < lstPos.size() ? lstPos.get(i + 1) - 1 : lstPos.get(i) + 1));				
 			}
 		}				
 		
@@ -194,7 +223,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		
 		//compute average adjacent IF
 		for(Constraint con : lstCons){
-			if (Math.abs(con.getPos1() - con.getPos2()) == 1 && idToChr.get(con.getPos1()) == idToChr.get(con.getPos2())) {
+			if (Math.abs(con.getPos1() - con.getPos2()) == 1 && idToChr.get(con.getPos1()).getChr().equals(idToChr.get(con.getPos2()).getChr())) {
+
 				avgAdjIF += con.getIF();
 				avgAdjCount++;
 				
@@ -561,7 +591,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 
 	}
 
-	public double generateStructure() throws Exception {
+	public Pair generateStructure() throws Exception {
 		
 
 		if (parameterFile != null) readParameters(parameterFile);
@@ -573,8 +603,11 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			//convertFactor = Constants.START_CONVERT_FACTOR;
 			convertFactor = inputParameters.getMinConversionFactor();
 			
-			double cor, minCor = 1.0; //correlation between IFs and distances
+
+			double minCor = 1.0; //correlation between IFs and distances
 			double bestConvertFactor = Constants.DEFAULT_CONVERT_FACTOR;//default
+			String bestModel = "";
+			Pair pair;
 			
 			inputParameters.setSearchingConversionFactor(true);
 			/*
@@ -620,21 +653,26 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			}			
 			executor.shutdown();
 			*/
-			
+
+			Set<String> allModels = new HashSet<String>();
+
 			for(; convertFactor <= inputParameters.getMaxConversionFactor(); convertFactor += 0.1){
 				try {
 					inputParameters.setNumber_threads(1);
 					inputParameters.setConvert_factor(convertFactor);
-					cor = run();  
+					pair = run();  
+					
+					allModels.add(pair.modelFile);
 					
 				} catch (Exception e) {					
 					e.printStackTrace();
 					continue;
 				}
-				System.out.println("Result--------------------" + convertFactor + "\t" + cor);
-				if (minCor > cor){
-					minCor = cor;
+				System.out.println("Result--------------------" + convertFactor + "\t" + pair.cor);
+				if (minCor > pair.cor){
+					minCor = pair.cor;
 					bestConvertFactor = convertFactor;
+					bestModel = pair.modelFile;
 				}
 				
 				if (inputParameters.isStopRunning()){
@@ -655,13 +693,23 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			pw.close();
 			
 			//generate models after searching for best factor
-			convertFactor = bestConvertFactor;
-			inputParameters.setConvert_factor(convertFactor);
-			inputParameters.setSearchingConversionFactor(false);
+			//convertFactor = bestConvertFactor;
+			//inputParameters.setConvert_factor(convertFactor);
+			//inputParameters.setSearchingConversionFactor(false);
 			
-			return run();
+			//return run();
+			
+			for(String file: allModels) {
+				if (!file.equals(bestModel)) {
+					CommonFunctions.delete_file(file);
+				}
+			};
 			
 			
+			inputParameters.getViewer().loadNewModel(bestModel, new String[]{"Best Conversion Factor: " + String.format("%.2f", bestConvertFactor), 
+					"Correlation: " + String.format("%.2f", Math.abs(minCor))});
+			
+			return new Pair(minCor, bestModel);
 			
 		}else{
 			inputParameters.setSearchingConversionFactor(false);
@@ -669,7 +717,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		}
 	}
 	
-	public double run() throws Exception{
+	public Pair run() throws Exception{
 		String fileName;
 		
 		//read contact data
@@ -714,7 +762,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 						
 			fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis + ".pdb" ;			
 			String newInitialModel = inputParameters.getOutput_folder() + "/" + fileName;	
-			helper.writeStructure(newInitialModel,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);
+			//helper.writeStructure(newInitialModel,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);
 			
 			//set new initial model
 			inputParameters.setInitial_str_file(newInitialModel);
@@ -723,8 +771,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			inputParameters.setFile_prefix(inputParameters.getFile_prefix() + "Final");
 		}
 		
-		
-		for(int i = 0; i < run_nbr; i++) {		
+		//adapt from LorDG, only one model is generated
+		//for(int i = 0; i < run_nbr; i++) {		
 			initializeStructure();
 			
 			GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder(), idToChr);
@@ -753,17 +801,20 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			//avgCorDist += corDist;
 			
 			//print out log			
+			String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
+			String outputFileGSS = outputFile + ".gss";
 			if (inputParameters.isPrintOutStr()){				
 				
-				String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
-				String outputFileGSS = outputFile + ".gss";
-				String outputFilePDB = outputFile + ".pdb";
-				helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
-				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
+
+				
+				//String outputFilePDB = outputFile + ".pdb";
+
+				//helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
+				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
 				
 				if (inputParameters.getViewer() != null){
 					inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
-							"Correlation: " + String.format("%.2f", cor)});
+							"Correlation: " + String.format("%.2f", Math.abs(cor))});
 				}
 				
 				
@@ -782,7 +833,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 	
 				logPW.flush();
 			
-			}
+			//}
 			
 
 			
@@ -825,9 +876,17 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		System.out.println("AVG Spearman correlation IFs vs. Reconstructed Dist: " + avgCor);
 		System.out.println("AVG Spearman correlation WishDist vs. Reconstructed Dist: " + avgCorDist);
 
-		return avgCor;
+		return new Pair(avgCor, outputFileGSS);
 	}
 	
+	class Pair{
+		double cor;
+		String modelFile;
+		public Pair(double c, String m) {
+			this.cor = c;
+			this.modelFile = m;
+		}
+	}
 	
 	
 	/**
@@ -1052,7 +1111,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 	
 	}
 	
-	public static double run_for_one_input(InputParameters input_parameter) throws Exception{
+	public static Pair run_for_one_input(InputParameters input_parameter) throws Exception{
 				
 		File fout = new File(input_parameter.getOutput_folder());
 		if (!fout.exists()) {
@@ -1234,25 +1293,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		}		
 	}
 
-	static class CallableWorker implements Callable<Double> {
-		
-		InputParameters input_parameter;
-		public CallableWorker(InputParameters input_parameter){
-			this.input_parameter = input_parameter;
-		}
-		@Override
-		public Double call() throws Exception{
-			StructureGeneratorLorentz_HierarchicalModeling generator = new StructureGeneratorLorentz_HierarchicalModeling(input_parameter);
-			try {
-				return generator.generateStructure();
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}			
-			return 0.0;
-		}
-		
-	}
+
 	
 
 }
