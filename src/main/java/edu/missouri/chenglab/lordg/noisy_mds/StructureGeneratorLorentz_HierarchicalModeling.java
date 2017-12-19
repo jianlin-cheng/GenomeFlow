@@ -707,7 +707,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 			
 			
 			inputParameters.getViewer().loadNewModel(bestModel, new String[]{"Best Conversion Factor: " + String.format("%.2f", bestConvertFactor), 
-					"Correlation: " + String.format("%.2f", Math.abs(minCor))});
+					"Correlation: " + String.format("%.2f", -1 * minCor)});
 			
 			return new Pair(minCor, bestModel);
 			
@@ -814,7 +814,7 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 				
 				if (inputParameters.getViewer() != null){
 					inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
-							"Correlation: " + String.format("%.2f", Math.abs(cor))});
+							"Correlation: " + String.format("%.2f", -1 * cor)});
 				}
 				
 				
@@ -1016,9 +1016,9 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 //				ifr = ifr * ifr;
 				
 				//if (Math.abs(lstPos.get(i) - lstPos.get(j)) == 1 && idToChr.get(i) == idToChr.get(j)){
-				//if (Math.abs(i - j) == 1 && idToChr.get(i) == idToChr.get(j)){					
+				if (Math.abs(i - j) == 1 && idToChr.get(i) == idToChr.get(j)){					
 					//ifr = Math.max(ifr, adjacentIF);
-				//}				
+				}				
 //				else {
 //					ifr = 1.0;
 //				}
