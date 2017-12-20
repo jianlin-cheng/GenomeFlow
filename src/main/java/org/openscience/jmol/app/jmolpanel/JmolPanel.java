@@ -1550,7 +1550,7 @@ public void showStatus(String message) {
 								try {
 									ComparisonObject co = comparisonWorkder.get();
 																		
-									String msg = co.getMsg().length() > 0 ? co.getMsg() : "Comparison done!";
+									String msg = co.getMsg().length() > 0 ? co.getMsg() : "Comparison done! check the main screen for result";
 									JOptionPane.showMessageDialog(null, msg);
 									
 									if (co.getModel().length() > 0){
