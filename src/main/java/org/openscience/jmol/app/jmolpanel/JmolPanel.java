@@ -138,10 +138,12 @@ import com.icl.saxon.exslt.Common;
 import edu.missouri.chenglab.ClusterTAD.Parameter;
 import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.valueobjects.ComparisonObject;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.struct3DMax.Input;
+import edu.missouri.chenglab.swingutilities.ComparisonWorker;
 import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.NormalizeHiCWorker;
@@ -1503,8 +1505,13 @@ public void showStatus(String message) {
 		  JButton compareButton = new JButton("Compare");
 		  panel.add(compareButton, gbc);
 		  
-		  compareButton.addActionListener(event -> {
-		
+
+		  
+		  compareButton.addActionListener(new ActionListener() {
+
+		  @Override
+		  public void actionPerformed(ActionEvent e) {
+					  
 				if (inputField1.getText().length() == 0){
 					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
 					return;
@@ -1513,17 +1520,98 @@ public void showStatus(String message) {
 					JOptionPane.showMessageDialog(null, "Please specify output file 2!");
 					return;
 				}
+
+				String inputFile1 = inputField1.getText();
+				String inputFile2 = inputField2.getText();
+				
 				
 
-				viewer.setStringProperty(Constants.INPUTFILE1, inputField1.getText());
-				viewer.setStringProperty(Constants.INPUTFILE2, inputField2.getText());
-		    	
-	        	script = "compareModels";        	
-		    	viewer.script(script);
+				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				final JDialog dialog = new JDialog(win, "Comparing the 2 models ... please wait !", ModalityType.APPLICATION_MODAL);
+				dialog.setPreferredSize(new Dimension(300,80));
 				
+				
+				ComparisonWorker comparisonWorkder = new ComparisonWorker(inputFile1, inputFile2);
+				  
+				comparisonWorkder.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								
+								win.setEnabled(true);
+								dialog.dispose();
+								
+								try {
+									ComparisonObject co = comparisonWorkder.get();
+																		
+									String msg = co.getMsg().length() > 0 ? co.getMsg() : "Comparison done!";
+									JOptionPane.showMessageDialog(null, msg);
+									
+									if (co.getModel().length() > 0){
+										viewer.loadNewModel(co.getModel());
+										try {
+											CommonFunctions.delete_file(co.getModel());
+										} catch (Exception e) {											
+											e.printStackTrace();
+										}
+										viewer.evalString(co.getColorCommand());
+										
+									}
+									
+								} catch (InterruptedException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+								} catch (ExecutionException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+								}
+								
+								
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });				  
+				  
+				comparisonWorkder.execute();
+				  
+				JProgressBar progressBar = new JProgressBar();
+			    progressBar.setIndeterminate(true);
+			    JPanel panel = new JPanel(new BorderLayout());
+			      
+			    panel.add(progressBar, BorderLayout.CENTER);
+			    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			    dialog.add(panel);
+			    dialog.pack();
+			    dialog.setLocationRelativeTo(win);
+			    dialog.setVisible(true);
 
-			}
-		  );
+			    
+
+//				viewer.setStringProperty(Constants.INPUTFILE1, inputField1.getText());
+//				viewer.setStringProperty(Constants.INPUTFILE2, inputField2.getText());
+//		    	
+//	        	script = "compareModels";        	
+//		    	viewer.script(script);
+				
+		  }
+		}
+		);
 		  
 		  
 		  
