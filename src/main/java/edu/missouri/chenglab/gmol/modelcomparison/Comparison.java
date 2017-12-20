@@ -23,6 +23,7 @@ import org.jmol.adapter.smarter.Atom;
 import org.jmol.viewer.Viewer;
 
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.valueobjects.ComparisonObject;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
@@ -43,10 +44,10 @@ public class Comparison {
 		
 		Comparison comp = new Comparison();
 		
-		comp.compare(null, inputFile1, inputFile2);
+		comp.compare(inputFile1, inputFile2);
 	}
 	
-	public void compare(Viewer viewer, String inputFile1, String inputFile2) throws Exception{
+	public ComparisonObject compare(String inputFile1, String inputFile2) throws Exception{
 		
 		List<AtomRegion> atomList1 = readModel(inputFile1);
 		List<AtomRegion> atomList2 = readModel(inputFile2);
@@ -58,8 +59,9 @@ public class Comparison {
 		atomList2 = atomList2.stream().filter(a -> set1.contains(a)).collect(Collectors.toList());
 		
 		if (atomList1.size() == 0){
-			viewer.displayMessage(new String[]{"Check your models!!!, they have no common regions!"});
-			return;
+			String msg = "Check your models!!!, they have no common regions!";
+			//if (viewer != null) viewer.displayMessage(new String[]{msg});
+			return new ComparisonObject(msg,-1,0,"");
 		}
 		
 		normalize(atomList2);
@@ -177,6 +179,10 @@ public class Comparison {
 			str[k++] = matrix1Converted.getRow(i)[1];
 			str[k++] = matrix1Converted.getRow(i)[2];
 			
+//			str[k++] = matrix1.getRow(i)[0];
+//			str[k++] = matrix1.getRow(i)[1];
+//			str[k++] = matrix1.getRow(i)[2];
+			
 			lstPos.add(atomList2.get(i).fromPos);
 		}
 		  
@@ -213,10 +219,15 @@ public class Comparison {
 		
 		double cor = spearmanCor.correlation(dist1, dist2);
 		
-		viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.8f",totalError), String.format("Spearman correlation: %.4f",cor)});
+		//viewer.loadNewModel(outputFileGSS, new String[]{String.format("RMSE: %.8f",totalError), String.format("Spearman correlation: %.4f",cor)});
 		
-		viewer.evalString(String.format("select atomno >= %d and atomno <= %d; wireframe 5; color group;select atomno >= %d and atomno <= %d;wireframe 15; color group",1,n, n+1, n + n));
+		String colorCommand = String.format("select atomno >= %d and atomno <= %d; wireframe 5; color group;select atomno >= %d and atomno <= %d;wireframe 15; color group",1,n, n+1, n + n); 
+		//viewer.evalString(colorCommand);
 		
+		ComparisonObject co = new ComparisonObject("", cor, totalError,outputFileGSS);
+		co.setColorCommand(colorCommand);
+		
+		return co;
 		//CommonFunctions.delete_file(outputFileGSS);
 		
 	}

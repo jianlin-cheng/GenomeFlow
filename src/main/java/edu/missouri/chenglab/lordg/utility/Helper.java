@@ -186,6 +186,7 @@ public class Helper {
 					st = splitRegex.split(sb.toString());
 					sb = new StringBuilder();
 					
+					
 					if (st.length % nbr != 0){
 						throw new Exception("There is a line that doesn't contain exactly 3 numbers");
 					}
@@ -257,8 +258,15 @@ public class Helper {
 			Collections.sort(lstPos);
 			
 		}catch(Exception ex){
-			ex.printStackTrace();
+			inputPara.getViewer().displayMessage(new String[]{"Exception:" + ex.getMessage()});
+			ex.printStackTrace();			
 			throw ex;
+			
+		}catch(Error er){
+			inputPara.getViewer().displayMessage(new String[]{"Error:" + er.getMessage()});
+			er.printStackTrace();
+			throw new Exception(er.getMessage());
+			
 		}finally{
 			if (br != null){
 				br.close();

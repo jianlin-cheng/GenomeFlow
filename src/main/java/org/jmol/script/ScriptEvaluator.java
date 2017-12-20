@@ -5991,10 +5991,11 @@ public class ScriptEvaluator {
 			String inputFile1 = (String) viewer.getParameter(Constants.INPUTFILE1);
 			String inputFile2 = (String) viewer.getParameter(Constants.INPUTFILE2);
 			
-			compareModels.compare(viewer, inputFile1, inputFile2);
+			//compareModels.compare(viewer, inputFile1, inputFile2);
 			
 		}catch(Exception ex){
 			ex.printStackTrace();
+			viewer.displayMessage(new String[]{ex.getMessage()});
 		}
 	}
 	
