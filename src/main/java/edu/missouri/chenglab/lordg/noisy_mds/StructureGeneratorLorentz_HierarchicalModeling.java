@@ -152,16 +152,20 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		
 		if (chrLens != null){
 			
+			
+			String[] chroms = inputParameters.getChrom().split("[,]+");
+			
+			
 			for(int i = 1; i <chrLens.length; i++){
 				chrLens[i] = chrLens[i - 1] + chrLens[i];
 			}
 			for(int j = 0; j < chrLens[0]; j++){
 
-				idToChr.put(j, new GenomicLocation(j, "0", lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
+				idToChr.put(j, new GenomicLocation(j, chroms.length > 0 ? chroms[0] : "0" , lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
 			}
 			for(int i = 1; i < chrLens.length; i++){
 				for(int j = chrLens[i-1]; j < chrLens[i]; j++){
-					idToChr.put(j, new GenomicLocation(j, i + "", lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
+					idToChr.put(j, new GenomicLocation(j, chroms.length > i ? chroms[i] : i + "", lstPos.get(j), j + 1 < lstPos.size() ? lstPos.get(j + 1) - 1 : lstPos.get(j) + 1));
 
 					//idToChr.put(j, i);
 				}
@@ -178,21 +182,19 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		}else{
 			
 			//if idToChr is null, make the whole as one chromosome
-			int x = 23, y = 24;
-			if (inputParameters.getGenomeID().contains("mm")) {
-				x = 20;
-				y = 21;
-			}
-			
-			
-			int chrId = 0;
-			if (inputParameters.getChrom().equalsIgnoreCase("x")) chrId = x;
-			else if (inputParameters.getChrom().equalsIgnoreCase("y")) chrId = y;
-			else chrId = Integer.parseInt(inputParameters.getChrom());
-			
+//			int x = 23, y = 24;
+//			if (inputParameters.getGenomeID().contains("mm")) {
+//				x = 20;
+//				y = 21;
+//			}//			
+//			int chrId = 0;
+//			if (inputParameters.getChrom().equalsIgnoreCase("x")) chrId = x;
+//			else if (inputParameters.getChrom().equalsIgnoreCase("y")) chrId = y;
+//			else chrId = Integer.parseInt(inputParameters.getChrom());
+//			
 			for(int i = 0; i < n; i++){				
 
-				idToChr.put(i, new GenomicLocation(i, chrId + "",  lstPos.get(i), i + 1 < lstPos.size() ? lstPos.get(i + 1) - 1 : lstPos.get(i) + 1));				
+				idToChr.put(i, new GenomicLocation(i, inputParameters.getChrom(),  lstPos.get(i), i + 1 < lstPos.size() ? lstPos.get(i + 1) - 1 : lstPos.get(i) + 1));				
 			}
 		}				
 		
