@@ -4021,11 +4021,10 @@ public void showStatus(String message) {
 		        	
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
 		        	
-		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOME, "1");
-		        	else {
-		        		if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
-		        		else if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, "1");
-		        	}
+		        	
+		        	if (chromosomeField.getText().trim().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText().trim());
+		        	else viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	
 		        	
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	

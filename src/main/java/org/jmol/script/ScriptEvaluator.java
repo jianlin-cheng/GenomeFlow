@@ -5928,9 +5928,7 @@ public class ScriptEvaluator {
 					annotate();
 					break;
 					
-				case Token.compareModels:
-					compareModels();
-					break;
+
 					
 				//end
 				// Tosin added for 3D genome functions	
@@ -5980,24 +5978,7 @@ public class ScriptEvaluator {
 			ex.printStackTrace();
 		}
 	}
-	
-	/**
-	 * @author Tuan
-	 */
-	private void compareModels(){
-		Comparison compareModels = new Comparison();
-		try{
-			
-			String inputFile1 = (String) viewer.getParameter(Constants.INPUTFILE1);
-			String inputFile2 = (String) viewer.getParameter(Constants.INPUTFILE2);
-			
-			//compareModels.compare(viewer, inputFile1, inputFile2);
-			
-		}catch(Exception ex){
-			ex.printStackTrace();
-			viewer.displayMessage(new String[]{ex.getMessage()});
-		}
-	}
+
 	
 	/**
 	 * @author Tuan
