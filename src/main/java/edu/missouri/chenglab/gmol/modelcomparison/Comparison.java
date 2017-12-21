@@ -149,7 +149,7 @@ public class Comparison {
 		
 		double[] str = new double[matrix2.getRowDimension() * 2 * 3];
 		
-		List<Integer> lstPos = new ArrayList<Integer>();
+		//List<Integer> lstPos = new ArrayList<Integer>();
 		Map<Integer, GenomicLocation> idToChr = new HashMap<Integer,GenomicLocation>();
 		String chrom = "1";
 		String genomeID = "-";
@@ -166,7 +166,7 @@ public class Comparison {
 			str[k++] = matrix2.getRow(i)[1];
 			str[k++] = matrix2.getRow(i)[2];	
 			
-			lstPos.add(atomList1.get(i).fromPos);
+			//lstPos.add(atomList1.get(i).fromPos);
 		}
 		
 		for(int i = 0; i < matrix1Converted.getRowDimension(); i ++){
@@ -183,7 +183,7 @@ public class Comparison {
 //			str[k++] = matrix1.getRow(i)[1];
 //			str[k++] = matrix1.getRow(i)[2];
 			
-			lstPos.add(atomList2.get(i).fromPos);
+			//lstPos.add(atomList2.get(i).fromPos);
 		}
 		  
 		String outputFileGSS = "superimpose_" + CommonFunctions.getFileNameFromPath(inputFile1).replace(".gss", "") 
