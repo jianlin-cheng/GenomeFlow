@@ -1554,7 +1554,7 @@ public void showStatus(String message) {
 									JOptionPane.showMessageDialog(null, msg);
 									
 									if (co.getModel().length() > 0){
-										viewer.loadNewModel(co.getModel());
+										viewer.loadNewModel(co.getModel(), new String[]{String.format("RMSE: %.8f",co.getRmse()), String.format("Spearman correlation: %.4f",co.getCorrelationScore())});
 										try {
 											CommonFunctions.delete_file(co.getModel());
 										} catch (Exception e) {											
