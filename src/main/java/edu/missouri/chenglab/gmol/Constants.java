@@ -20,6 +20,8 @@ public interface Constants {
 	String TRACKFILENAME = "trackFileName";
 	String ANNOTATIONCOLOR = "annotationColor";
 	
+	String PROBECOORDINATEFILE = "probeCoordinateFile";
+		
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 
 	String CHROMOSOME = "chromsome";

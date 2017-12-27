@@ -5968,8 +5968,12 @@ public class ScriptEvaluator {
 			String trackFileName = (String) viewer.getParameter(Constants.TRACKFILENAME);
 			String color = (String) viewer.getParameter(Constants.ANNOTATIONCOLOR);
 			
-			if (color.length() > 0){
-				annotator.annotate(trackName, trackFileName, color, 15, (Viewer)viewer);
+			String probeGeneFile = (String) viewer.getParameter(Constants.PROBECOORDINATEFILE);
+			
+			if (trackFileName.endsWith(".gct") && probeGeneFile.length() > 0){
+				annotator.annotateGeneExpression(trackName, trackFileName, probeGeneFile, color, 15, viewer);
+			}else if (color.length() > 0){
+				annotator.annotate(trackName, trackFileName, color, 15, viewer);
 			}else{
 				annotator.annotateDomain(trackName, trackFileName, viewer);
 			}

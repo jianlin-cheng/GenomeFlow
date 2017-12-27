@@ -1625,7 +1625,7 @@ public void showStatus(String message) {
 		
 		  subFrame.add(scrollpane, BorderLayout.CENTER);
 		  subFrame.setVisible(true);
-		  subFrame.setTitle("Normalize HiC Data");
+		  subFrame.setTitle("Comparing 3D-models in GSS format");
 	  }
   }
   
@@ -2935,6 +2935,9 @@ public void showStatus(String message) {
 		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
 		  	Map<String, Boolean> trackDomainMap = new HashMap<String, Boolean>();
 		  	
+		  	
+		  	
+		  	
 	    	GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
 	        
@@ -2966,6 +2969,22 @@ public void showStatus(String message) {
 		  	
 	        //colorDisplay.setEnabled(false);
 		  
+		  	JLabel probeGeneCoordinateLabel = new JLabel("Probe/Gene Coordinate File");
+		  	JTextField probeGeneCoordinateField = new JTextField("");
+		  	JButton probeGeneCoordinateButton = new JButton("Browse File");
+		  	
+		  	probeGeneCoordinateButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					if (fileName == null) return;				
+					probeGeneCoordinateField.setText(fileName);					
+				}
+			});
+		  	
+		  	
 	    	JTextField trackNameField = new JTextField();
 	    	
 	    	
@@ -2999,7 +3018,18 @@ public void showStatus(String message) {
 						trackNameField.setText(name);
 					//}
 					
-					trackFileField.setText(fileName);					
+					trackFileField.setText(fileName);	
+					
+					if (fileName.endsWith(".gct")){
+						probeGeneCoordinateLabel.setVisible(true);
+						probeGeneCoordinateField.setVisible(true);
+						probeGeneCoordinateButton.setVisible(true);						
+					}else{
+						probeGeneCoordinateLabel.setVisible(false);
+						probeGeneCoordinateField.setVisible(false);
+						probeGeneCoordinateButton.setVisible(false);
+					}
+					
 				}
 			});
 	    	
@@ -3053,6 +3083,9 @@ public void showStatus(String message) {
 															
 					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());					
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
+			    	
+			    	viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeGeneCoordinateField.getText());
+			    	
 			    	
 			    	if (!isDomain.isSelected()) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -3218,6 +3251,28 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 2;
 	        trackNameField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(trackNameField, gbc);
+	        
+	        //
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(probeGeneCoordinateLabel, gbc);
+	        probeGeneCoordinateLabel.setVisible(false);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        probeGeneCoordinateField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(probeGeneCoordinateField, gbc);
+	        probeGeneCoordinateField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(probeGeneCoordinateButton, gbc);
+	        probeGeneCoordinateButton.setVisible(false);	        
+	        //
 	        
 	        
 	        y++;
