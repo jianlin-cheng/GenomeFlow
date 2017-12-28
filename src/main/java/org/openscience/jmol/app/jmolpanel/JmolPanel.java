@@ -2935,6 +2935,7 @@ public void showStatus(String message) {
 		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
 		  	Map<String, Boolean> trackDomainMap = new HashMap<String, Boolean>();
 		  	
+		  	Map<String, String> trackFileNameAndProbeCoordinateMap = new HashMap<String, String>();
 		  	
 		  	
 		  	
@@ -3086,6 +3087,10 @@ public void showStatus(String message) {
 			    	
 			    	viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeGeneCoordinateField.getText());
 			    	
+			    	//gene expression file
+			    	if (trackFileField.getText().endsWith(".gct")){
+			    		trackFileNameAndProbeCoordinateMap.put(trackNameField.getText(), probeGeneCoordinateField.getText());
+			    	}
 			    	
 			    	if (!isDomain.isSelected()) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -3150,6 +3155,11 @@ public void showStatus(String message) {
 								viewer.setStringProperty(Constants.TRACKNAME, track);
 						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
 						    	
+						    	if (trackFile.endsWith(".gct")){
+						    		String probeCoordinateFile = trackFileNameAndProbeCoordinateMap.get(track);
+						    		viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeCoordinateFile);
+						    	}else viewer.setStringProperty(Constants.PROBECOORDINATEFILE, "");
+						    	
 						    	if (!trackDomainMap.get(track)) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 						    	else {
 						    		viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -3175,6 +3185,11 @@ public void showStatus(String message) {
 										
 										viewer.setStringProperty(Constants.TRACKNAME, trackName);
 								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+								    	
+								    	if (trackFile.endsWith(".gct")){
+								    		String probeCoordinateFile = trackFileNameAndProbeCoordinateMap.get(trackName);
+								    		viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeCoordinateFile);
+								    	}else viewer.setStringProperty(Constants.PROBECOORDINATEFILE, "");
 								    	
 								    	if (!trackDomainMap.get(trackName))  viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 								    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");

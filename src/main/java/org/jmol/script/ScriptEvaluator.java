@@ -5979,6 +5979,7 @@ public class ScriptEvaluator {
 			}
 			
 		}catch(Exception ex){
+			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
 	}

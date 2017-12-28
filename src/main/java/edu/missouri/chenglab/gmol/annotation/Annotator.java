@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.math3.stat.StatUtils;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.jmol.modelset.Atom;
 import org.jmol.viewer.Viewer;
 
@@ -32,11 +34,11 @@ public class Annotator {
 				
 		StringBuilder commandSB = new StringBuilder();
 		for(Atom atom : atoms){
-			boolean isLabel = false;
+			//boolean isLabel = false;
 			for(Region reg : regions){
 				if (isOverlap(reg, atom)){
 					if (reg.getName() != null && reg.getName().length() > 0) atom.labels.put(trackName, reg.getName());					
-					isLabel = true;
+					//isLabel = true;
 				}
 			}
 			/*
@@ -116,13 +118,19 @@ public class Annotator {
 		Atom[] atoms = viewer.getModelSet().atoms;
 				
 		StringBuilder commandSB = new StringBuilder();
+		
+		
+		
 		for(Atom atom : atoms){
-			boolean isLabel = false;
-			for(Region reg : regions){
+			for(GeneExpressionObject reg : regions){
+				
 				if (isOverlap(reg, atom)){
-					if (reg.getName() != null && reg.getName().length() > 0) atom.labels.put(trackName, reg.getName());					
-					isLabel = true;
+					if (reg.getName() != null && reg.getName().length() > 0) 
+						atom.labels.put(trackName, String.format("%s: %.2f [%.2f,%.2f]", reg.getName(),
+								reg.getDescStat().getPercentile(50), reg.getDescStat().getMin(), reg.getDescStat().getMax() ));					
+					
 				}
+				
 			}
 
 		}
@@ -130,7 +138,7 @@ public class Annotator {
 		for(int i = 0; i < atoms.length; i++){
 			Atom atom = atoms[i];
 			Atom prevAtom = i > 0 ? atoms[i - 1] : null;
-			Atom nextAtom = i < atoms.length - 1 ? atoms[i + 1] : null;
+			//Atom nextAtom = i < atoms.length - 1 ? atoms[i + 1] : null;
 			
 			boolean isLabel = false;
 			for(Region reg : regions){
@@ -142,8 +150,8 @@ public class Annotator {
 			if (isLabel){
 				StringBuffer label = new StringBuffer();
 				for(String k : atom.labels.keySet()){
-					if (prevAtom != null && prevAtom.labels.containsValue(atom.labels.get(k)) &&
-							nextAtom != null && nextAtom.labels.containsValue(atom.labels.get(k))) continue;
+					if (prevAtom != null && prevAtom.labels.containsValue(atom.labels.get(k)) /*&&
+							nextAtom != null && nextAtom.labels.containsValue(atom.labels.get(k))*/) continue;
 					
 						
 					if (label.length() > 0) label.append(",");					
@@ -190,10 +198,10 @@ public class Annotator {
 			st = ln.split("[\\s+]");
 			name = st[0];
 			geo = new GeneExpressionObject(0, 0, 0, name);
-			for(int i = 0; i < st.length; i++){
+			for(int i = 2; i < st.length; i++){
 				if (st[i].length() > 0 && !st[i].equals("na")){
 					level = Double.parseDouble(st[i]);
-					geo.getExpressionLevel().put(header[i], level);
+					geo.putExpressionLevel(header[i], level);
 				}
 			}
 			
@@ -220,17 +228,26 @@ public class Annotator {
 		
 		
 		while((ln = br.readLine()) != null){
-			st = ln.split("[\\s+]");
+			st = ln.split("\\s+");
 			name = st[0];
-			chr = Integer.parseInt(st[1].replaceAll("chr", ""));
+			
+			try{
+				chr = Integer.parseInt(st[1].replaceAll("chr", ""));
+			}catch(Exception ex){
+				//ex.printStackTrace();
+				if (st[1].equalsIgnoreCase("chrx")) chr = 23;
+				else if (st[1].equalsIgnoreCase("chry")) chr = 24;
+				else continue;
+			}
 			start = Integer.parseInt(st[2]);
 			end = Integer.parseInt(st[3]);
 			
 			geo = geneObjects.get(name);
-			geo.setChrID(chr);
-			geo.setStart(start);
-			geo.setEnd(end);
-			
+			if (geo != null){
+				geo.setChrID(chr);
+				geo.setStart(start);
+				geo.setEnd(end);
+			}			
 		}
 		br.close();
 				
