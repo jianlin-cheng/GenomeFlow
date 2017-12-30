@@ -16,9 +16,13 @@ public class ConvertToHiCWorker extends SwingWorker<String,Void> {
 	@Override
 	protected String doInBackground() throws Exception {
 		
-		preprocess.getPreprocessor().preprocess(preprocess.getInputFile());
+		try {
+			preprocess.getPreprocessor().preprocess(preprocess.getInputFile());
         
-        NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
+			NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
+		}catch(Exception ex) {
+			return "Error: please check file format! " + ex.getMessage();
+		}
         
 		return "Convert to HiC done!";
 	}
