@@ -3329,8 +3329,8 @@ public void showStatus(String message) {
 	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;
-	        gbc.gridwidth = 4;
-	        panel.add(new JLabel("------------------------------------------------ Highlighted tracks ------------------------------------------------"), gbc);
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("------------------------- Highlighted tracks -------------------------"), gbc);
 	                
 	        
 	        subFrame.add(scrollpane, BorderLayout.CENTER);
