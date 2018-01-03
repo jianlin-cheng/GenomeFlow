@@ -130,6 +130,8 @@ public class StructureGeneratorLorentz_HierarchicalModeling implements Optimized
 		//n = helper.determineNbrOfPoints(INPUT_FILE);
 		
 		n = lstPos.size();		
+		if (n == 0) throw new Exception("Please check your input! there is no data");
+		
 		System.out.println("Number of points: " + n);
 		//map position to absolute id
 		Map<Integer,Integer> mapPosToID = new HashMap<Integer,Integer>();
