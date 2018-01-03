@@ -2234,7 +2234,7 @@ public void showStatus(String message) {
 		        chromosomes.set(0, new Chromosome(0, HiCFileTools.ALL_CHROMOSOME, (int) (genomeLength / 1000)));
 		        
 		        Preprocessor preprocessor = new Preprocessor(new File(outputFile), genomeId, chromosomes);
-		        preprocessor.setIncludedChromosomes(includedChromosomes);
+		        preprocessor.setIncludedChromosomes(includedChromosomes.size() > 0 ? includedChromosomes : null);
 		        preprocessor.setCountThreshold(countThreshold);
 		        preprocessor.setMapqThreshold(mapqThreshold);		        
 		        preprocessor.setFragmentFile(restrictionSiteFile);
