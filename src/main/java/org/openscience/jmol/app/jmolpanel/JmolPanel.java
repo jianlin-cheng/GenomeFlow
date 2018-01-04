@@ -2945,7 +2945,7 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(650, 350);
+	                return new Dimension(750, 350);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -2956,7 +2956,7 @@ public void showStatus(String message) {
 	        scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	        
 	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(700, 400));
+	        subFrame.setSize(new Dimension(800, 400));
 	        subFrame.setLocation(400, 400);
 	        subFrame.setTitle("Annotate 3D Models");
 	        
@@ -3060,6 +3060,10 @@ public void showStatus(String message) {
 						return;
 					}
 					
+					if (trackFileField.getText().endsWith(".gct") && probeGeneCoordinateField.getText().trim().length() == 0) {
+						JOptionPane.showMessageDialog(null, "Please specify a file containing genomic coordinates of probes/genes in the GCT file!");
+						return;
+					}
 					
 					if (isDomain.isSelected()){
 						if (isAlreadyDisplayedDomainTrack(trackStatusMap, trackDomainMap)){
