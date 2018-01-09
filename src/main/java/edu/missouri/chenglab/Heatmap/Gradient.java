@@ -79,6 +79,7 @@ public class Gradient
      */
     public final static Color[] GRADIENT_HEAT = createMultiGradient(new Color[]{Color.black, new Color(105, 0, 0), new Color(192, 23, 0), new Color(255, 150, 38), Color.white}, 500);
 
+    
     /**
      *Produces a gradient through red, orange, yellow
      */

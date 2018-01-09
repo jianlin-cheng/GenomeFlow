@@ -1,4 +1,4 @@
-package edu.missouri.chenglab.struct3DMax;
+package edu.missouri.chenglab.Structure3DMax.utility;
 
 public class Input {
 

@@ -75,6 +75,27 @@ public class TADwriter {
 	
 	
 	
+	/**
+	 * Write TAD to file
+	 * @param filename
+	 * @param matrix
+	 * @param Res
+	 * @throws IOException
+	 */
+	public void writeTAD(String filename, int[][] matrix, String Chr) throws IOException {
+		BufferedWriter log_outputwriter =  new BufferedWriter(new FileWriter(filename));
+	
+		  for (int i = 0; i <  matrix.length; i++) {			 
+				int loc1 = ClusterTAD.startloc + (matrix[i][0]* ClusterTAD.Resolution);
+				int loc2 = ClusterTAD.startloc + (matrix[i][1]* ClusterTAD.Resolution);
+				String chr = "chr" + Chr; 
+				String TADno = "TAD" + String.valueOf(i);
+				log_outputwriter.write(String.format("%s \t %d \t %d \t %s\n", chr, loc1, loc2, TADno ));
+		  }
+		  	log_outputwriter.flush();  
+		 	log_outputwriter.close();
+	}
+	
 	
 	/**
 	 * write matrix to file
@@ -102,6 +123,7 @@ public class TADwriter {
 
 	}
 	
+		
 	/**
 	 * Write List to file
 	 * @param filename

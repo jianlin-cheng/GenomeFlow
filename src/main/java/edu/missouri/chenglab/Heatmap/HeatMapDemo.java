@@ -1,16 +1,23 @@
 package edu.missouri.chenglab.Heatmap;
 
 import javax.swing.*;
+import javax.swing.SwingWorker.StateValue;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import edu.missouri.chenglab.ClusterTAD.ClusterTAD;
 
 import java.awt.*;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
+import java.util.concurrent.ExecutionException;
+
 import edu.missouri.chenglab.Heatmap.TADFrame;
+import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 
 
 /**
@@ -60,8 +67,6 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     JTextField textXMaxG;
     JTextField textYMinG;
     JTextField textYMaxG;
-    JTextField textFGColor;
-    JTextField textBGColor;
     JTextField textResolution;
     JComboBox gradientComboBox;
     //Tosin Added
@@ -77,7 +82,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
    double scale = 1.0;
    JFrame frame ;
    BufferedImage img;
-   JPanel showpane ;
+   
    JPanel listPane;
    JCheckBox Zoom;  
    JScrollPane scroll_pane;   // Add listpane to scrollpane
@@ -87,6 +92,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     JCheckBox isMatrix;
     JLabel labelr;
     JTextField textnumUnits;
+    JTextField textnumMUnits;
     JTextField textResdet;
     JTextField textstart;
     JTextField textend;
@@ -103,7 +109,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     
     private final static String FILE_OPEN_WINDOW_NAME = "FileOpen";
     public static double[][] data = null;
-    public double[][] default_data = null;
+    public static double[][] default_data = null;
    
     static JEditorPane pane = new JEditorPane();
     static String[] TAD = null;
@@ -116,14 +122,22 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 	static final int KB = 1000;
 	static final long MILLION = 1000000;
 	public  boolean useTuple = false;
-	public double minrow,mincol,maxrow,maxcol;
+	public static double minrow,mincol,maxrow,maxcol;
     public int Transform = 0;
     public double constant_minrow, constant_mincol, constant_maxrow, constant_maxcol;
+   
+  
+    public  static double[][] tanh_data = null;
+    public  static double[][] pearson_data = null;
+    public  static double[][] spearman_data = null;
+
     
     ImageIcon[] icons;
-    String[] names = {"GRADIENT_BLACK_TO_WHITE",
+    String[] names = {
+    		 		 
+    				  "GRADIENT_BLACK_TO_WHITE",
                       "GRADIENT_BLUE_TO_RED",
-                      "GRADIENT_GREEN_YELLOW_ORANGE_RED",
+                      "GRADIENT_GREEN_YELLOW_ORANGE_RED",  
                       "GRADIENT_HEAT",
                       "GRADIENT_HOT",
                       "GRADIENT_MAROON_TO_GOLD",
@@ -140,10 +154,11 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                            Gradient.GRADIENT_RED_TO_GREEN,
                            Gradient.GRADIENT_ROY};
     
-    String [] datashow_names = { "DEFAULT",
+    String [] datashow_names = { "TANH",
+    							 "RAW_DATA",
     							 "PEARSON",
-    							 "SPEARMAN",
-    							 "TANH"};
+    							 "SPEARMAN"
+    							 };
 
 
     public HeatMapDemo() throws Exception
@@ -215,7 +230,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         listPane.add(Box.createVerticalStrut(20), gbc);
         
 
-        isMatrix= new JCheckBox("IsMatrix (Input contact file )");
+        isMatrix= new JCheckBox("Is SquareMatrix? (Input contact file )");
         isMatrix.setSelected(false);
         isMatrix.addItemListener(this);
         listPane.add(isMatrix, gbc);
@@ -237,19 +252,87 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         listPane.add(inputContactFileField, gbc);
         
         
-        openContactFileButton = new JButton("Browse File");
+        openContactFileButton = new JButton("Browse File & Load");
         openContactFileButton.setBackground(Color.YELLOW);
         openContactFileButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent arg0) {             
+            public void actionPerformed(ActionEvent e) {             
             JFileChooser fc = new JFileChooser();
             fc.setCurrentDirectory(new java.io.File("C:/Users"));
             fc.setDialogTitle("File Browser.");
             fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             if (fc.showOpenDialog(openContactFileButton) == JFileChooser.APPROVE_OPTION){
             	inputContactFileField .setText(fc.getSelectedFile().getAbsolutePath());
-            	
             }
-        }
+            
+            
+           // JOptionPane.showMessageDialog(null, "Click on the DRAW HEATMAP button below to Draw !", "GenomeFlow-2D", JOptionPane.INFORMATION_MESSAGE);	
+            	
+      	  Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+            final JDialog dialog = new JDialog(win, "Loading data ... please wait !", ModalityType.APPLICATION_MODAL);
+    		dialog.setPreferredSize(new Dimension(300,80));
+    		          		
+      	//Draw HeatMap for 2D Visualization
+      	// DrawHeatMap();          
+    		
+    		Draw drawinbackground= new Draw();
+      	  
+    		drawinbackground.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				@Override
+				public void propertyChange(PropertyChangeEvent evt) {
+					switch (evt.getPropertyName()){
+					case "progress":
+						break;
+					case "state":
+						switch ((StateValue)evt.getNewValue()){
+						case DONE:
+							
+							win.setEnabled(true);
+							dialog.dispose();
+							
+							try {
+								String msg = drawinbackground.get();
+								//	JOptionPane.showMessageDialog(null, msg); // returns loading successful
+							} catch (InterruptedException e) {									
+								e.printStackTrace();
+								JOptionPane.showMessageDialog(null, "Error while extracting data");
+							} catch (ExecutionException e) {									
+								e.printStackTrace();
+								JOptionPane.showMessageDialog(null, "Error while extracting data");
+							}
+							
+							
+							break;
+						case PENDING:								
+							break;
+						case STARTED:
+							dialog.setVisible(true);
+							win.setEnabled(false);								
+							break;
+						default:								
+							break;
+						}
+					}
+					
+				}
+			  });				  
+			  
+    		drawinbackground.execute();
+    		
+    		
+    		
+			JProgressBar progressBar = new JProgressBar();
+		    progressBar.setIndeterminate(true);
+		    JPanel panel = new JPanel(new BorderLayout());
+		      
+		    panel.add(progressBar, BorderLayout.CENTER);
+		    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+		    dialog.add(panel);
+		    dialog.pack();
+		    dialog.setLocationRelativeTo(win);
+		    dialog.setVisible(true);	
+            
+          }
     });
         listPane.add(openContactFileButton, gbc);
         
@@ -374,7 +457,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         listPane.add(textYMaxG, gbc);
         
         
-        labelx = new JLabel("Number of Units:");
+        labelx = new JLabel("Number of Units detected:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 0;
         gbc.gridy = 30;
@@ -387,77 +470,68 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         gbc.gridwidth = 2;
         listPane.add(textnumUnits, gbc);
         
-        labelx = new JLabel("Resolution detected:");
+        
+        labelx = new JLabel("Number of Missing Units:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 2;
-        gbc.gridy = 30;       
+        gbc.gridy = 30;
+        listPane.add(labelx, gbc);
+        
+        textnumMUnits = new JTextField();
+        textnumMUnits.addFocusListener(this);
+        gbc.gridx = 2;
+        gbc.gridy = 31;
+        gbc.gridwidth = 2;
+        listPane.add(textnumMUnits, gbc);
+        
+        
+        labelx = new JLabel("Resolution detected:");
+        labelx.setFont(new Font("Arial", Font.BOLD, 10));
+        gbc.gridx = 0;
+        gbc.gridy = 32;       
         listPane.add(labelx, gbc);
         
         textResdet = new JTextField();
         textResdet.addFocusListener(this);
-        gbc.gridx = 2;
-        gbc.gridy = 31;
+        gbc.gridx = 0;
+        gbc.gridy = 33;
         gbc.gridwidth = 2;
         listPane.add(textResdet, gbc);
         
-        labelx = new JLabel("Start Location:");
+        
+        labelx = new JLabel("Initial Start Position:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 0;
-        gbc.gridy = 32;
+        gbc.gridy = 34;
         listPane.add(labelx, gbc);
         
         textstart = new JTextField();
         textstart.addFocusListener(this);
         gbc.gridx = 0;
-        gbc.gridy = 33;
+        gbc.gridy = 35;
         gbc.gridwidth = 2;      
         listPane.add(textstart, gbc);
         
-        labelx = new JLabel("End Location:");
+        labelx = new JLabel("Initial End Position:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 2;
-        gbc.gridy = 32;       
+        gbc.gridy = 34;       
         listPane.add(labelx, gbc);
         
         textend = new JTextField();
         textend.addFocusListener(this);      
         gbc.gridx = 2;
-        gbc.gridy = 33;
+        gbc.gridy = 35;
         gbc.gridwidth = 2;
         listPane.add(textend, gbc);
         
-        
-        
-        gbc.gridx = 0;
-        gbc.gridy = 34;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        listPane.add(Box.createVerticalStrut(30), gbc);
-        
-        label = new JLabel("FG Color:");
-        gbc.gridx = 0;
-        gbc.gridy = 34;
-        gbc.gridwidth = 2;
-        listPane.add(label, gbc);
-        textFGColor = new JTextField();
-        textFGColor.addFocusListener(this);
-        gbc.gridy = 35;
-        listPane.add(textFGColor, gbc);
-        
-        label = new JLabel("BG Color:");
-        gbc.gridx = 2;
-        gbc.gridy = 34;
-        listPane.add(label, gbc);
-        textBGColor = new JTextField();
-        textBGColor.addFocusListener(this);
-        gbc.gridy = 35;
-        listPane.add(textBGColor, gbc);
-        
+                
         gbc.gridx = 0;
         gbc.gridy = GridBagConstraints.RELATIVE;
-        gbc.weightx = 0;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
-        listPane.add(Box.createVerticalStrut(20), gbc);
-        
+        listPane.add(Box.createVerticalStrut(15), gbc);
+             
+                
         //----------------------------------------------------------------------
         
         label = new JLabel("Gradient:");
@@ -479,7 +553,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         //----------------------------------------------------------------------
         // Tosin Added
         listPane.add(Box.createVerticalStrut(5), gbc);
-        label = new JLabel("Show:");
+        label = new JLabel("Data Type:");
         listPane.add(label, gbc);
                 
         ShowDataCombo = new JComboBox(datashow_names);
@@ -487,215 +561,40 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         ShowDataCombo.setRenderer(myrenderer);
         ShowDataCombo .setMaximumRowCount(4);
         ShowDataCombo.addItemListener(this);        
-        listPane.add(ShowDataCombo, gbc);
-        
+        listPane.add(ShowDataCombo, gbc);        
+              
         listPane.add(Box.createVerticalStrut(20), gbc);
-        displayheatmapButton = new JButton("DRAW HEATMAP");
-        displayheatmapButton.setBackground(Color.GREEN);
-        displayheatmapButton.setFont(new Font("Arial", Font.BOLD, 12));
-        displayheatmapButton.setPreferredSize(new Dimension(50, 40));
-       
-        displayheatmapButton.addActionListener(new ActionListener() {
-        	
-            public void actionPerformed(ActionEvent arg0) {  
-            	//Disable zoom
-            	if (Zoom.isSelected()) {
-            		Zoom.setSelected(false);
-            	}
-            	
-            	
-            	 int [] mat ;
-            	 int row_max=0,col_max=0,minimum = 0;
-            	 int min = 0,r_max = 0, c_max = 0;
-            	 //load the file in the textbox - Tuple format
-            	Filename = inputContactFileField.getText();
-            	if (!Filename.isEmpty() && !Filename.equals("")) {
-            		
-            		
-            		try {
-	            			if (isMatrix.isSelected()) {
-	            				
-	            				
-	            				if (textResolution.getText().equals("")) {
-	            					JOptionPane.showMessageDialog(null, "Please Specify Matrix Resolution");	            					
-	            				}
-	            				// Input is a Matrix format
-	            				default_data =  LoadHeatmap.readFile(Filename, sep);
-	            				//update the row and column
-	            				mat = LoadHeatmap.MatSize(default_data);            	
-	                      	    row_max = mat[0];
-	                      	    col_max = mat[1];
-	                      	    minimum = 0;
-	                      	 	
-	                      	    Resolution = Integer.valueOf(textResolution.getText()); // Recieve resolution from Text 
-		                        min= Location(minimum,GenomeSL);
-		                        r_max = Location(row_max,GenomeSL);
-		                        c_max = Location(col_max ,GenomeSL);
-	                          
-		                        int genomelocation = Resolution *  c_max ;
-	                  	        
-	                  	        
-		          				//update the row and column	          				
-		                        panel.setXAxisTitle("Number of Bins");
-	                   	        textXTitle.setText("Number of Bins");
-	                   	        panel.setDrawXAxisTitle(true);
-	
-	                   	        panel.setYAxisTitle("Number of Bins");
-	                   	        textYTitle.setText("Number of Bins");
-	                   	        panel.setDrawYAxisTitle(true);
-	                   	        useTuple = false;   // Define if the input is Tuple input or not
-	                   	        
-		                   	     minrow = minimum; mincol = minimum;
-		                	     maxrow = row_max; maxcol = col_max;
-	                      	       
-	            			}
-	            			else {
-	            				
-	            				useTuple  = true; //Specify input as Tuple input
-	            				//Input is in Tuple format
-	            				default_data =  LoadHeatmap.readTupleFile(Filename, sep);       
-	            				// Detect the Resolution, detect the Starting Index
-	            				mat = LoadHeatmap.MatSize(default_data);            				
-	            				 
-	            				Resolution = LoadHeatmap.Resolution(Filename);
-	            				int genomelocation = LoadHeatmap.Startlocation;
-	            					                   	     
-	                   	        panel.setXAxisTitle("Genome bin Location (" + ResolutionString(genomelocation)+ ") ");
-	                   	        textXTitle.setText("Genome bin Location (" + ResolutionString(genomelocation)+")" );
-	                   	        panel.setDrawXAxisTitle(true);
-	
-	                   	        panel.setYAxisTitle("Genome Bin Location (" + ResolutionString(genomelocation)+ ") ");
-	                   	        textYTitle.setText("Genome Bin Location  (" + ResolutionString(genomelocation)+")" );
-	                   	        panel.setDrawYAxisTitle(true);
-	                   	        	
-	                   	        
-	                   	         minimum = truncateNumber(LoadHeatmap.Startlocation);
-	                  	         row_max =truncateNumber( LoadHeatmap.Endlocation);
-	                  	         col_max = truncateNumber(LoadHeatmap.Endlocation);
-		                  	     
-	                  	        GenomeSL = LoadHeatmap.Startlocation;
-	                  	        GenomeEL = LoadHeatmap.Endlocation;
-	                  	        
-	                  	        min=  GenomeSL;
-		                        r_max = GenomeEL;
-		                        c_max = GenomeEL;
-	                  	        
-		                        minrow = minimum; mincol = minimum;
-		                	     maxrow = row_max; maxcol = col_max;
-	            				
-	            			}
-	            			
-	            			 data = default_data;	            		
-	                		 panel.updateData(data, useGraphicsYAxis);            		 	
-	              	        textXMin.setText( String.valueOf(minimum));
-	              	        textXMax.setText(String.valueOf(row_max));
-	              	        textYMin.setText( String.valueOf(minimum));
-	              	        textYMax.setText(String.valueOf(col_max));
-	              	        //Genome Location
-		              	      textXMinG.setText( String.valueOf(min));
-	                          textXMaxG.setText(String.valueOf(r_max));
-	                          textYMinG.setText( String.valueOf(min));
-	                          textYMaxG.setText(String.valueOf(c_max));
-	                          textnumUnits.setText(String.valueOf(mat[1] + 1));
-	                          textResdet.setText(String.valueOf(Resolution));
-	                          
-	                          textstart.setText( String.valueOf(min));
-	                          textend.setText( String.valueOf(c_max));
-	                          
-	                 	     panel.setCoordinateBounds(minimum ,row_max, col_max, minimum); 
-	                	 
-	                	     
-	                	   //initial limits
-	                	     constant_minrow =  minimum; constant_mincol =  minimum; constant_maxrow = row_max; constant_maxcol = col_max; 
-	                	     
-						
-					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (Exception e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}  
-            
-            	}
-            	
-           
-        }
-    });
-        listPane.add( displayheatmapButton, gbc); 
         
-        listPane.add(Box.createVerticalStrut(20), gbc);
-       
-        //----------------------------------------------------------------------
-        // Add another pane
-        //-----------------------------------------------------------------------
-        showpane = new JPanel();
-        showpane .setLayout(new GridBagLayout());
-        showpane .setBorder(BorderFactory.createTitledBorder("TAD Visualization"));
-                
-        GridBagConstraints gbs;        
-        gbs = new GridBagConstraints();
-        gbs.gridx = 0;
-        gbs.gridy = 0;
-        gbs.gridwidth = GridBagConstraints.REMAINDER;
-        gbs.insets = new Insets(2, 1, 0, 0);
-        gbs.fill = GridBagConstraints.BOTH;
-        gbs.anchor = GridBagConstraints.LINE_START;
         
-        //
-       
-        JLabel tlabel = new JLabel("TAD Extraction:");
+        JLabel tlabel = new JLabel("TAD Annotation");
+        gbc.gridy = 44;
         tlabel.setFont(new Font("Arial", Font.BOLD, 14));       
-        showpane.add(tlabel, gbs);
-        gbs.gridy = GridBagConstraints.RELATIVE;
+        listPane.add(tlabel, gbc);
+        gbc.gridy = GridBagConstraints.RELATIVE;
         
-        int y = 7;      
-        showpane .add(Box.createVerticalStrut(20), gbs);
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+        listPane.add(Box.createVerticalStrut(10), gbc);
         
+        int y = 46;        
         
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        findtadButton = new JButton("Identify TAD ");
-        findtadButton.setBackground(Color.BLUE);
-        findtadButton.addActionListener(new ActionListener() {
-        	  @SuppressWarnings("null")
-			public void actionPerformed(ActionEvent arg0) {  
-        		 //  @SuppressWarnings("unused")
-        		 // TADFrame nw = new TADFrame(); 
-        		//Disable zoom
-              	if (Zoom.isSelected()) {
-              		Zoom.setSelected(false);
-              	}
-              	
-        		 String message = "To run TAD identification for dataset. Goto Home -> 2D-Tools -> Identify TAD";
-        		 JOptionPane.showMessageDialog(null, message, "Alert!", JOptionPane.INFORMATION_MESSAGE);
-        	  }
-        });
-
-        showpane.add( findtadButton, gbs);
-        
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        showpane .add(Box.createVerticalStrut(10), gbs);
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         labelx = new JLabel("Load TAD file:");
-        showpane.add(labelx, gbs);
+        listPane.add(labelx, gbc);
         
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         inputtadFileField = new JTextField(2);
         inputtadFileField .addFocusListener(this);
         inputtadFileField.setMaximumSize( inputtadFileField.getPreferredSize());
         inputtadFileField.setMinimumSize( inputtadFileField.getPreferredSize());
-        showpane.add(inputtadFileField, gbs);
+        listPane.add(inputtadFileField, gbc);
         
         
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         loadtadFileButton = new JButton("Browse & Load File ");
         loadtadFileButton.setBackground(Color.YELLOW);
         loadtadFileButton.addActionListener(new ActionListener() {
@@ -728,64 +627,57 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} 
-			
+		
 		
         }
     });
-        showpane.add (loadtadFileButton, gbs);
+        listPane.add (loadtadFileButton, gbc);
         
-      
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        showpane .add(Box.createVerticalStrut(10), gbs);
+        
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
+        listPane .add(Box.createVerticalStrut(10), gbc);
                
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         
        //line 12
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         JLabel showlabel = new JLabel("Identified TAD:");
-        showpane.add(showlabel, gbs);
+        listPane.add(showlabel, gbc);
               
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        showpane .add(Box.createVerticalStrut(10), gbs);
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
+        listPane .add(Box.createVerticalStrut(10), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         pane.setEditable(false);  // prevents the user from editting it.
         // programmatically put this text in the TextPane
        
         JScrollPane editorScrollPane = new JScrollPane(pane);
         editorScrollPane.setVerticalScrollBarPolicy(
                         JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        editorScrollPane.setPreferredSize(new Dimension(250, 350));
-        editorScrollPane.setMinimumSize(new Dimension(10, 10));
-        showpane.add( editorScrollPane );
-         
-        //Append Identified TAD
-		
+        editorScrollPane.setPreferredSize(new Dimension(150, 80));
+        //editorScrollPane.setMinimumSize(new Dimension(5, 5));
+        listPane.add( editorScrollPane );
+        
+        //Append Identified TAD		
         int [][] TD  = {{2,10}}; //Identified TAD
-       // appendtoEditor(TD);
-                                
-        y = 21;
-        gbs.gridx = 0;
-        gbs.gridy = y;       
-              
-                   
-        gbs.gridx = 0;
-        gbs.gridy = y++;    
+       // appendtoEditor(TD);                                
+                        
+        gbc.gridx = 0;
+        gbc.gridy = y++;    
         drawtadshowall = new JCheckBox("Show TAD on Heatmap");
         drawtadshowall.setSelected(false);
         drawtadshowall .addItemListener(this);
-        showpane.add( drawtadshowall , gbs);
+        listPane.add( drawtadshowall , gbc);
         
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        showpane .add(Box.createVerticalStrut(30), gbs);
-        gbs.gridx = 0;
-        gbs.gridy = y++;  
-        
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
+        listPane.add(Box.createVerticalStrut(30), gbc);
+        gbc.gridx = 0;
+        gbc.gridy = y++;  
         
         
           
@@ -796,7 +688,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         data = default_data;        
                  
         // you can use a pre-defined gradient:
-        panel = new HeatMap(data, useGraphicsYAxis, Gradient.GRADIENT_BLACK_TO_WHITE);
+        panel = new HeatMap(data, useGraphicsYAxis, Gradient.GRADIENT_HOT);
         gradientComboBox.setSelectedIndex(0);
         
         // set miscelaneous settings
@@ -819,7 +711,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         int row_max = mat[0];
         int col_max = mat[1];
         int minimum = 0;
-        
+        int  MissingUnits = (col_max - minimum) - mat[1];
         //Assign to global variables
     	minrow = minimum; mincol = minimum;
   	    maxrow = row_max; maxcol = col_max;
@@ -841,8 +733,11 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textXMaxG.setText(String.valueOf(r_max));
         textYMinG.setText( String.valueOf(min));
         textYMaxG.setText(String.valueOf(c_max));
-        textnumUnits.setText(String.valueOf(mat[1] + 1));
+        textnumUnits.setText(String.valueOf(mat[1]));        
         textnumUnits.setEditable(false);
+        textnumMUnits.setText(String.valueOf(MissingUnits ));        
+        textnumMUnits.setEditable(false);
+
         textResdet.setText(String.valueOf(Resolution));
         textResdet.setEditable(false);
         textend.setEditable(false);
@@ -858,19 +753,158 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         
         
         panel.setColorForeground(Color.black);
-        textFGColor.setText("000000");
         panel.setColorBackground(Color.white);
-        textBGColor.setText("FFFFFF");
+     
         
       
          scroll_pane = new JScrollPane( listPane);
          scroll_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         
         
-         this.getContentPane().add(showpane, BorderLayout.WEST);
+      //   this.getContentPane().add(showpane, BorderLayout.WEST);
         this.getContentPane().add(panel, BorderLayout.CENTER);  
 	    this.getContentPane().add( scroll_pane, BorderLayout.EAST);
 	    
+    }
+    
+    
+   /**
+    * allows to be run in background
+    * Function to Draw Heatmap
+    */
+    
+    public void DrawHeatMap() {
+
+    	
+    	//Disable zoom
+    	if (Zoom.isSelected()) {
+    		Zoom.setSelected(false);
+    	}
+    	
+    	
+    	 int [] mat ;
+    	 int row_max=0,col_max=0,minimum = 0;
+    	 int min = 0,r_max = 0, c_max = 0;
+    	 int MissingUnits = 0;    
+    	 //load the file in the textbox - Tuple format
+    	Filename = inputContactFileField.getText();
+    	if (!Filename.isEmpty() && !Filename.equals("")) {
+    		
+    		
+    		try {
+        			if (isMatrix.isSelected()) {
+        				
+        				
+        				if (textResolution.getText().equals("") ||  isMatrix.isSelected()==false) {
+        					JOptionPane.showMessageDialog(null, "Please Specify Matrix Resolution", "GenomeFlow-2D", JOptionPane.INFORMATION_MESSAGE);	            					
+        				}
+        				// Input is a Matrix format
+        				default_data =  LoadHeatmap.readFile(Filename, sep);
+        				//update the row and column
+        				mat = LoadHeatmap.MatSize(default_data);            	
+                  	    row_max = mat[0];
+                  	    col_max = mat[1];
+                  	    minimum = 0;
+                  	    MissingUnits = (col_max - minimum) - mat[1];
+                  	    
+                  	    Resolution = Integer.valueOf(textResolution.getText()); // Recieve resolution from Text 
+                        min= Location(minimum,GenomeSL);
+                        r_max = Location(row_max,GenomeSL);
+                        c_max = Location(col_max ,GenomeSL);
+                      
+                        int genomelocation = Resolution *  c_max ;
+              	        
+              	        
+          				//update the row and column	          				
+                        panel.setXAxisTitle("Number of Bins");
+               	        textXTitle.setText("Number of Bins");
+               	        panel.setDrawXAxisTitle(true);
+
+               	        panel.setYAxisTitle("Number of Bins");
+               	        textYTitle.setText("Number of Bins");
+               	        panel.setDrawYAxisTitle(true);
+               	        useTuple = false;   // Define if the input is Tuple input or not
+               	        
+                   	     minrow = minimum; mincol = minimum;
+                	     maxrow = row_max; maxcol = col_max;
+                  	       
+        			}
+        			else {
+        				
+        				useTuple  = true; //Specify input as Tuple input
+        				//Input is in Tuple format
+        				default_data =  LoadHeatmap.readTupleFile(Filename, sep);       
+        				// Detect the Resolution, detect the Starting Index
+        				mat = LoadHeatmap.MatSize(default_data);            				
+        				 
+        				Resolution = LoadHeatmap.Resolution(Filename);
+        				int genomelocation = LoadHeatmap.Endlocation;
+        					                   	     
+               	        panel.setXAxisTitle("Genome bin Location (" + ResolutionString(genomelocation)+ ") ");
+               	        textXTitle.setText("Genome bin Location (" + ResolutionString(genomelocation)+")" );
+               	        panel.setDrawXAxisTitle(true);
+
+               	        panel.setYAxisTitle("Genome Bin Location (" + ResolutionString(genomelocation)+ ") ");
+               	        textYTitle.setText("Genome Bin Location  (" + ResolutionString(genomelocation)+")" );
+               	        panel.setDrawYAxisTitle(true);
+               	        	
+               	        
+               	         minimum = truncateNumber(LoadHeatmap.Startlocation);
+              	         row_max =truncateNumber( LoadHeatmap.Endlocation);
+              	         col_max = truncateNumber(LoadHeatmap.Endlocation);
+                  	     
+              	        GenomeSL = LoadHeatmap.Startlocation;
+              	        GenomeEL = LoadHeatmap.Endlocation;
+              	        
+              	        MissingUnits = ((GenomeEL - GenomeSL)/Resolution)- (mat[1]);
+              	        
+              	        min=  GenomeSL;
+                        r_max = GenomeEL;
+                        c_max = GenomeEL;
+              	        
+                        minrow = minimum; mincol = minimum;
+                	    maxrow = row_max; maxcol = col_max;
+        				
+        			}
+        			
+        			 data = LoadHeatmap.Tanh(default_data); //Tanh as the default representation
+        			 tanh_data = data; //copy tanh into data 
+        			 Transform = 3;
+        			 
+        			 
+            		 panel.updateData(data, useGraphicsYAxis);            		 	
+          	        textXMin.setText( String.valueOf(minimum));
+          	        textXMax.setText(String.valueOf(row_max));
+          	        textYMin.setText( String.valueOf(minimum));
+          	        textYMax.setText(String.valueOf(col_max));
+          	        //Genome Location
+              	      textXMinG.setText( String.valueOf(min));
+                      textXMaxG.setText(String.valueOf(r_max));
+                      textYMinG.setText( String.valueOf(min));
+                      textYMaxG.setText(String.valueOf(c_max));
+                      textnumUnits.setText(String.valueOf(mat[1]+1));
+                      textnumMUnits.setText(String.valueOf(MissingUnits ));    
+                      textResdet.setText(String.valueOf(Resolution));
+                      
+                      textstart.setText( String.valueOf(min));
+                      textend.setText( String.valueOf(c_max));
+                      
+             	     panel.setCoordinateBounds(minimum ,row_max, col_max, minimum); 
+            	 
+            	     
+            	   //initial limits
+            	     constant_minrow =  minimum; constant_mincol =  minimum; constant_maxrow = row_max; constant_maxcol = col_max; 
+            	     
+				
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}  
+    
+    	}
     }
     
     
@@ -1002,9 +1036,10 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
      */
     public static int [][] TADindex(int Start) throws FileNotFoundException {
     	String name = inputtadFileField.getText();	
-    	double[][] TD;
+    	int [][] TD;
     
-		TD = LoadHeatmap.readFile(name,sep);
+		//TD = LoadHeatmap.readFile(name,sep);
+    	TD = LoadHeatmap.ExtractedTAD;
 		int row = TD.length; 
 		int [][] TADIndex  =  new int[row][2];
 		
@@ -1060,12 +1095,15 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                 	if (min_x < constant_minrow ) {min_x = constant_minrow ; textXMin.setText(String.valueOf(min_x)); }
                 	 minrow = min_x;
                 }
-                data = LoadHeatmap.MatrixReform(default_data, min_x, max_x, min_y, max_y);
-               
+                
+             
+                data = LoadHeatmap.MatrixReform(default_data, min_x, max_x, min_y, max_y);  //default data
+             
               
                //Genome Location
-        	    textXMinG.setText( String.valueOf( Location(minrow,GenomeSL)));                          
-        	    new_data = LoadHeatmap.TransformData(data, Transform);
+        	    textXMinG.setText( String.valueOf( Location(minrow,GenomeSL)));    
+        	    new_data = LoadHeatmap.TransformedData(Transform);
+        	    new_data = LoadHeatmap.MatrixReform(new_data, min_x, max_x, min_y, max_y);  //Transformed data
                 panel.updateData(new_data, useGraphicsYAxis);   
                 panel.setXMinCoordinateBounds(d);
             }
@@ -1098,7 +1136,8 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                
                 //Genome Location        
                 textXMaxG.setText(String.valueOf(Location(maxrow,GenomeSL)));
-                new_data = LoadHeatmap.TransformData(data, Transform);
+                new_data = LoadHeatmap.TransformedData(Transform);
+        	    new_data = LoadHeatmap.MatrixReform(new_data, min_x, max_x, min_y, max_y);  //Transformed data
                 panel.updateData(new_data, useGraphicsYAxis);   
                 panel.setXMaxCoordinateBounds(d);
             }
@@ -1127,7 +1166,8 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
               
                //Genome Location        	     
                 textYMinG.setText( String.valueOf(Location(mincol,GenomeSL)));             
-                new_data = LoadHeatmap.TransformData(data, Transform);
+                new_data = LoadHeatmap.TransformedData(Transform);
+        	    new_data = LoadHeatmap.MatrixReform(new_data, min_x, max_x, min_y, max_y);  //Transformed data
                 panel.updateData(new_data, useGraphicsYAxis);   
                 panel.setYMinCoordinateBounds(d);
             }
@@ -1157,38 +1197,15 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                
                //Genome Location
         	    textYMaxG.setText(String.valueOf(Location(maxcol,GenomeSL)));
-        	    new_data = LoadHeatmap.TransformData(data, Transform);
+        	    new_data = LoadHeatmap.TransformedData(Transform);
+        	    new_data = LoadHeatmap.MatrixReform(new_data, min_x, max_x, min_y, max_y);  //Transformed data
                 panel.updateData(new_data, useGraphicsYAxis);       
                 
                 panel.setYMaxCoordinateBounds(d);
             }
             catch (Exception ex){}
         }
-        else if (source == textFGColor)
-        {
-            String c = textFGColor.getText();
-            if (c.length() != 6)
-                return;
-            
-            Color color = colorFromHex(c);
-            if (color == null)
-                return;
-
-            panel.setColorForeground(color);
-        }
-        else if (source == textBGColor)
-        {
-            String c = textBGColor.getText();
-            if (c.length() != 6)
-                return;
-
-            Color color = colorFromHex(c);
-            if (color == null)
-                return;
-
-            panel.setColorBackground(color);
-        }
-              
+                    
         
         //update the x and y ticks        
         XYaxisTicks();
@@ -1303,7 +1320,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                scroll_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);              
               
       	         this.getContentPane().add( scroll_pane, BorderLayout.EAST);        
-          	 	this.getContentPane().add(showpane, BorderLayout.WEST);
+          	 	 //this.getContentPane().add(showpane, BorderLayout.WEST);
                 
         	    
         	    this.revalidate();
@@ -1320,7 +1337,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         	   
         	 
                scroll_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);              
-                this.getContentPane().add(showpane, BorderLayout.WEST);      	        
+              //  this.getContentPane().add(showpane, BorderLayout.WEST);      	        
                 this.getContentPane().add(panel, BorderLayout.CENTER);      
                 this.getContentPane().add( scroll_pane, BorderLayout.EAST);  
         	       
@@ -1378,7 +1395,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         	}
         
         	double[][] new_data;
-			try {
+			try {				
 				  new_data = LoadHeatmap.TransformData(data, Transform);
 				  panel.updateData(new_data, useGraphicsYAxis);     
 			} catch (FileNotFoundException e1) {
@@ -1389,12 +1406,21 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         }     
         else if (source == drawtadshowall)
         {
+        	double[][] new_data = null;
+			try {
+				new_data = LoadHeatmap.TransformedData( Transform);
+			} catch (FileNotFoundException e2) {
+				// TODO Auto-generated catch block
+				e2.printStackTrace();
+			}   //Load already transformed data
+			
         	if (drawtadshowall.isSelected()) {
-	        	double [][] tad_data = null; int rwstart,rwend;        	
+	        	double [][] tad_data = null; int rwstart,rwend;   
+	        	
 	        	try {
 					int [][] TDindex = TADindex(LoadHeatmap.Startlocation);
 					// Convert the index to create a square matrix			
-					double[][] new_data = LoadHeatmap.TransformData(default_data , Transform);	             
+					// double[][] new_data = LoadHeatmap.TransformData(default_data , Transform);
 					panel.updateData_ext(new_data ,TDindex,useGraphicsYAxis);				
 					
 				} catch (FileNotFoundException e1) {
@@ -1402,7 +1428,11 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 					e1.printStackTrace();
 				}     
 	        	
-	        	JOptionPane.showMessageDialog(null, "Task done Successfully!");	
+	        	// JOptionPane.showMessageDialog(null, "Task done Successfully!");	
+        	}
+        	else {
+        			// when unchecked 
+        		  panel.updateData(new_data, useGraphicsYAxis);       
         	}
         }
         
@@ -1412,30 +1442,55 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         	 String ix = (String) e.getItem();
              if (e.getStateChange() == ItemEvent.SELECTED)
              {
-            	 if (ix.equals("DEFAULT")) { 
-            		 new_data = data;  Transform = 0;} 
+            	 if (ix.equals("RAW_DATA")) { 
+            		 new_data = default_data;  Transform = 0;} 
             	 else if (ix.equals("PEARSON")) { 
              		try {
              			 Transform = 1;
-             			new_data = LoadHeatmap.Pearson(data);
+             			 if (pearson_data==null) {
+	             			new_data = LoadHeatmap.Pearson(default_data);
+	             			pearson_data = new_data;
+             			 }
+             			 else {
+             				 new_data = pearson_data;
+             			 }
+             				 
+             			
 					} catch (FileNotFoundException e1) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}  } 
+						e1.printStackTrace();		}  
+             		} 
             	 else if (ix.equals("SPEARMAN")) {
                  	try {
                  		Transform = 2;
-                 		new_data = LoadHeatmap.Spearman(data);
+                 		if (pearson_data==null) {
+                 			new_data = LoadHeatmap.Spearman(default_data);
+	             			spearman_data = new_data;
+             			 }
+             			 else {
+             				 new_data = spearman_data;
+             			 }
+                 		
                  	 	} catch (FileNotFoundException e1) {
  						// TODO Auto-generated catch block
  						e1.printStackTrace(); 		  }   }
             	 else if (ix.equals("TANH")) {
+                  	Transform = 3;
+					//new_data = (data);
                   	try {
-                  		Transform = 3;
-                  		new_data = LoadHeatmap.Tanh(data);
-                  	 	} catch (FileNotFoundException e1) {
-  						// TODO Auto-generated catch block
-  						e1.printStackTrace(); 		  }   }
+                  	if (tanh_data==null) {
+             			new_data = LoadHeatmap.Tanh(default_data);
+             			tanh_data = new_data;
+         			 }
+         			 else {
+         				 new_data = data; // data is already in Tanh
+         			 }
+                  	}
+                  	catch (FileNotFoundException e1) {
+ 						// TODO Auto-generated catch block
+ 						e1.printStackTrace(); 		  }   
+					
+					}
             	             	
             		panel.updateData(new_data, useGraphicsYAxis);
              
@@ -1494,6 +1549,35 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         }
     }
 
+    
+   
+    
+    
+    /**
+     * Class for progressbar to draw 
+     * @author Tosin
+     *
+     */
+    public class Draw extends SwingWorker<String,Void>{
+    	
+    	@Override
+    	protected String doInBackground() throws Exception {
+    		
+    		try{
+    			 
+    			DrawHeatMap();
+    		}catch(Exception ex){
+    			ex.printStackTrace();
+    			return ex.getMessage();
+    		}
+    		
+    		return "Loading Successful!";
+    	}
+    }
+
+    
+    
+    
     
     class ComboBoxRenderer extends JLabel implements ListCellRenderer
     {

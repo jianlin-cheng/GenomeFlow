@@ -46,6 +46,7 @@ public class ClusterTAD {
 	public static String outputname = null ;
 	public static int ismatrix = 1;
 	public static int startloc = 0;
+	public static String chromosome  = null; //  specify the Chromosome number
 	
 	public static String Outputpath;
 	public static String Clusterpath = "Clusters/";
@@ -56,7 +57,7 @@ public class ClusterTAD {
 	static int min_TAD_size = 120000; //120kb
 	static int max_TAD_size = 800000 ; //800KB
 	public static int [][] Best_TAD = null;
-	public static double Best_Qscore = -100;	
+	public static double Best_Qscore = -Integer.MAX_VALUE;
 	public static  int Best_K = 0;
 	public static String Bestname = null;;
 	public static int Resolution = 40000; // 1000 = 1KB
@@ -70,7 +71,7 @@ public class ClusterTAD {
 	 // creates progress bar
     final static JProgressBar pb = new JProgressBar();
     final static int MAX = 150;
-    final static JFrame frame = new JFrame("Processing data.....");
+    final static JFrame frame = new JFrame("Processing data..... Please wait");
     static int current;
     static int limit;
     
@@ -612,9 +613,9 @@ public class ClusterTAD {
 	    	if (status==1) {
 	    		namest = reclustername ;
 	    	}
-	    	TADfile =TADFolder  + "TAD_" + name + "_K="+ namest+String.valueOf(K) +".txt"; //file to hold TAD written to file	   
+	    	TADfile =TADFolder  + "TAD_" + name + "_K="+ namest+String.valueOf(K) +".bed"; //file to hold TAD written to file	   
 		    wt.delete_file(TADfile);
-		    wt.writeMatrix(TADfile,TAD); //write matrix to file
+		    wt.writeTAD(TADfile,TAD,chromosome); //write matrix to file
 		  //-----------------------------------------------------------
 	    	//Find the TAD Quality
 	    	
@@ -627,7 +628,8 @@ public class ClusterTAD {
 	    		
 	    		Best_K = K;
 	    		
-	    		Bestname="TAD_" + name + "_K="+ namest+String.valueOf(K) +".txt";
+	    		Bestname="TAD_" + name + "_K="+ namest+String.valueOf(K) +".bed";
+	    		
 	    	}
 	    	
 	    	System.out.println("-----------------------------------------------------");
@@ -913,7 +915,7 @@ public class ClusterTAD {
 	        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 	        frame.pack();
 	        frame.setLocationRelativeTo(null);
-	        frame.setSize(300, 100);
+	        frame.setSize(400, 100);
 	        frame.setVisible(true);
 	 
 	      
@@ -988,7 +990,7 @@ public class ClusterTAD {
 		Resolution = Integer.parseInt(args[2]);
 		ismatrix = Integer.parseInt(args[3]);
 	    startloc = Integer.parseInt(args[4]);
-	    	    
+	    chromosome = args[5];	    
 	    
 		String[] tmp = inputfile.split("[\\/ \\. \\\\]");
 		 if (inputfile.contains(".")){
@@ -1025,6 +1027,7 @@ public class ClusterTAD {
 			}
 		//===================================================================
 		    progresscontinue();  //1
+		
 		//===================================================================
 		    
 		//STAGE 2: New data creation	   
@@ -1041,8 +1044,7 @@ public class ClusterTAD {
 		    log_outputWriter = new BufferedWriter(new FileWriter( Outputpath + filename));
 		 //===================================================================
 		    progresscontinue(); //2
-		//===================================================================   
-		  
+		//===================================================================   		  
 		    
 		//STAGE 3: Estimate number of Clusters
 		    //=========Determine an estimate of the Number of Cluster(K)==========
@@ -1057,28 +1059,31 @@ public class ClusterTAD {
 		    
 		//===================================================================
 		    progresscontinue(); //3
-		//===================================================================   
-		    
-		  //STAGE 4: Perform Clustering and Save
+		    frame.setTitle("Clustering Iteration 1..... Please wait");
+		//===================================================================  
+		    //STAGE 4: Perform Clustering and Save
 		    //============Perform Clustering and Save Cluster assignment========
 		    ClusterFolder = Outputpath + Clusterpath;	    
 		    wt.make_folder(ClusterFolder); //make folder
 		    String Clusterfile = ClusterFolder + "file_" + name + "_cluster.txt"; //file to hold clusters
 		    int row = Feat.length;
 		    int[][] labels =  performclustering(Feat,Kmin,Kmax,row);
+		   	    
 		    wt.delete_file(Clusterfile);
 		    wt.writeClusterMatrix(Clusterfile, labels); //write matrix to file
-		    
-		 //STAGE 5: Extract TAD
+		   
+		   
+		    //STAGE 5: Extract TAD
+		    frame.setTitle("Extracting TAD..... Please wait");
 		    //============================================================
 		    ClusterTAD_algorithm(labels,Kmin,Kmax,RealData);   //Return this TAD, and find out if there are more interesting TADs
 		    
 		    progresscontinue(); //4
 		    //=============================================================    
 		    // Perform Re-clustering
-		    //----------------------------------------------------------------------
-		    
-	     //STAGE 5: Extract  Re-clustering and Extract
+		    //----------------------------------------------------------------------		    
+		    //STAGE 5: Extract  Re-clustering and Extract
+		    frame.setTitle("Clustering Iteration 2..... Please wait");
 		    
 		     ClusterTAD_Iteration(labels,Kmin,Kmax); //Only enabled for 
 		     
@@ -1094,8 +1099,11 @@ public class ClusterTAD {
 		    progressEnd(); //6
 		    TADfile =TADFolder  + "Best" + Bestname ;  //file to hold TAD written to file	 	   
 		    wt.delete_file(TADfile);
-		    wt.writeMatrix(TADfile,Best_TAD); //write matrix to file
+		    wt.writeTAD(TADfile,Best_TAD,chromosome); //write matrix to file
+		    
 		    System.out.println("=========== Quality Assessment Completed =========");
+		    
+		    frame.setTitle("Extracting TAD..... Please wait");
 		    
 		    //write Quality score to file
 		    String Qscorefile =TADFolder + name + "_TAD_QualityScore_List.txt"; //file to hold Quality score of TAD written to file		   

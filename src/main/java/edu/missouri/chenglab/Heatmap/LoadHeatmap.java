@@ -1,6 +1,8 @@
 package edu.missouri.chenglab.Heatmap;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
@@ -23,6 +31,11 @@ public class LoadHeatmap {
 	static String sep = "\\s+";
     static HashMap<Integer, Integer> map =  new HashMap<Integer, Integer>();
     static HashMap<Integer, Integer> mapthekey =  new HashMap<Integer, Integer>(); 
+    static int [][] ExtractedTAD = null;
+   
+    
+  
+	  
 	/**
 	 * 
 	 * read tuple input 
@@ -34,7 +47,7 @@ public class LoadHeatmap {
 		
 	
 	public static double [][] readTupleFile(String Filename, String sep) throws FileNotFoundException{	
-		
+	
 		//create Hashmap
 		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
 		//store index on hashmap: 
@@ -68,6 +81,9 @@ public class LoadHeatmap {
 	         e.printStackTrace();
 		 	}	
 		System.out.println(String.format("The total number of unique element = %d", count));
+		
+		
+		
 		// Once the number of element is obtained, get the total number of elements, create a matrix with them	
 		 double [][] a = new double[count][count];
 		 for (int i = 0; i<max;i++) {
@@ -110,8 +126,9 @@ public class LoadHeatmap {
 	         e.printStackTrace();
 		 	}
 		 
-		
-		return a;
+		// double [][]newa = new double[count][count];
+		// newa = Tanh(a);
+		 return a;
 		
 	}
 	
@@ -227,7 +244,8 @@ public class LoadHeatmap {
 	 * @throws Exception 
 	 */
 	public static int Resolution(String Filename) throws Exception {
-		
+		map.clear();
+		mapthekey.clear();
 		Map<Integer, Integer> map =  Createmap(Filename);
 		int res = detectResolution(map);
 		return res;
@@ -287,7 +305,9 @@ public class LoadHeatmap {
 		 
 		
 		 
-		return a;
+		// double [][]newa = new double[rows][cols];
+		// newa = Tanh(a);
+		 return a;
 	}
   
 	/**
@@ -320,7 +340,7 @@ public class LoadHeatmap {
 				
 				 System.out.println(String.format("Number of row/col = %d", rows));
 				 // read in the data
-				 int [][] a = new int[rows][cols];
+				 int [][] a = new int[rows][cols-2];
 				 try {
 					 int linesCounter = 0;
 					 Scanner input = new Scanner (new File( Filename));
@@ -330,9 +350,9 @@ public class LoadHeatmap {
 							String [] line = null;
 							String rowdata = input.nextLine();
 							line = rowdata.split(sep);						
-							 for (int k = 0; k < cols; k++) {							  
-				                	a[linesCounter][k] = Integer.parseInt(line[k]);
-				                }
+												  
+				            a[linesCounter][0] = Integer.parseInt(line[1]);
+				            a[linesCounter][1] = Integer.parseInt(line[2]); 
 							 linesCounter++;    						    
 						}			
 						input.close();
@@ -340,9 +360,8 @@ public class LoadHeatmap {
 			         e.printStackTrace();
 				 	}
 				 
-				
-				 
-			return a;
+				ExtractedTAD = a;
+				return a;
 	}
 	
 	/**
@@ -446,6 +465,9 @@ public class LoadHeatmap {
 		
 		return Data;
 	}
+	
+	
+	
 
 	/**
 	 * Returns a transformed verion of new dataset
@@ -456,18 +478,24 @@ public class LoadHeatmap {
 	
 	public static double[][] TransformData(double [][] indata, int transformint) throws FileNotFoundException{
 		double [][] outdata = null;
+			
+		
     	switch ( transformint) {
-    		case 1:
+    		case 1:    			
     			outdata = Pearson(indata);
+    			
     			break;
     		case 2:
     			outdata = Spearman(indata);
+    		
     			break;
-    		case 3:
-    			outdata = Tanh(indata);
+    		case 3:    			
+    			outdata =  Tanh(indata); 			
+    			
     			break;
     		default:
     			outdata = indata;
+    		
     			break;
     	}
     	
@@ -475,7 +503,38 @@ public class LoadHeatmap {
     }
  
 	
+	/**
+	 * Returns a transformed verion of new dataset
+	 * @param indata
+	 * @return
+	 * @throws FileNotFoundException 
+	 */
 	
+	public static double[][] TransformedData(int transformint) throws FileNotFoundException{
+		double [][] outdata = null;
+			
+    	switch ( transformint) {
+    		case 1:    			
+    			outdata = HeatMapDemo.pearson_data;
+    			
+    			break;
+    		case 2:
+    			outdata = HeatMapDemo.spearman_data;
+    		
+    			break;
+    		case 3:    			
+    			outdata = HeatMapDemo.tanh_data;    			
+    			
+    			break;
+    		default:
+    			outdata = HeatMapDemo.default_data;
+    		
+    			break;
+    	}
+    	
+    	
+    	return  outdata;
+    }
 	
 	
 }

@@ -135,8 +135,10 @@ import uk.ac.roslin.ensembl.exception.DAOException;
 import uk.ac.roslin.ensembl.model.core.Chromosome;
 
 //Tosin
-import edu.missouri.chenglab.struct3DMax.Structure_3DMax;
+
 import edu.missouri.chenglab.Heatmap.HeatMapDemo;
+import edu.missouri.chenglab.Structure3DMax.algorithm.StructureGenerator3DMax;
+import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
 import edu.missouri.chenglab.ClusterTAD.*;
 
 public class ScriptEvaluator {
@@ -6109,26 +6111,101 @@ public class ScriptEvaluator {
 	 * To reconstruct 3D model using 3DMax
 	 */
 	private void Structure_3DMax() {
-		String[] Input = new String[8];
-		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
-		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);		
-		 Input[2] = (String)viewer.getParameter(Constants.MINCONVERSIONFACTOR);
-		 Input[3] = (String)viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
-		 Input[4] = (String)viewer.getParameter(Constants.LEARNINGRATE);
-		 Input[5] = (String)viewer.getParameter(Constants.MAXITERATION);
-		 Input[6] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
-		 Input[7] = (String)viewer.getParameter(Constants.ISMATRIX);	
-		// Call the Structure_3DMax
+		
+		
+		 String contactFile = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
+		 String outputFolder = (String) viewer.getParameter(Constants.OUTPUT3DFILE);
+			
+			
+			
+		double conversionFactor = 0, minConversionFactor = 0.1, maxConversionFactor = 3.0;
+		
+		String conversionFactorStr = (String)viewer.getParameter(Constants.CONVERSIONFACTOR);
+		String minConversion = (String) viewer.getParameter(Constants.MINCONVERSIONFACTOR);
+		String maxConversion = (String) viewer.getParameter(Constants.MAXCONVERSIONFACTOR);
+		
+		if (conversionFactorStr.length() > 0) conversionFactor = Double.parseDouble(conversionFactorStr);
+		
+		if (minConversion.length() > 0) minConversionFactor = Double.parseDouble(minConversion);
+		if (maxConversion.length() > 0) maxConversionFactor = Double.parseDouble(maxConversion);
+		
+		
+		
+		
+		double learningRate = Double.parseDouble((String)viewer.getParameter(Constants.LEARNINGRATE));
+		int maxIteration = Integer.parseInt((String)viewer.getParameter(Constants.MAXITERATION));
+		
+		InputParameters_3DMax inputParameter = new InputParameters_3DMax();
+		
+		String[] st;
+		
+		String chromLen = (String) viewer.getParameter(Constants.CHROMOSOMELEN);
+		if (chromLen != null && chromLen.length() > 0){
+			st = chromLen.split("[\\s,]");
+			int[] chrLen = new int[st.length];
+			for(int i = 0; i < st.length; i++){
+				chrLen[i] = Integer.parseInt(st[i]);
+			}
+			
+			if (chrLen.length > 1) inputParameter.setChr_lens(chrLen);
+		}
+		
+		String chrom = (String) viewer.getParameter(Constants.CHROMOSOME);
+		String genomeID = (String) viewer.getParameter(Constants.GENOMEID);
+		
+		inputParameter.setNum(1);
+		inputParameter.setOutput_folder(outputFolder);
+		inputParameter.setInput_file(contactFile);
+		inputParameter.setLearning_rate(learningRate);
+		inputParameter.setNumber_threads(1);
+		
+		if (conversionFactor > 0.001) inputParameter.setConvert_factor(conversionFactor);
+		
+		inputParameter.setMinConversionFactor(minConversionFactor);
+		inputParameter.setMaxConversionFactor(maxConversionFactor);
+		
+		inputParameter.setMax_iteration(maxIteration);
+		
+		inputParameter.setChrom(chrom);
+		inputParameter.setGenomeID(genomeID);
+		
+		inputParameter.setVerbose(false);
+		
+		st = contactFile.split("[\\/\\.\\\\]");
+		
+		if (contactFile.contains(".")){
+			inputParameter.setFile_prefix(st[st.length - 2]);
+		}else{
+			inputParameter.setFile_prefix(st[st.length - 1]);
+		}
+		
+		inputParameter.setViewer(viewer);
+		inputParameter.setTmpFolder(outputFolder + "/tmp/");
+		
+		Helper helper = Helper.getHelperInstance();
+		if (!helper.isExist(inputParameter.getTmpFolder())){
+			try {
+				helper.make_folder(inputParameter.getTmpFolder());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 		 
+		viewer.setInput3DModeller_3DMax(inputParameter);
+		
+		
+		 // Call the Structure_3DMax	
+		
+		StructureGenerator3DMax  generator = new StructureGenerator3DMax(inputParameter);
 		try{
-						
-			@SuppressWarnings("unused")
-			Structure_3DMax obj = new Structure_3DMax(Input,viewer);
+			generator.generateStructure();
 		}catch(Exception ex){
-		    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output");
+			
 			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
+		 
+	
 		
 	}
 	
@@ -6137,12 +6214,14 @@ public class ScriptEvaluator {
 	 * To Find the TAD
 	 */
 	private void Find_TAD() {
-		String[] Input = new String[5];
+		String[] Input = new String[6];
 		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
-		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);	
+		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);			
 		 Input[2] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
 		 Input[3] = (String)viewer.getParameter(Constants.ISMATRIX);	
 		 Input[4] = (String)viewer.getParameter(Constants.STARTLOCATION);	
+		 Input[5] = (String) viewer.getParameter(Constants.CHROMOSOME);	
+		 
 		// Call the ClusteTAD
 		 
 		try{
@@ -6176,15 +6255,15 @@ public class ScriptEvaluator {
 	                	// get the screen size as a java dimension
 	                	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 	                	// get 2/3 of the height, and 2/3 of the width
-	                	int height = screenSize.height* 8 / 10;
-	                	int width = screenSize.width* 8 / 10;
+	                	int height = screenSize.height* 7 / 10;
+	                	int width = screenSize.width* 7 / 10;
 	                	
 
 	                	 hmd = new HeatMapDemo(); //Tosin added Filename
 	                     hmd.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);	                  
 	                    // hmd.setExtendedState(java.awt.Frame.MAXIMIZED_BOTH);
 	                     hmd.setSize(width, height);
-	                     hmd.setMinimumSize(new Dimension(800, 900));
+	                    // hmd.setMinimumSize(new Dimension(800, 900));
 	                     hmd.setVisible(true);
 	                }
 	                catch (Exception e)

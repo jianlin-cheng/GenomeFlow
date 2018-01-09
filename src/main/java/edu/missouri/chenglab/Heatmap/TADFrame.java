@@ -28,7 +28,7 @@ import org.jmol.export.history.HistoryFile;
 import edu.missouri.chenglab.ClusterTAD.ClusterTAD;
 import edu.missouri.chenglab.ClusterTAD.Parameter;
 import edu.missouri.chenglab.gmol.Constants;
-import edu.missouri.chenglab.struct3DMax.Input;
+import edu.missouri.chenglab.Structure3DMax.utility.Input;
 
 public class TADFrame {
 	

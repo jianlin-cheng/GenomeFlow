@@ -136,9 +136,11 @@ import org.jmol.viewer.StateManager.Orientation;
 import org.jmol.viewer.binding.Binding;
 import org.openscience.jmol.app.jmolpanel.DisplayPanel;
 
+
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
+import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
 
 /*
  * 
@@ -303,6 +305,15 @@ public void setEventListener(ScaleEventListener e) {
 	}
 	//end
 	
+	// Tosin added for 3DMax Control	
+	private InputParameters_3DMax input3DModeller_3DMax = null;  
+	public InputParameters_3DMax getInput3DModeller_3DMax() {
+		return input3DModeller_3DMax;
+	}
+	
+	public void setInput3DModeller_3DMax(InputParameters_3DMax input3dModeller_3DMax) {
+		input3DModeller_3DMax = input3dModeller_3DMax;
+	}
 
 StateManager.GlobalSettings getGlobalSettings() {
     return global;

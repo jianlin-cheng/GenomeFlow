@@ -139,7 +139,7 @@ import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
-import edu.missouri.chenglab.struct3DMax.Input;
+import edu.missouri.chenglab.Structure3DMax.utility.Input;
 import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.NormalizeHiCWorker;
@@ -3726,23 +3726,33 @@ public void showStatus(String message) {
 	    }
   }
 
-  /*
-   *  Tosin created a new button for 3DMax Modeller
+ 
+  
+  
+  /**
+   * Tosin created an updated code for the 3DMax Modeller
+   * @author Tosin
+   *
    */
-  class Structure_3DMaxModeller extends NewAction{
+  class Structure_3DMaxModeller extends NewAction {
 	  Structure_3DMaxModeller() {
 		  super(structure3DMAXAction);
 	  }
 	  
-	  @Override
+	    @Override
 	    public void actionPerformed(ActionEvent e) {
-			    	
+	    	//script = "pdb2GSS";
+	    	//viewer.script(script);
 	    	
-	        JTextField inputContactFileField = new JTextField();      
+	    	
+	        JTextField inputContactFileField = new JTextField();	        
+	        
 	        
 	        JTextField outputGSSFileField = new JTextField();
-	               
+	        //gssFileField.setPreferredSize(new Dimension(400, 20));
+	        	        
 	        JButton openContactFileButton = new JButton("Browse File");
+	        //openPDBFileButton.setPreferredSize(new Dimension(40, 20));
 	        
 	        openContactFileButton.addActionListener(new ActionListener() {				
 				@Override
@@ -3788,64 +3798,26 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Input contact file:",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Input Contact File"), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;
 	        inputContactFileField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(inputContactFileField, gbc);
-	        
 	        	        
+	        
 	        gbc.gridx = 3;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
 	        panel.add(openContactFileButton, gbc);
 	        	        
-	     
-	        
-	        ///////////////////////////////////////////////
-	        y++;	        
-	        gbc.gridx = 0;
-	        gbc.gridy = y;	  
-	        gbc.gridwidth = 1;
-	        
-	        JLabel res = new JLabel("Data Resolution[1MB or 10KB]:",JLabel.LEFT);
-	        
-	        panel.add(res, gbc);	        
-	        
-	        JTextField IFResolutionField = new JTextField("1000000"); 
-	      
-	        IFResolutionField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = IFResolutionField .getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB");
-						
-						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
-	        
-	        gbc.gridx = 1;
-	        gbc.gridy = y;
-	        gbc.gridwidth = 2;	
-	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
-	        panel.add( IFResolutionField, gbc);
-	        
-	        res.setVisible(false);
-	        IFResolutionField.setVisible(false);     
-	        ////////////////////////////////////////////////
+	       	////////////////////////////////////////////////
 	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	 
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Output 3D model folder:"), gbc);	        
+	        panel.add(new JLabel("Output 3D Model Folder"), gbc);	        
 	
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3862,191 +3834,204 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        JLabel ConvFactormin =  new JLabel("Conversion Factor:");
-	        panel.add(ConvFactormin, gbc);	        
+	        panel.add(new JLabel("Conversion Factor"), gbc);	        
 	        
-	        JTextField minconversionFactorField = new JTextField("0.4"); 
 	        
-	        minconversionFactorField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = minconversionFactorField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in number only");
-						
-						minconversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
+	        NumberFormatter doubleFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        doubleFormatter.setValueClass(Double.class);
+	        doubleFormatter.setMinimum(0.0);
+	        doubleFormatter.setMaximum(4.0);
+	        //doubleFormatter.setAllowsInvalid(false);
+	        
+			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
+	        JTextField conversionFactorField = new JTextField();
+			conversionFactorField.setText("0.5");
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
-	        minconversionFactorField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(minconversionFactorField, gbc);
-	       
-	        
-			////////////////////////////////////////////////
-	        
-	        y++;	        
-	        gbc.gridx = 0;
-	        gbc.gridy = y;	  
-	        gbc.gridwidth = 1;
-	        JLabel ConvFactormax =  new JLabel("Conversion Factor (Max):");
-	        panel.add(ConvFactormax, gbc);	         
-	        
-	        JTextField maxconversionFactorField = new JTextField("2.0"); 
-	        
-	        maxconversionFactorField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = maxconversionFactorField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in number only");
-						
-						maxconversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
-	        
-	        gbc.gridx = 1;
-	        gbc.gridy = y;
-	        gbc.gridwidth = 2;	
-	        maxconversionFactorField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(maxconversionFactorField, gbc);        
-	           
-	        ConvFactormax.setVisible(false);
-	        maxconversionFactorField.setVisible(false);
-	        
+	        conversionFactorField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(conversionFactorField, gbc);
 	        
 	        ///////////////////////////////////////////////	  
 	        y++;	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Learning rate:"), gbc);	        
+	        panel.add(new JLabel("Initial Learning Rate:"), gbc);	        
 	        
-	        JTextField learningRateField = new JTextField("1"); 
+	        NumberFormatter learningRateFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        learningRateFormatter.setValueClass(Double.class);
+	        learningRateFormatter.setMinimum(0.0);
+	        learningRateFormatter.setMaximum(10.0);
+	        //learningRateFormatter.setAllowsInvalid(false);
 	        
-	        learningRateField.addKeyListener(new KeyAdapter(){
-	        	@Override
-				public void keyReleased(KeyEvent e) {
-	        		String currentTxt = learningRateField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-					
-					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in number only");
-						
-						learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}	
-	        });
+	        
+	        JFormattedTextField learningRateField = new JFormattedTextField(learningRateFormatter);
+	        learningRateField.setText("1.0");
+	        
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
 	        learningRateField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(learningRateField, gbc);	        	        
-	
+	        panel.add(learningRateField, gbc);
+	        
 	        ///////////////////////////////////////////////	
 	        
 	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Max Number of Iteration:"), gbc);	        
-	      	        
-	        JTextField maxIterationField = new JTextField("1000"); 	
-	        maxIterationField.addKeyListener(new KeyAdapter() {								
-				@Override
-				public void keyReleased(KeyEvent e) {
-					
-					String currentTxt = maxIterationField.getText();
-					if (currentTxt.length() == 0) return;
-					
-	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
-	        		
-					if (!Character.isDigit(chr)){
-						JOptionPane.showMessageDialog(null, "Please key in number only");						
-						maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
-					}
-				}				
-			});
+	        panel.add(new JLabel("Max Number of Iteration"), gbc);	        
+	        
+	        NumberFormatter intFormatter = new NumberFormatter(NumberFormat.getNumberInstance());			 
+	        intFormatter.setValueClass(Integer.class);
+	        intFormatter.setMinimum(0);
+	        intFormatter.setMaximum(1000000);
+	        intFormatter.setAllowsInvalid(false);
+	        
+	        //JTextField maxIterationField = new JTextField("1000");
+	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
+	        maxIterationField.setText("2000");
+	        
 	        	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
 	        maxIterationField.setPreferredSize(new Dimension(300, 21));
-	        panel.add(maxIterationField, gbc);             
+	        panel.add(maxIterationField, gbc);
 	        
-	      ///////////////////////////////////////////////	
-		y++;
-		JCheckBox isMatrix = new JCheckBox("Load input as a Normalized Contact Matrix(comma seperated)");
-		gbc.gridx = 1;
-		gbc.gridy = y;
-		gbc.gridwidth = 2;
-		panel.add(isMatrix , gbc);
-				
-		isMatrix .addChangeListener(new ChangeListener() {
-			
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (isMatrix.isSelected()){					
-					  res.setVisible(true);
-				      IFResolutionField.setVisible(true);
-				}
-				else {					
-					  res.setVisible(false);
-				      IFResolutionField.setVisible(false);
-				}
-				
-				
-			}
-		});
+			///////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Chromosome (Optional)"), gbc);	        
+
+	        JTextField chromosomeField = new JTextField("X");	        
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        chromosomeField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(chromosomeField, gbc);
 	        
-	        /////////////////////////////////////////////// 
+	        chromosomeField.setInputVerifier(new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent input) {
+					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
+							"18","19","20","21","22","23","X","Y"));
+					
+					JTextField field = (JTextField) input;
+					if (field.getText().length() == 0 || validGenomeIDs.contains(field.getText())) return true;
+					
+					return false;
+				}
+			});
+
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("(1,2,3,X or Y)"), gbc);	
+	        
+	        //////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Genome ID (Optional)"), gbc);	        
+
+	        JTextField genomeField = new JTextField("hg19");
+	               
+	        	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        genomeField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(genomeField, gbc);
+	        genomeField.setInputVerifier(new InputVerifier() {
+				
+				@Override
+				public boolean verify(JComponent input) {
+					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("hg18", "hg19", "hg38", "dMel", "mm9", "mm10", "anasPlat1", "bTaurus3",
+							"canFam3", "equCab2", "galGal4", "Pf3D7", "sacCer3", "sCerS288c", "susScr3", "TAIR10"));
+					
+					JTextField field = (JTextField) input;
+					if (validGenomeIDs.contains(field.getText())) return true;
+					
+					return false;
+				}
+			});
+	        
+			        
+	        //////////
 			
 			y++;
-			JCheckBox clusterTAD = new JCheckBox("Specify a Minimum and Maximum Conversion Factor");
-			gbc.gridx = 1;
+			JCheckBox isMultipleChrom = new JCheckBox("Is Multiple-Chromosomes Structure?");
+			gbc.gridx = 0;
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
-			panel.add(clusterTAD , gbc);
-					
-			clusterTAD .addChangeListener(new ChangeListener() {
+			panel.add(isMultipleChrom, gbc);
+			
+			JLabel chromLenLabel = new JLabel("Length of Chromosomes");
+			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
+			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			isMultipleChrom.addChangeListener(new ChangeListener() {
 				
 				@Override
 				public void stateChanged(ChangeEvent e) {
-					if (clusterTAD.isSelected()){
-						
-						 ConvFactormin.setText("Conversion Factor (Min):");
-						 ConvFactormax.setVisible(true);
-					     maxconversionFactorField.setVisible(true);
-					  
+					if (isMultipleChrom.isSelected()){
+						chromLenLabel.setVisible(true);
+						chromLengthField.setVisible(true);
+						chromLenNoteLabel.setVisible(true);
 					}else{
-						 ConvFactormin.setText("Conversion Factor:");
-						 ConvFactormax.setVisible(false);
-					     maxconversionFactorField.setVisible(false);
+						chromLenLabel.setVisible(false);
+						chromLengthField.setVisible(false);
+						chromLenNoteLabel.setVisible(false);
 					}
 					
 				}
 			});
+
+	        ///////////////////////////////////////////	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        chromLenLabel.setVisible(false);
+	        panel.add(chromLenLabel, gbc);	
 	        	        
-			JOptionPane.showMessageDialog(null, "On average for this algorithm, Best structures are produced between Min = 0.3 and Max = 0.6");
+	        chromLengthField.setPreferredSize(new Dimension(300, 21));
+	        
+	       
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 2;
+	        panel.add(chromLengthField, gbc);
+	        
+	        chromLengthField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        chromLenNoteLabel.setVisible(false);
+	        panel.add(chromLenNoteLabel, gbc);		 
+	        
+
+	        
+	        ///////////////////////////////////////////////
 	        y++;
 	        JButton runButton = new JButton("Run");
 	        JButton stopButton = new JButton("Stop");
-	       	        	     
+	       
+	        	     
 	        gbc.gridx = 1;	        
 	        gbc.gridy = y;
 	        gbc.gridwidth = 1;	   
@@ -4061,79 +4046,127 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame();
-	        Structure_3DMaxFrame.setSize(new Dimension(670,380));
+	        Structure_3DMaxFrame.setSize(new Dimension(650, 400));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
 	        Structure_3DMaxFrame.setVisible(true);
-	        
+	        Structure_3DMaxFrame.setTitle("Reconstruct 3D Models from Contact Matrices");
 	        
 	        
 	        
 	        runButton.addActionListener(new ActionListener() {				
 				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Input.stoprunning = false;
-					double minlearn = Double.parseDouble(minconversionFactorField.getText());
-					double maxlearn = Double.parseDouble(maxconversionFactorField.getText());
-					String input = inputContactFileField.getText();
-					String output = outputGSSFileField.getText();
-					double learningRate = Double.parseDouble(learningRateField.getText());
-					int maxIteration = Integer.parseInt(maxIterationField.getText());
-					String inputdata_type = Input.inputtype_Tuple;
-					if (maxIteration > 10000){
-						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!, Maximum is 10000");
-						maxIterationField.setText("5000");
-						return;
-					}
-					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
-						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !");						
+				public void actionPerformed(ActionEvent e) {
+				
+					int maxIteration = Integer.parseInt(maxIterationField.getText().replace(",", ""));
+					if (maxIteration > 1e6){
+						JOptionPane.showMessageDialog(null, "This is going to take a long time, please reset it!");
+						maxIterationField.setText("2000");
 						return;
 					}
 					
-					if (maxlearn < minlearn) {
-						JOptionPane.showMessageDialog(null, "Maximum conversion factor cannot be less than minimum!");
-						maxconversionFactorField.setText("2.0");
-						return;
-					}
+					double conversion = 0.0;
+					double minConversion = 0.1, maxConversion = 2.0;
+					if (conversionFactorField.getText().length() > 0){
+						
+						if (!conversionFactorField.getText().contains("-")){
 							
-					if (minlearn < 0.1 || minlearn > 2 || maxlearn < 0.1 || maxlearn > 2) {
-						JOptionPane.showMessageDialog(null, "The minimum or maximum conversion factor is out of range for this algorithm");
-						JOptionPane.showMessageDialog(null, "Value Reset done, Min = 0.1 and Max = 2.0");
-						minconversionFactorField.setText("0.1");
-						maxconversionFactorField.setText("2.0");
+							try{
+								conversion = Double.parseDouble(conversionFactorField.getText().replace(",", ""));
+							}catch(Exception ex){
+								JOptionPane.showMessageDialog(null, "Please put a number!");
+								conversionFactorField.setText("0.5");
+								return;
+							}
+							
+							if (conversion < 0.1 || conversion > 2.0){
+								JOptionPane.showMessageDialog(null, "Please reconsider this conversion factor, it seems unrealistic!");
+								conversionFactorField.setText("0.5");
+								return;
+							}
+							
+						}else{
+							String[] st = conversionFactorField.getText().split("[-\\s+]+");
+							if (st.length != 2){
+								JOptionPane.showMessageDialog(null, "Please specify the range with this format: 0.5 - 1.0");
+								conversionFactorField.setText("0.5 - 1.0");
+								return;
+							}
+							
+							try{
+								minConversion = Double.parseDouble(st[0]);
+								maxConversion = Double.parseDouble(st[1]);
+							}catch(Exception ex){
+								JOptionPane.showMessageDialog(null, "Please put numbers in the conversion factor range!");
+								conversionFactorField.setText("0.5 - 1.0");
+								return;
+							}
+						}
+					}
+					
+					//regulate the value for converison factor
+					if (maxConversion > 2) {
+						maxConversion = 2.0;
+						JOptionPane.showMessageDialog(null, "For this method, the Maximum Converion factor = 2!");
+						conversionFactorField.setText("0.5 - 2.0");
 						return;
 					}
-										
 					
-					if (learningRate > 1) {
-						JOptionPane.showMessageDialog(null, "The learning Range is out of range for this algorithm. For this algorithm, learning Rate cannot be greater than 1");
-						JOptionPane.showMessageDialog(null, "Value Reset done, Conversion factor = 1");
-						learningRateField.setText("1");
+					
+					if (!CommonFunctions.isFile(inputContactFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify a contact file as input");
+						return;
+					}
+					if (outputGSSFileField.getText().length() == 0 || !CommonFunctions.isFolder(outputGSSFileField.getText())){
+						JOptionPane.showMessageDialog(null, "Please specify an output folder");
 						return;
 					}
 					
-					if (isMatrix.isSelected()){
-						inputdata_type = Input.inputtype_Matrix; // 1						
-					} 
+					if (isMultipleChrom.isSelected()){
+						String st = chromLengthField.getText();
+						for(int i = 0 ; i < st.length(); i++){
+							if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') {
+								JOptionPane.showMessageDialog(null, "Chromosome lengths field should contain numbers and/or , only! please correct it");
+								return;
+							};
+						}					
+					}
+					
+				
+					
 					
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
-		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());		        	
-		        	viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minconversionFactorField.getText());
-		        	viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, minconversionFactorField.getText());
-		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText());
-		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText());
-		        	viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
-		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
-		        	if (clusterTAD.isSelected()) viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxconversionFactorField.getText());
+		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());
 		        	
+		        	if (conversion > 0){
+		        		viewer.setStringProperty(Constants.CONVERSIONFACTOR, conversion + "");
+		        		viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, "");
+		        		viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, "");
+		        	}else{
+		        		viewer.setStringProperty(Constants.CONVERSIONFACTOR, "");
+		        		viewer.setStringProperty(Constants.MINCONVERSIONFACTOR, minConversion + "");
+		        		viewer.setStringProperty(Constants.MAXCONVERSIONFACTOR, maxConversion + "");
+		        	}
 		        	
+		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
+		        	
+		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	else {
+		        		if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
+		        		else if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	}
+		        	
+		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
+		        	
+		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        	else viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        	
+		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	
 		        	script = "struct_3DMax";
 			    	viewer.script(script);	 
-			    	
-			    	
 			    	
 				}
 			});
@@ -4142,15 +4175,21 @@ public void showStatus(String message) {
 				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Input.stoprunning = true;
-				
+					
+					// set stop running to true					
+					if (viewer.getInput3DModeller_3DMax() != null){						
+						viewer.getInput3DModeller_3DMax().setStopRunning(true);
+					}
+					
 				}
 			});
 	        
-	  }
+	        
+	        
+	            
+	    }
   }
-
+  
   
   /*
    *  Tosin created a new button for Visualize HEatmap
@@ -4186,6 +4225,8 @@ public void showStatus(String message) {
 	        JTextField inputContactFileField = new JTextField();      
 	        
 	        JTextField outputGSSFileField = new JTextField();
+	        
+	        JTextField chromosomeFileField = new JTextField();
 	               
 	        JButton openContactFileButton = new JButton("Browse File");
 	        
@@ -4233,7 +4274,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Input contact file:",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Input contact file ",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -4255,7 +4296,7 @@ public void showStatus(String message) {
 	        gbc.gridy = y;	  
 	        gbc.gridwidth = 1;
 	        
-	        JLabel resolution =  new JLabel("Data Resolution:",JLabel.LEFT);	
+	        JLabel resolution =  new JLabel("Data Resolution ",JLabel.LEFT);	
 	        resolution.setVisible(false);
 	        panel.add(resolution, gbc);	          
 	        
@@ -4288,7 +4329,7 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	 
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Output folder:",JLabel.LEFT), gbc);	        
+	        panel.add(new JLabel("Output folder ",JLabel.LEFT), gbc);	        
 	
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -4301,11 +4342,25 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;
 	        panel.add(outputGSSFileButton, gbc);
 	
-	            
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Chromosome (Optional)",JLabel.LEFT), gbc);	        
+	        
+	        chromosomeFileField.setText("X");
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        chromosomeFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(chromosomeFileField, gbc);
+	        
+	        
 	        
 	      ///////////////////////////////////////////////	
 			y++;
-			JCheckBox isMatrix = new JCheckBox("Input IsMatrix ?");
+			JCheckBox isMatrix = new JCheckBox("Input Is SquareMatrix ?");
 			gbc.gridx = 0;
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
@@ -4351,7 +4406,7 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame();
-	        Structure_3DMaxFrame.setSize(new Dimension(580,210));
+	        Structure_3DMaxFrame.setSize(new Dimension(580,300));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
@@ -4377,8 +4432,8 @@ public void showStatus(String message) {
 					}
 					
 					if (IFResolutionField.isVisible()) {
-						if ( resolution > 100000 ) {
-							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Minimum Resolution = 100KB ","Alert!",JOptionPane.ERROR_MESSAGE);
+						if ( resolution > 250000 ) {
+							JOptionPane.showMessageDialog(null, "For TAD identification, dataset is required to have resolution in the range [1KB - 250KB] ","Alert!",JOptionPane.ERROR_MESSAGE);
 							IFResolutionField.setText("50000");
 							return;
 						}
@@ -4403,8 +4458,8 @@ public void showStatus(String message) {
 						viewer.setStringProperty(Constants.STARTLOCATION,  startlocation);
 						
 						resolution = Integer.parseInt(res);
-						if ( resolution > 100000 ) {
-							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Minimum Resolution = 100KB. Get new datasets ","Alert!",JOptionPane.ERROR_MESSAGE);							
+						if ( resolution > 250000 ) {
+							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Maximum Resolution = 250KB. Get new datasets ","Alert!",JOptionPane.ERROR_MESSAGE);							
 							return;
 						}
 					}
@@ -4413,6 +4468,7 @@ public void showStatus(String message) {
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
 		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());			        	
 		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
+		        	viewer.setStringProperty(Constants.CHROMOSOME, chromosomeFileField.getText());
 		        	
 		        if (!clusterTAD.isSelected()) {
 		        		JOptionPane.showMessageDialog(null, "Please select atleast one algorithm");

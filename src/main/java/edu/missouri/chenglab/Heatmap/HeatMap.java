@@ -102,7 +102,7 @@ public class HeatMap extends JPanel
     GraphicsOnly app;
     public BufferedImage Image;
     
-   
+    
     
     /**
      * @param data The data to display, must be a complete array (non-ragged)

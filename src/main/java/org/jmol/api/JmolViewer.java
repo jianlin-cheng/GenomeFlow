@@ -42,6 +42,8 @@ import org.jmol.util.BoxInfo;
 import org.jmol.viewer.Viewer;
 
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
+import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
+
 
 /**
  * This is the high-level API for the JmolViewer for simple access.
@@ -644,6 +646,12 @@ abstract public class JmolViewer {
 	abstract public void setInput3DModeller(InputParameters input3dModeller);
 	abstract public void displayMessage(String[] msg);
 	//end
+	//Tosin added
+	
+	abstract public InputParameters_3DMax getInput3DModeller_3DMax();	
+	abstract public void setInput3DModeller_3DMax(InputParameters_3DMax input3dModeller);
+	//end
+	
 
 }
 
