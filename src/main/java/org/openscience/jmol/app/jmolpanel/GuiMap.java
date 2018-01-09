@@ -252,12 +252,15 @@ public class GuiMap {
     labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
     labels.put("Annotate", "Model Annotation");
     labels.put("AnnotateTip", "Click to add annotation to the 3D model");
-    labels.put("ExtractHiC", "Extract HiC");
-    labels.put("ExtractHiCTip", "Extract HiC to sparse matrix format");
-    labels.put("ConvertToHiC", "Convert To HiC");
-    labels.put("ConvertToHiCTip", "Convert aligned reads to HiC format");
-    labels.put("NormalizeHiC", "Normalize HiC Data");
-    labels.put("NormalizeHiCTip", "Normalize HiC data");
+    labels.put("ExtractHiC", "Extract Contact Matrices");
+    labels.put("ExtractHiCTip", "Extract sparse matrices");
+    labels.put("ConvertToHiC", "Convert to HiC Format File");
+    labels.put("ConvertToHiCTip", "Convert aligned reads to HiC format files");
+    labels.put("NormalizeHiC", "Normalize Contact Matrices");
+    labels.put("NormalizeHiCTip", "Normalize sparse contact matrices");
+    labels.put("Compare", "Compare Models");
+    labels.put("CompareTip", "Compare Models");
+    
     //end
 
     //Tosin added
@@ -265,7 +268,7 @@ public class GuiMap {
     labels.put("Find-TAD", GT._("Identify TAD"));
     labels.put("Find-TADTip", GT._("Click to Visualize TAD for Input Dataset"));
     
-    labels.put("3DMaxTip", GT._("Click to Visualize reconstructed 3D chromosome/genome model"));
+    //labels.put("3DMaxTip", GT._("Click to Visualize reconstructed 3D chromosome/genome model"));
     
   //Tosin added
     labels.put("3DMax", GT._("3DMax-3D Modeller"));

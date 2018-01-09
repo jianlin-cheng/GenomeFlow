@@ -12,12 +12,16 @@ public interface Constants {
 	String CHROMOSOMELEN = "chromLength";
 	String LEARNINGRATE = "learningRate";
 	
+	String GENOMICLOCATIONFILE = "genomicLocationFile";
+	
 	String OUTPUTLOOPFILE = "outputLoopFile";
 	
 	String TRACKNAME = "trackName";
 	String TRACKFILENAME = "trackFileName";
 	String ANNOTATIONCOLOR = "annotationColor";
 	
+	String PROBECOORDINATEFILE = "probeCoordinateFile";
+		
 	String ISCHOOSINGFOLDER = "isChoosingFolder";
 
 	String CHROMOSOME = "chromsome";
@@ -28,6 +32,11 @@ public interface Constants {
 	String DEFAULTCOLOR = " structure";
 	String AVAILABLEGENOMEIDS = "hg19,hg18,hg38,mm9,mm10,dMel,anasPlat1,bTaurus3,canFam3,equCab2,galGal4,Pf3D7,sacCer3,sCerS288c,susScr3,TAIR10";
 
+	String INPUTFILE1 = "INPUTFILE1";
+	String INPUTFILE2 = "INPUTFILE2";
+	
+	double AVG_DIST_MODEL = 0.01;
+	
 	//Tosin addded
 	String MINCONVERSIONFACTOR = "minconversionFactor";
 	String MAXCONVERSIONFACTOR = "maxconversionFactor";
@@ -35,6 +44,6 @@ public interface Constants {
 	String ISMATRIX = "1";
 	String STARTLOCATION = "startinggenomelocation";
 	
-
+	
 
 }

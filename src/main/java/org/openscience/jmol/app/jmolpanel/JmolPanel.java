@@ -133,13 +133,20 @@ import org.openscience.jmol.app.jsonkiosk.KioskFrame;
 import org.openscience.jmol.app.surfacetool.SurfaceTool;
 import org.openscience.jmol.app.webexport.WebExport;
 
+import com.icl.saxon.exslt.Common;
+
 import edu.missouri.chenglab.ClusterTAD.Parameter;
 import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 import edu.missouri.chenglab.gmol.Constants;
+import edu.missouri.chenglab.gmol.valueobjects.ComparisonObject;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import edu.missouri.chenglab.hicdata.ReadHiCData;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
+
 import edu.missouri.chenglab.Structure3DMax.utility.Input;
+
+import edu.missouri.chenglab.swingutilities.ComparisonWorker;
+
 import edu.missouri.chenglab.swingutilities.ConvertToHiCWorker;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
 import edu.missouri.chenglab.swingutilities.NormalizeHiCWorker;
@@ -204,6 +211,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private ExtractHiCAction extractHiCAction = new ExtractHiCAction(); //Tuan added
   private ConvertToHiCAction convertToHiCAction = new ConvertToHiCAction(); //Tuan added
   private NormalizeHiCAction normalizeHiCAction = new NormalizeHiCAction(); //Tuan added
+  private CompareModelsAction compareModels = new CompareModelsAction();//
   
   private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
   private HeatmapVisualizeAction heatmap2DvisualizeAction = new HeatmapVisualizeAction(); //Tosin added
@@ -250,6 +258,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
 
   private static final String converToHiC = "ConvertToHiC";//Tuan added
   private static final String normalizeHiC = "NormalizeHiC";//Tuan added
+  private static final String compareModel = "Compare";
 
   private static final String structure3DMAXAction = "3DMax";//Tosin added
   private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
@@ -1145,9 +1154,9 @@ public void showStatus(String message) {
       new ScriptWindowAction(), new ScriptEditorAction(),
       new AtomSetChooserAction(), viewMeasurementTableAction, 
       new GaussianAction(), new ResizeAction(), surfaceToolAction, new scaleDownAction(), new scaleUpAction(), 
-      new searchGenomeSequenceTableAction(),  
+      new searchGenomeSequenceTableAction(),  ////last four added -hcf,
 
-      extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction,////last four added -hcf, Tuan added pdb2GSSAction
+      extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction, compareModels,// Tuan added
       structure3DMaxAction, heatmap2DvisualizeAction,findTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
 
   ;
@@ -1387,7 +1396,248 @@ public void showStatus(String message) {
   
   //added end -hcf
 
+ 
+  /**
+   * 
+   * @author Tuan
+   *
+   */
+  class CompareModelsAction extends NewAction{
+	  
+
+	  
+	  CompareModelsAction(){
+		  super(compareModel);
+	  }
+	  
+	  @Override
+	  public void actionPerformed(ActionEvent e) {
+		  
+		  GridBagConstraints gbc = new GridBagConstraints();
+		  gbc.insets = new Insets(5, 5, 5, 5);
+		
+		  JPanel panel = new JPanel(){
+			  @Override
+			  public Dimension getPreferredSize() {
+				  return new Dimension(800, 300);
+			  }	       
+		  };
+		  
+		  panel.setLayout(new GridBagLayout());  
+		  
+		  int y = 0;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Model File 1:"), gbc);
+		  
+		  JTextField inputField1 = new JTextField();
+		  inputField1.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField1, gbc);
+		  
+		  JButton browserFile1Button = new JButton("Browse file");
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFile1Button, gbc);
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.anchor = GridBagConstraints.WEST;
+		  panel.add(new JLabel("Model File 2:"), gbc);
+		  
+		  JTextField inputField2 = new JTextField();
+		  inputField2.setPreferredSize(new Dimension(300,20));
+		  gbc.gridx = 1;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(inputField2, gbc);
+		  
+		  JButton browserFile2Button = new JButton("Browse file");		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 1;
+		  panel.add(browserFile2Button, gbc);
+		  		  
+		  
+		  browserFile1Button.addActionListener(event -> {				
+				
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				if (fileName == null) return;
+				
+				inputField1.setText(fileName);
+				
+				if (!fileName.endsWith(".gss")){
+					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
+					return;
+				}
+					
+		  });
+		  
+		  
+		  browserFile2Button.addActionListener(event -> {				
+				
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				if (fileName == null) return;
+				
+				inputField2.setText(fileName);
+				
+				if (!fileName.endsWith(".gss")){
+					JOptionPane.showMessageDialog(null, "Please specify input file 2!");
+					return;
+				}
+					
+		  });
+		  
+		  
+		  
+		  y++;
+		  gbc.gridx = 0;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 4;
+		  gbc.anchor = GridBagConstraints.CENTER;
+		  JButton compareButton = new JButton("Compare");
+		  panel.add(compareButton, gbc);
+		  
+
+		  
+		  compareButton.addActionListener(new ActionListener() {
+
+		  @Override
+		  public void actionPerformed(ActionEvent e) {
+					  
+				if (inputField1.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
+					return;
+				}
+				if (inputField2.getText().length() == 0){
+					JOptionPane.showMessageDialog(null, "Please specify output file 2!");
+					return;
+				}
+
+				String inputFile1 = inputField1.getText();
+				String inputFile2 = inputField2.getText();
+				
+				
+
+				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+				final JDialog dialog = new JDialog(win, "Comparing the 2 models ... please wait !", ModalityType.APPLICATION_MODAL);
+				dialog.setPreferredSize(new Dimension(300,80));
+				
+				
+				ComparisonWorker comparisonWorkder = new ComparisonWorker(inputFile1, inputFile2);
+				  
+				comparisonWorkder.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					@Override
+					public void propertyChange(PropertyChangeEvent evt) {
+						switch (evt.getPropertyName()){
+						case "progress":
+							break;
+						case "state":
+							switch ((StateValue)evt.getNewValue()){
+							case DONE:
+								
+								win.setEnabled(true);
+								dialog.dispose();
+								
+								try {
+									ComparisonObject co = comparisonWorkder.get();
+																		
+									String msg = co.getMsg().length() > 0 ? co.getMsg() : "Comparison done! check the main screen for result";
+									JOptionPane.showMessageDialog(null, msg);
+									
+									if (co.getModel().length() > 0){
+										viewer.loadNewModel(co.getModel(), new String[]{String.format("RMSE: %.8f",co.getRmse()), String.format("Spearman correlation: %.4f",co.getCorrelationScore())});
+										try {
+											CommonFunctions.delete_file(co.getModel());
+										} catch (Exception e) {											
+											e.printStackTrace();
+										}
+										viewer.evalString(co.getColorCommand());
+										
+									}
+									
+								} catch (InterruptedException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+								} catch (ExecutionException e) {									
+									e.printStackTrace();
+									JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+								}
+								
+								
+								break;
+							case PENDING:								
+								break;
+							case STARTED:
+								dialog.setVisible(true);
+								win.setEnabled(false);								
+								break;
+							default:								
+								break;
+							}
+						}
+						
+					}
+				  });				  
+				  
+				comparisonWorkder.execute();
+				  
+				JProgressBar progressBar = new JProgressBar();
+			    progressBar.setIndeterminate(true);
+			    JPanel panel = new JPanel(new BorderLayout());
+			      
+			    panel.add(progressBar, BorderLayout.CENTER);
+			    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			    dialog.add(panel);
+			    dialog.pack();
+			    dialog.setLocationRelativeTo(win);
+			    dialog.setVisible(true);
+
+			    
+
+//				viewer.setStringProperty(Constants.INPUTFILE1, inputField1.getText());
+//				viewer.setStringProperty(Constants.INPUTFILE2, inputField2.getText());
+//		    	
+//	        	script = "compareModels";        	
+//		    	viewer.script(script);
+				
+		  }
+		}
+		);
+		  
+		  
+		  
+		  JScrollPane scrollpane = new JScrollPane(panel);
+		  scrollpane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		  scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		  
+		  Frame subFrame = new JFrame();
+		  subFrame.setSize(new Dimension(800, 400));
+		  subFrame.setLocation(400, 400);
+		
+		  subFrame.add(scrollpane, BorderLayout.CENTER);
+		  subFrame.setVisible(true);
+		  subFrame.setTitle("Comparing 3D-models in GSS format");
+	  }
+  }
   
+  
+  /**
+   * 
+   * @author Tuan
+   *
+   */
   class NormalizeHiCAction extends NewAction{
 	  
 	  //Pre dump = new Dump();
@@ -1987,7 +2237,7 @@ public void showStatus(String message) {
 		        chromosomes.set(0, new Chromosome(0, HiCFileTools.ALL_CHROMOSOME, (int) (genomeLength / 1000)));
 		        
 		        Preprocessor preprocessor = new Preprocessor(new File(outputFile), genomeId, chromosomes);
-		        preprocessor.setIncludedChromosomes(includedChromosomes);
+		        preprocessor.setIncludedChromosomes(includedChromosomes.size() > 0 ? includedChromosomes : null);
 		        preprocessor.setCountThreshold(countThreshold);
 		        preprocessor.setMapqThreshold(mapqThreshold);		        
 		        preprocessor.setFragmentFile(restrictionSiteFile);
@@ -2492,7 +2742,12 @@ public void showStatus(String message) {
 				
 				
 				if (outputFileField.getText().length() == 0) {
-					JOptionPane.showMessageDialog(null, "Please Select Output File!");
+					JOptionPane.showMessageDialog(null, "Please specify an output file!");
+					return;
+				}
+				
+				if (CommonFunctions.isFolder(outputFileField.getText())) {
+					JOptionPane.showMessageDialog(null, "Please specify a file!");
 					return;
 				}
 				
@@ -2683,13 +2938,17 @@ public void showStatus(String message) {
 		  	Map<String, Boolean> trackStatusMap = new HashMap<String, Boolean>();
 		  	Map<String, Boolean> trackDomainMap = new HashMap<String, Boolean>();
 		  	
+		  	Map<String, String> trackFileNameAndProbeCoordinateMap = new HashMap<String, String>();
+		  	
+		  	
+		  	
 	    	GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
 	        
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(650, 350);
+	                return new Dimension(750, 350);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -2700,7 +2959,7 @@ public void showStatus(String message) {
 	        scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	        
 	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(700, 400));
+	        subFrame.setSize(new Dimension(800, 400));
 	        subFrame.setLocation(400, 400);
 	        subFrame.setTitle("Annotate 3D Models");
 	        
@@ -2714,6 +2973,22 @@ public void showStatus(String message) {
 		  	
 	        //colorDisplay.setEnabled(false);
 		  
+		  	JLabel probeGeneCoordinateLabel = new JLabel("Probe/Gene Coordinate File");
+		  	JTextField probeGeneCoordinateField = new JTextField("");
+		  	JButton probeGeneCoordinateButton = new JButton("Browse File");
+		  	
+		  	probeGeneCoordinateButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					if (fileName == null) return;				
+					probeGeneCoordinateField.setText(fileName);					
+				}
+			});
+		  	
+		  	
 	    	JTextField trackNameField = new JTextField();
 	    	
 	    	
@@ -2747,7 +3022,18 @@ public void showStatus(String message) {
 						trackNameField.setText(name);
 					//}
 					
-					trackFileField.setText(fileName);					
+					trackFileField.setText(fileName);	
+					
+					if (fileName.endsWith(".gct")){
+						probeGeneCoordinateLabel.setVisible(true);
+						probeGeneCoordinateField.setVisible(true);
+						probeGeneCoordinateButton.setVisible(true);						
+					}else{
+						probeGeneCoordinateLabel.setVisible(false);
+						probeGeneCoordinateField.setVisible(false);
+						probeGeneCoordinateButton.setVisible(false);
+					}
+					
 				}
 			});
 	    	
@@ -2759,7 +3045,8 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
+							|| viewer.getModelSetName().equals("GenomeFlow") ){
 			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
 			    		return;
 			    	}
@@ -2776,6 +3063,10 @@ public void showStatus(String message) {
 						return;
 					}
 					
+					if (trackFileField.getText().endsWith(".gct") && probeGeneCoordinateField.getText().trim().length() == 0) {
+						JOptionPane.showMessageDialog(null, "Please specify a file containing genomic coordinates of probes/genes in the GCT file!");
+						return;
+					}
 					
 					if (isDomain.isSelected()){
 						if (isAlreadyDisplayedDomainTrack(trackStatusMap, trackDomainMap)){
@@ -2800,6 +3091,13 @@ public void showStatus(String message) {
 															
 					viewer.setStringProperty(Constants.TRACKNAME, trackNameField.getText());					
 			    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFileField.getText());
+			    	
+			    	viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeGeneCoordinateField.getText());
+			    	
+			    	//gene expression file
+			    	if (trackFileField.getText().endsWith(".gct")){
+			    		trackFileNameAndProbeCoordinateMap.put(trackNameField.getText(), probeGeneCoordinateField.getText());
+			    	}
 			    	
 			    	if (!isDomain.isSelected()) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 			    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -2864,6 +3162,11 @@ public void showStatus(String message) {
 								viewer.setStringProperty(Constants.TRACKNAME, track);
 						    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
 						    	
+						    	if (trackFile.endsWith(".gct")){
+						    		String probeCoordinateFile = trackFileNameAndProbeCoordinateMap.get(track);
+						    		viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeCoordinateFile);
+						    	}else viewer.setStringProperty(Constants.PROBECOORDINATEFILE, "");
+						    	
 						    	if (!trackDomainMap.get(track)) viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 						    	else {
 						    		viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -2889,6 +3192,11 @@ public void showStatus(String message) {
 										
 										viewer.setStringProperty(Constants.TRACKNAME, trackName);
 								    	viewer.setStringProperty(Constants.TRACKFILENAME, trackFile);
+								    	
+								    	if (trackFile.endsWith(".gct")){
+								    		String probeCoordinateFile = trackFileNameAndProbeCoordinateMap.get(trackName);
+								    		viewer.setStringProperty(Constants.PROBECOORDINATEFILE, probeCoordinateFile);
+								    	}else viewer.setStringProperty(Constants.PROBECOORDINATEFILE, "");
 								    	
 								    	if (!trackDomainMap.get(trackName))  viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "[" + color.getRed() + "," + color.getGreen() + "," + color.getBlue() + "]");
 								    	else viewer.setStringProperty(Constants.ANNOTATIONCOLOR, "");
@@ -2966,6 +3274,28 @@ public void showStatus(String message) {
 	        trackNameField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(trackNameField, gbc);
 	        
+	        //
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(probeGeneCoordinateLabel, gbc);
+	        probeGeneCoordinateLabel.setVisible(false);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        probeGeneCoordinateField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(probeGeneCoordinateField, gbc);
+	        probeGeneCoordinateField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	        
+	        panel.add(probeGeneCoordinateButton, gbc);
+	        probeGeneCoordinateButton.setVisible(false);	        
+	        //
+	        
 	        
 	        y++;
 	        gbc.gridx = 1;
@@ -3006,8 +3336,8 @@ public void showStatus(String message) {
 	        y++;
 	        gbc.gridx = 0;
 	        gbc.gridy = y;
-	        gbc.gridwidth = 4;
-	        panel.add(new JLabel("------------------------------------------------ Highlighted tracks ------------------------------------------------"), gbc);
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("------------------------- Highlighted tracks -------------------------"), gbc);
 	                
 	        
 	        subFrame.add(scrollpane, BorderLayout.CENTER);
@@ -3213,7 +3543,9 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					
-			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")){
+			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
+			    			|| viewer.getModelSetName().equals("GenomeFlow") ){
+			    		
 			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
 			    		return;
 			    	}
@@ -3331,8 +3663,6 @@ public void showStatus(String message) {
 				}
 			});
 	        
-	        	        	        
-	        
 	        GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
 	        
@@ -3396,7 +3726,7 @@ public void showStatus(String message) {
 	        
 			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
 	        JTextField conversionFactorField = new JTextField();
-			conversionFactorField.setText("1.0");
+			conversionFactorField.setText("0.6");
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3444,7 +3774,7 @@ public void showStatus(String message) {
 	        
 	        //JTextField maxIterationField = new JTextField("1000");
 	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
-	        maxIterationField.setText("1000");
+	        maxIterationField.setText("2000");
 	        
 	        	        
 	        gbc.gridx = 1;
@@ -3472,13 +3802,19 @@ public void showStatus(String message) {
 				
 				@Override
 				public boolean verify(JComponent input) {
-					Set<String> validGenomeIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
+					Set<String> validChromIDs = new HashSet<String>(Arrays.asList("1", "2", "3", "4", "5", "6", "7", "8","9","10","11","12","13","14","15","16","17",
 							"18","19","20","21","22","23","X","Y"));
 					
 					JTextField field = (JTextField) input;
-					if (field.getText().length() == 0 || validGenomeIDs.contains(field.getText())) return true;
+					if (field.getText().length() == 0 || validChromIDs.contains(field.getText())) return true;
 					
-					return false;
+					String text = field.getText();
+					String[] st = text.split("[,\\s]+");
+					for (int i = 0; i < st.length; i++){
+						if (!validChromIDs.contains(st[i])) return false;
+					}
+					
+					return true;
 				}
 			});
 
@@ -3517,6 +3853,27 @@ public void showStatus(String message) {
 				}
 			});
 	        
+	        
+	        
+	        ///////////
+	        
+	        JLabel chromLenLabel = new JLabel("Length of Chromosomes");
+			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
+			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			
+	        JLabel genomicLocationLabel = new JLabel("Genomic Location File");
+	        JTextField genomicLocationField = new JTextField();
+	        JButton genomicLocationButton = new JButton("Browse File");
+	        genomicLocationButton.addActionListener(a -> {
+	        
+				String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+				        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+				
+				genomicLocationField.setText(fileName);
+				chromLengthField.setText("");
+	        });
+	        JLabel orLabel = new JLabel("Or");
 	        //////////
 			
 			y++;
@@ -3526,9 +3883,9 @@ public void showStatus(String message) {
 			gbc.gridwidth = 2;
 			panel.add(isMultipleChrom, gbc);
 			
-			JLabel chromLenLabel = new JLabel("Length of Chromosomes");
-			JTextField chromLengthField = new JTextField("229,241,197,190,179,169,157,145,124,135,133,132,98,89,83,81,79,77,57,62,36,36,153,29");
-			JLabel chromLenNoteLabel = new JLabel("Numbers separated by ,");
+			
+			
+			
 			
 			isMultipleChrom.addChangeListener(new ChangeListener() {
 				
@@ -3538,10 +3895,23 @@ public void showStatus(String message) {
 						chromLenLabel.setVisible(true);
 						chromLengthField.setVisible(true);
 						chromLenNoteLabel.setVisible(true);
+						
+						genomicLocationLabel.setVisible(true);
+						genomicLocationField.setVisible(true);
+						genomicLocationButton.setVisible(true);
+						
+						orLabel.setVisible(true);
+						
 					}else{
 						chromLenLabel.setVisible(false);
 						chromLengthField.setVisible(false);
 						chromLenNoteLabel.setVisible(false);
+						
+						genomicLocationLabel.setVisible(false);
+						genomicLocationField.setVisible(false);
+						genomicLocationButton.setVisible(false);
+						
+						orLabel.setVisible(false);
 					}
 					
 				}
@@ -3574,7 +3944,43 @@ public void showStatus(String message) {
 	        chromLenNoteLabel.setVisible(false);
 	        panel.add(chromLenNoteLabel, gbc);		 
 	        
-
+	        //////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        
+	        
+	        panel.add(orLabel, gbc);
+	        orLabel.setVisible(false);
+	        
+	        ///////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationLabel.setVisible(false);
+	        panel.add(genomicLocationLabel, gbc);	
+	        	        
+	        genomicLocationField.setPreferredSize(new Dimension(300, 21));
+	        
+	       
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 2;
+	        panel.add(genomicLocationField, gbc);
+	        
+	        genomicLocationField.setVisible(false);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        genomicLocationButton.setVisible(false);
+	        panel.add(genomicLocationButton, gbc);	
+	        
 	        
 	        ///////////////////////////////////////////////
 	        y++;
@@ -3596,12 +4002,12 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame lorDGFrame = new JFrame();
-	        lorDGFrame.setSize(new Dimension(650, 400));
+	        lorDGFrame.setSize(new Dimension(700, 450));
 	        lorDGFrame.setLocation(400, 400);
 	        
 	        lorDGFrame.add(panel);
 	        lorDGFrame.setVisible(true);
-	        lorDGFrame.setTitle("Reconstruct 3D Models from Contact Matrices");
+	        lorDGFrame.setTitle("LorDG - Reconstruction of 3D Models from Contact Matrices");
 	        
 	        
 	        
@@ -3665,6 +4071,7 @@ public void showStatus(String message) {
 					}
 					
 					if (isMultipleChrom.isSelected()){
+						
 						String st = chromLengthField.getText();
 						for(int i = 0 ; i < st.length(); i++){
 							if ((st.charAt(i) < '0' || st.charAt(i) > '9') && st.charAt(i) != ',') {
@@ -3672,6 +4079,8 @@ public void showStatus(String message) {
 								return;
 							};
 						}					
+						
+						
 					}
 					
 					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
@@ -3689,16 +4098,28 @@ public void showStatus(String message) {
 		        	
 		        	viewer.setStringProperty(Constants.MAXITERATION, maxIterationField.getText().replace(",", ""));
 		        	
-		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOME, "1");
-		        	else {
-		        		if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText());
-		        		else if (chromosomeField.getText().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, "1");
-		        	}
+		        	
+		        	if (chromosomeField.getText().trim().length() != 0) viewer.setStringProperty(Constants.CHROMOSOME, chromosomeField.getText().trim());
+		        	else viewer.setStringProperty(Constants.CHROMOSOME, "1");
+		        	
 		        	
 		        	viewer.setStringProperty(Constants.GENOMEID, genomeField.getText());
 		        	
-		        	if (isMultipleChrom.isSelected()) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
-		        	else viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        	if (isMultipleChrom.isSelected()) {
+		        		if (genomicLocationField.getText().length() > 0) {
+		        			
+		        			viewer.setStringProperty(Constants.GENOMICLOCATIONFILE, genomicLocationField.getText());
+		        			
+		        		}else if (chromLengthField.getText().length() > 0) viewer.setStringProperty(Constants.CHROMOSOMELEN, chromLengthField.getText());
+		        		else {
+		        			JOptionPane.showMessageDialog(null, "Please specify a genomic location file or lengths of chromosomes!");
+						return;
+		        		}
+		        		
+		        	}else {
+		        		viewer.setStringProperty(Constants.CHROMOSOMELEN, "");
+		        		viewer.setStringProperty(Constants.GENOMICLOCATIONFILE,"");
+		        	}
 		        	
 		        	viewer.setStringProperty(Constants.LEARNINGRATE, learningRateField.getText().replace(",", ""));
 		        	
@@ -3718,11 +4139,7 @@ public void showStatus(String message) {
 					}
 					
 				}
-			});
-	        
-	        
-	        
-	            
+			});	        	            
 	    }
   }
 

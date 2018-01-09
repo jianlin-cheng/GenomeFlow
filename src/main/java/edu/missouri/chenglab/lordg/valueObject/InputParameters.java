@@ -1,6 +1,7 @@
 package edu.missouri.chenglab.lordg.valueObject;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jmol.api.JmolViewer;
 
@@ -34,6 +35,8 @@ public class InputParameters {
 	
 	//to map ID to genomic ID in 3D model
 	private List<Integer> lstPos = null;
+	
+	private Map<Integer, GenomicLocation> idToGenomLocation;
 	
 	private boolean isStopRunning = false;
 	
@@ -78,10 +81,25 @@ public class InputParameters {
 		inputParameter.setMinConversionFactor(minConversionFactor);
 		inputParameter.setMaxConversionFactor(maxConversionFactor);
 		
+		inputParameter.setIdToGenomLocation(idToGenomLocation);
+		
 		return inputParameter;
 	}
 	
 	
+	
+	public Map<Integer, GenomicLocation> getIdToGenomLocation() {
+		return idToGenomLocation;
+	}
+
+
+
+	public void setIdToGenomLocation(Map<Integer, GenomicLocation> idToGenomLocation) {
+		this.idToGenomLocation = idToGenomLocation;
+	}
+
+
+
 	public double getMinConversionFactor() {
 		return minConversionFactor;
 	}

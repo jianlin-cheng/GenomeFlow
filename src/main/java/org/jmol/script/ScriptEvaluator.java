@@ -118,14 +118,19 @@ import org.jmol.viewer.StateManager;
 import org.jmol.viewer.Viewer;
 import org.jmol.viewer.Viewer.ACCESS;
 
+import edu.missouri.chenglab.ClusterTAD.ClusterTAD;
+import edu.missouri.chenglab.Heatmap.HeatMapDemo;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.annotation.Annotator;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
+import edu.missouri.chenglab.gmol.modelcomparison.Comparison;
 import edu.missouri.chenglab.loopdetection.Detector;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.noisy_mds.StructureGeneratorLorentz_HierarchicalModeling;
 import edu.missouri.chenglab.lordg.utility.Helper;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
+
 //for gene sequence
 import uk.ac.roslin.ensembl.config.DBConnection.DataSource;
 import uk.ac.roslin.ensembl.dao.database.DBRegistry;
@@ -134,12 +139,14 @@ import uk.ac.roslin.ensembl.exception.ConfigurationException;
 import uk.ac.roslin.ensembl.exception.DAOException;
 import uk.ac.roslin.ensembl.model.core.Chromosome;
 
+
 //Tosin
 
 import edu.missouri.chenglab.Heatmap.HeatMapDemo;
 import edu.missouri.chenglab.Structure3DMax.algorithm.StructureGenerator3DMax;
 import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
 import edu.missouri.chenglab.ClusterTAD.*;
+
 
 public class ScriptEvaluator {
 
@@ -5928,6 +5935,9 @@ public class ScriptEvaluator {
 				case Token.annotate:
 					annotate();
 					break;
+					
+
+					
 				//end
 				// Tosin added for 3D genome functions	
 				case Token.struct_3DMax:
@@ -5966,16 +5976,23 @@ public class ScriptEvaluator {
 			String trackFileName = (String) viewer.getParameter(Constants.TRACKFILENAME);
 			String color = (String) viewer.getParameter(Constants.ANNOTATIONCOLOR);
 			
-			if (color.length() > 0){
-				annotator.annotate(trackName, trackFileName, color, 15, (Viewer)viewer);
+			String probeGeneFile = (String) viewer.getParameter(Constants.PROBECOORDINATEFILE);
+			
+			if (trackFileName.endsWith(".gct") && probeGeneFile.length() > 0){
+				annotator.annotateGeneExpression(trackName, trackFileName, probeGeneFile, color, 15, viewer);
+			}else if (color.length() > 0){
+				annotator.annotate(trackName, trackFileName, color, 15, viewer);
 			}else{
 				annotator.annotateDomain(trackName, trackFileName, viewer);
 			}
 			
 		}catch(Exception ex){
+			viewer.displayMessage(new String[]{ex.getMessage()});
 			ex.printStackTrace();
 		}
 	}
+
+	
 	/**
 	 * @author Tuan
 	 * To convert a pdb format file to a gss format file
@@ -6090,6 +6107,19 @@ public class ScriptEvaluator {
 				e.printStackTrace();
 			}
 		}
+		
+		String genomicLocationFile = (String) viewer.getParameter(Constants.GENOMICLOCATIONFILE);
+		if (genomicLocationFile.length() > 0) {
+			try {
+				Map<Integer,GenomicLocation> map = helper.readGenomicLocation(genomicLocationFile);
+				inputParameter.setIdToGenomLocation(map);
+				
+			} catch (Exception e) {
+				viewer.displayMessage(new String[]{e.getMessage()});
+				e.printStackTrace();
+			}
+		}
+		
 		
 		viewer.setInput3DModeller(inputParameter);
 		

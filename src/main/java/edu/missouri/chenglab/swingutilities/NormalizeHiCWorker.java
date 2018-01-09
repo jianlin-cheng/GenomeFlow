@@ -1,11 +1,8 @@
 package edu.missouri.chenglab.swingutilities;
 
-import java.util.List;
-
 import javax.swing.SwingWorker;
 
 import edu.missouri.chenglab.hicdata.Normalization;
-import juicebox.data.Dataset;
 import juicebox.tools.utils.original.NormalizationVectorUpdater;
 
 public class NormalizeHiCWorker extends SwingWorker<String,Integer>{

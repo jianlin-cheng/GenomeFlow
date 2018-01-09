@@ -3,9 +3,13 @@ package edu.missouri.chenglab.lordg.optimization;
 import static edu.missouri.chenglab.lordg.valueObject.Constants.NEAR_ZERO;
 
 import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.stat.StatUtils;
 
 import edu.missouri.chenglab.lordg.utility.Helper;
 import edu.missouri.chenglab.lordg.valueObject.Constants;
+import edu.missouri.chenglab.lordg.valueObject.GenomicLocation;
 import edu.missouri.chenglab.lordg.valueObject.InputParameters;
 
 /**
@@ -30,7 +34,7 @@ public class GradientAscent {
 	private double[] newDirection;
 	
 	
-	private HashMap<Integer,Integer> idToChr;
+	private Map<Integer,GenomicLocation> idToChr;
 	
 	//the objective function to be optimized
 	private double objectiveFn;
@@ -93,7 +97,7 @@ public class GradientAscent {
 		initialize();
 	}
 	
-	public GradientAscent(OptimizedObject obj, double[] x,boolean ver, String tmpFol, HashMap<Integer,Integer> id2Chr){
+	public GradientAscent(OptimizedObject obj, double[] x,boolean ver, String tmpFol, Map<Integer,GenomicLocation> id2Chr){
 		this.tmpFolder = tmpFol;
 		
 		this.optimizedObject = obj;
@@ -163,6 +167,7 @@ public class GradientAscent {
 				newDirection[i] = prevDirection[i] * beta + derivatives[i];
 			}
 			
+			
 			//if the objective doesn't increase, it is like taking a step backward, accept it and 
 			//recalculate the step size
 			if (objectiveFn < oldObj){		
@@ -195,8 +200,8 @@ public class GradientAscent {
 				
 				String tmpFileGss = tmpFolder + "/iteration_" + count + ".gss";
 				String tmpFilePdb = tmpFolder + "/iteration_" + count + ".pdb";
-				helper.writeStructureGSS(tmpFileGss,variables, inputPara.getLstPos(), idToChr, inputPara.getChrom(), inputPara.getGenomeID());
-				helper.writeStructure(tmpFilePdb,variables, idToChr, "");				
+				helper.writeStructureGSS(tmpFileGss,variables, idToChr, inputPara.getChrom(), inputPara.getGenomeID());
+				//helper.writeStructure(tmpFilePdb,variables, idToChr, "");				
 				
 				if (inputPara.getViewer() != null){					
 					
@@ -262,6 +267,7 @@ public class GradientAscent {
 		double alpha = initialLearingRate * 2;
 
 		double f1,f2;
+		double directionLen = Math.sqrt(StatUtils.sumSq(newDirection));
 		
 		do{
 			alpha = 0.5 * alpha;
@@ -269,7 +275,9 @@ public class GradientAscent {
 			updateVariables(triedVariables,variables,direction,alpha);
 			
 			f1 = optimizedObject.calObjective(triedVariables);
-			f2 = currentFn + 0.5 * alpha * gradientNorm * gradientNorm;
+			//f2 = currentFn + 0.5 * alpha * gradientNorm * gradientNorm;
+			f2 = currentFn + 0.5 * alpha * directionLen * directionLen;
+			
 			
 		}while ( f1 < f2 && alpha >= NEAR_ZERO);
 		

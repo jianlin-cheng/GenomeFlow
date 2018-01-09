@@ -2178,7 +2178,7 @@ public void callExtractPDB(String fileName) {
    */
   public void displayMessage(String[] msg){
 	  
-	  if (getFullPathName() == null || getFullPathName().equals("Gmol") ){
+	  if (getFullPathName() == null || getFullPathName().equals("Gmol") || getFullPathName().equals("GenomeFlow")){
 		  int[] selectedPath = { 1, 0, 0, 0, 0 };		  	  
 		  createModelSetAndReturnError((Object)"", false, new StringBuffer(""), 2, selectedPath, true);
 	  }
@@ -6275,7 +6275,7 @@ synchronized Object evalStringWaitStatus(String returnType, String strScript,
 
   public String getZapName() {
 	  //modified lxq35 zapped -> Gmol
-    return (getModelkitMode() ? JmolConstants.MODELKIT_ZAP_TITLE : "Gmol");
+    return (getModelkitMode() ? JmolConstants.MODELKIT_ZAP_TITLE : "GenomeFlow");
   }
 
   /*
