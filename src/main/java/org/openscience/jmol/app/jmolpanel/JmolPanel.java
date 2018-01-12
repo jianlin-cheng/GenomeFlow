@@ -99,6 +99,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
@@ -158,7 +159,7 @@ import juicebox.tools.utils.original.Preprocessor;
 import juicebox.windowui.HiCZoom;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
-
+import  edu.missouri.chenglab.compareTAD.TADComparison;
 //added -hcf
 
 /*import juicebox.data.Dataset;
@@ -216,6 +217,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private Structure_3DMaxModeller structure3DMaxAction = new Structure_3DMaxModeller(); //Tosin added
   private HeatmapVisualizeAction heatmap2DvisualizeAction = new HeatmapVisualizeAction(); //Tosin added
   private FindTADAction findTADAction = new FindTADAction(); //Tosin added
+  private CompareTADAction compareTADAction = new CompareTADAction(); //Tosin added
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -263,8 +265,8 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String structure3DMAXAction = "3DMax";//Tosin added
   private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
   private static final String findTadAction = "Find-TAD"; //Tosin added
-  
-
+  private static final String compareTadAction = "CompareTAD"; //Tosin added
+  public String[] CompareTADInput = null; // Tosin added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -297,6 +299,8 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   //private static final String saveasAction = "saveas";
   //private static final String vibAction = "vibrate";
 
+
+  
   public JmolPanel(JmolApp jmolApp, Splash splash, JFrame frame,
       JmolPanel parent, int startupWidth, int startupHeight,
       Map<String, Object> viewerOptions, Point loc) {
@@ -1157,7 +1161,7 @@ public void showStatus(String message) {
       new searchGenomeSequenceTableAction(),  ////last four added -hcf,
 
       extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction, compareModels,// Tuan added
-      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
+      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction, compareTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
 
   ;
 
@@ -4922,11 +4926,330 @@ public void showStatus(String message) {
   
   
   
+
+  /*
+   *  Tosin created a new button for 3DMax Modeller
+   */
+  public class CompareTADAction extends NewAction{
+	  public CompareTADAction() {
+		  super(compareTadAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField1 = new JTextField();      
+	        
+	        JTextField inputContactFileField2 = new JTextField();    
+	        
+	        JTextField outputFileField = new JTextField();
+	               
+	        JButton openContactFileButton1 = new JButton("Browse File");
+	        
+	        JButton openContactFileButton2 = new JButton("Browse File");
+	        
+	        openContactFileButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField1.setText(fileName);
+					
+				}
+			});
+	        
+	        openContactFileButton2.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField2.setText(fileName);
+					
+				}
+			});
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        	        	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input Method-1 TAD file(.bed) ",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField1, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton1, gbc);
+	        	       
+	                     
+	        
+	        ///////////////////////////////////////////////
+	        y++;	
+	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input Method-2 TAD file(.bed) ",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField2.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField2, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton2, gbc);
+	        	       
+	       	  
+	        
+	        ///////////////////////////////////////////////
+	        y++;
+	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        
+	        JLabel resolution =  new JLabel("Data Resolution ",JLabel.LEFT);
+	        
+	        panel.add(resolution, gbc);	          
+	        
+	        JTextField IFResolutionField = new JTextField("40000"); 	      
+	        IFResolutionField .addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt = IFResolutionField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert!",JOptionPane.ERROR_MESSAGE);
+						
+						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	
+	        IFResolutionField.setPreferredSize(new Dimension(300, 21));
+	        panel.add( IFResolutionField, gbc);
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output folder ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+	
+	        	     
+			        	        
+	        //////////////////////////////////////////////
+	        y++;
+	        JButton runButton = new JButton("Create Report");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 1;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        runButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        stopButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(stopButton, gbc);
+	        	        	        
+	        
+	        Frame Structure_3DMaxFrame = new JFrame("Compare TADs to Check Consistency");
+	        Structure_3DMaxFrame.setSize(new Dimension(680,300));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	        
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        
+	        
+	        
+	        
+	        runButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					String input1 = inputContactFileField1.getText();
+					String input2 = inputContactFileField2.getText();
+					String output = outputFileField.getText();		
+					int resolution = Integer.parseInt(IFResolutionField.getText());
+					String inputdata_type = Parameter.inputtype_Tuple;
+					String res = "";
+					
+					String startlocation = "0";
+					if (input1 == null || input1.trim().equals("") || input2 == null || input2.trim().equals("") || output == null || output.trim().equals("") ) {
+						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Checking consistency ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					 CompareTADInput = new String[4];
+					 CompareTADInput[0] = input1;
+					 CompareTADInput[1] = input2;
+					 CompareTADInput[2] = String.valueOf(resolution);
+					 CompareTADInput[3] = output;		
+					
+					 Compare comparisonWorkder = new Compare();					  
+					comparisonWorkder.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										String co = comparisonWorkder.get();
+																			
+										String msg =  "Successfully Completed! Report saved in output directory";
+										JOptionPane.showMessageDialog(null, msg);
+										
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					comparisonWorkder.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "Operation Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+  
+  /**
+   * Class for PROGRESS BAR to Compare TAD
+   * @author Tosin
+   *
+   */
+  public class Compare extends SwingWorker<String,Void>{
+  	@Override
+  	protected String doInBackground() throws Exception {
+  		
+  		try{
+  			 
+  			TADComparison comparisonWorkder = new TADComparison(CompareTADInput);
+  		}catch(Exception ex){
+  			ex.printStackTrace();
+  			return ex.getMessage();
+  		}
+  		
+  		return "Operation  Successful!";
+  	}
+  }
+
   
   
   //end
-  
-  
   
   
   

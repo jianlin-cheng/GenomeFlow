@@ -58,6 +58,7 @@ public class LoadHeatmap {
 				while(input.hasNextLine())
 				{	String [] line = null;
 					String rowdata = input.nextLine();
+					rowdata = rowdata.trim();
 					if(!rowdata.isEmpty()) {
 					line = rowdata.split(sep);
 					for (int i= 0; i<2;i++) {
@@ -100,6 +101,7 @@ public class LoadHeatmap {
 				{
 					String [] line = null;
 					String rowdata = input.nextLine();
+					rowdata = rowdata.trim();
 					if(!rowdata.isEmpty()) {
 						line = rowdata.split(sep);						
 						// Find the key value from map
@@ -149,6 +151,7 @@ public class LoadHeatmap {
 				while(input.hasNextLine())
 				{	String [] line = null;
 					String rowdata = input.nextLine();
+					rowdata = rowdata.trim();
 					if(!rowdata.isEmpty()) {
 					line = rowdata.split(sep);
 					for (int i= 0; i<2;i++) {
@@ -269,7 +272,8 @@ public class LoadHeatmap {
 		 
 				while(input.hasNextLine())
 				{	String [] line = null;
-					String rowdata = input.nextLine();					
+					String rowdata = input.nextLine();	
+					rowdata = rowdata.trim();
 					//System.out.println(rowdata);
 					line = rowdata.split(sep);						
 					//System.out.println(String.format("col = %d", line.length));
@@ -292,6 +296,7 @@ public class LoadHeatmap {
 				{
 					String [] line = null;
 					String rowdata = input.nextLine();
+					rowdata = rowdata.trim();
 					line = rowdata.split(sep);						
 					 for (int k = 0; k < cols; k++) {							  
 		                	a[linesCounter][k] = Double.parseDouble(line[k]);
@@ -326,7 +331,8 @@ public class LoadHeatmap {
 				 
 						while(input.hasNextLine())
 						{	String [] line = null;
-							String rowdata = input.nextLine();					
+							String rowdata = input.nextLine();	
+							rowdata = rowdata.trim();
 							//System.out.println(rowdata);
 							line = rowdata.split(sep);						
 							//System.out.println(String.format("col = %d", line.length));
@@ -340,7 +346,7 @@ public class LoadHeatmap {
 				
 				 System.out.println(String.format("Number of row/col = %d", rows));
 				 // read in the data
-				 int [][] a = new int[rows][cols-2];
+				 int [][] a = new int[rows][2];
 				 try {
 					 int linesCounter = 0;
 					 Scanner input = new Scanner (new File( Filename));
@@ -349,6 +355,7 @@ public class LoadHeatmap {
 						{
 							String [] line = null;
 							String rowdata = input.nextLine();
+							rowdata = rowdata.trim();
 							line = rowdata.split(sep);						
 												  
 				            a[linesCounter][0] = Integer.parseInt(line[1]);

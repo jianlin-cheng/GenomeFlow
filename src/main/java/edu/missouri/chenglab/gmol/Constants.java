@@ -43,7 +43,7 @@ public interface Constants {
 	String IFRESOLUTION = "matrixresolution";
 	String ISMATRIX = "1";
 	String STARTLOCATION = "startinggenomelocation";
-	
+	String INPUTCONTACTFILE2 = "inputContactFile";
 	
 
 }

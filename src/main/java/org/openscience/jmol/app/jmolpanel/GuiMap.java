@@ -267,13 +267,15 @@ public class GuiMap {
     labels.put("Visualize", GT._("Visualize Dataset"));
     labels.put("Find-TAD", GT._("Identify TAD"));
     labels.put("Find-TADTip", GT._("Click to Visualize TAD for Input Dataset"));
+    labels.put("CompareTAD", GT._("Check TAD Consistency"));
+    labels.put("CompareTADTip", GT._("Click to compare TADs from different algorithms"));
     
-    //labels.put("3DMaxTip", GT._("Click to Visualize reconstructed 3D chromosome/genome model"));
-    
-  //Tosin added
     labels.put("3DMax", GT._("3DMax-3D Modeller"));
     labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
     
+   
+    
+    //end
   }
 
   String getLabel(String key) {

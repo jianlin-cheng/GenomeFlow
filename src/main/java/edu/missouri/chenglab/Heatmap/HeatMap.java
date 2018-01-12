@@ -261,30 +261,6 @@ public class HeatMap extends JPanel
     }
 
     
-    /** author == Tosin
-     * Updates the state of the runClusterTAD. Calls repaint() when finished.
-     * @param runClusterTAD Specifies if the TAD should be drawn on Heatmap
-     */
-    public void setrunClusterTAD(boolean runClusterTAD)
-    {
-        this.runClusterTAD = runClusterTAD;
-        
-        repaint();
-    }
-    
-    
-    /** author == Tosin
-     * Show all the TAD specified.
-     * @param draw TAD on Heatmap
-     */
-    public void setshowAllTAD(boolean drawshowallTAD)
-    {
-        this.drawshowallTAD = drawshowallTAD;
-        
-        repaint();
-    }
-    
-    
     
     /** author == Tosin
      * Show all the TAD specified.
@@ -794,31 +770,32 @@ public class HeatMap extends JPanel
             }
         }
         double range = largest - smallest;
-
+       
+  
         // dataColorIndices is the same size as the data array
         // It stores an int index into the color array
-        dataColorIndices = new int[data.length][data[0].length];    
-
-        //assign a Color to each data point
-        for (int x = 0; x < data.length; x++)
-        {
-            for (int y = 0; y < data[0].length; y++)
+        if (  HeatMapDemo.colorindex ==null) {
+        	dataColorIndices = new int[data.length][data[0].length];  
+        	  //assign a Color to each data point
+            for (int x = 0; x < data.length; x++)
             {
-                double norm = (data[x][y] - smallest) / range; // 0 < norm < 1
-                int colorIndex = (int) Math.floor(norm * (colors.length - 1));
-                dataColorIndices[x][y] = colorIndex;
-                // Get the Boundary Color
-                int xcolor = 0;
-                if (x==0 && y ==0) {
-                	xcolor = colorIndex;
+                for (int y = 0; y < data[0].length; y++)
+                {
+                    double norm = (data[x][y] - smallest) / range; // 0 < norm < 1
+                    int colorIndex = (int) Math.floor(norm * (colors.length - 1)); 
+                     dataColorIndices[x][y] = colorIndex;
+                    
                 }
-                if (x==data.length-3 && y ==data.length-4) {
-                	boundarycolor = colorIndex;
-                }
-                boundarycolor+=xcolor;
             }
         }
+        else
+        {
+        	dataColorIndices =   HeatMapDemo.colorindex ;
+        	boundarycolor = HeatMapDemo. boundary_color;
+        }
+
         
+        boundarycolor = (int) Math.floor(norm_value() *(colors.length - 1));    
 	       //assign a Color to datapoint at boundary
      
         for (int i = 0; i < TADindex.length;i++) {
@@ -838,10 +815,33 @@ public class HeatMap extends JPanel
                   dataColorIndices[x][y2] = boundarycolor; //bottom
               }   
         }
-    
-       
+        
+	        HeatMapDemo.colorindex = dataColorIndices ;
+	        HeatMapDemo. boundary_color  = boundarycolor;
+	       
     }
 
+    /**
+     * Returns the normalization value to be used for TAD boundary color
+     * @return
+     */
+    public double norm_value() {
+    	double normvalue = 0;
+    	if (HeatMapDemo.color1.isSelected()) {
+    		normvalue = 1;
+    	}
+    	else if (HeatMapDemo.color2.isSelected()) {
+    		normvalue = 0.75;
+    	}
+    	else if (HeatMapDemo.color3.isSelected()) {
+    		normvalue = 0.5;
+    	}
+    	else if (HeatMapDemo.color4.isSelected()) {
+    		normvalue = 0.25;
+    	}
+    	
+    	return normvalue;
+    }
     
     /**
      *  FOR TAD IDENTIFICATION

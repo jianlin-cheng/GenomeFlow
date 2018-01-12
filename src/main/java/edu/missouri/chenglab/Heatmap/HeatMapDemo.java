@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileNotFoundException;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import edu.missouri.chenglab.Heatmap.TADFrame;
@@ -73,10 +74,12 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     JCheckBox runClusterTAD;
     JComboBox ShowDataCombo;
    
+    JButton drawtadshowallButton;
     JCheckBox drawtadshowall;
    JCheckBox drawdirection;
-    
-    
+   public static JCheckBox compareTAD;
+ 	static Color defaulColor;
+ 	
    JLabel imageCanvas;
    Dimension size;
    double scale = 1.0;
@@ -106,11 +109,13 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     JButton findtadButton;
     JButton displayheatmapButton;
     JButton exitButton;
+    public static JRadioButton color1,color2,color3,color4;      
     
     private final static String FILE_OPEN_WINDOW_NAME = "FileOpen";
     public static double[][] data = null;
     public static double[][] default_data = null;
-   
+    public static  int [][]colorindex = null;
+    
     static JEditorPane pane = new JEditorPane();
     static String[] TAD = null;
    
@@ -119,6 +124,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     
     static int GenomeSL = 0; //Genomic start Location
     static int GenomeEL = 0; //Genomic start Location
+    public static int boundary_color = 0;
 	static final int KB = 1000;
 	static final long MILLION = 1000000;
 	public  boolean useTuple = false;
@@ -665,22 +671,131 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         //Append Identified TAD		
         int [][] TD  = {{2,10}}; //Identified TAD
        // appendtoEditor(TD);                                
-                        
+                       
+        gbc.gridx = 0;       
+        gbc.gridy = y; 
+        gbc.gridwidth = 1;
+        drawtadshowallButton = new JButton("Show TAD on Heatmap");
+        listPane.add(drawtadshowallButton, gbc);
+        drawtadshowallButton.addActionListener(new ActionListener() {			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+	        	double[][] new_data = null;
+				  //Load already transformed data
+	        	  try {
+	        		  
+					new_data = LoadHeatmap.TransformedData(Transform);
+					
+				} catch (FileNotFoundException e3) {
+					// TODO Auto-generated catch block
+					e3.printStackTrace();
+				}	
+	        	  
+	        	 
+	        	 
+	        	  int minx = 0 , maxx = 0;
+	        		int [] val = new int[4];
+	        		
+	                
+		        	try {
+		        		int [][] TDindex = TADindex(LoadHeatmap.Startlocation);				
+		                
+		        		
+		        		if (useTuple) {    
+		        			                
+		                    //Re-Draw Heatmap
+		                    double min_x = Double.parseDouble(textXMin.getText());  double max_x = Double.parseDouble(textXMax.getText());
+		                    double min_y = Double.parseDouble(textYMin.getText());  double max_y = Double.parseDouble(textYMax.getText());
+		                    panel.setCoordinateBounds(min_x ,max_x,max_x,min_x ); 
+		        			val = updateindex(min_x,  max_x, min_y,  max_y, LoadHeatmap.Startlocation);
+		        			min_x = val[0] ;  max_x = val[1];  min_y = val[2];  max_y = val[3];
+		        			minx = (int) min_x; maxx = (int) max_x;
+		        			new_data = LoadHeatmap.MatrixReform(new_data, min_x, max_x, min_x, max_x);  //Transformed data	        		   
+		        			
+		        		}
+		        		
+		        		else {
+		        			 minx = (int) minrow; maxx = (int) maxrow;
+		        			 new_data = LoadHeatmap.MatrixReform(new_data, minx,maxx, minx,maxx);  //Transformed data
+		        			 panel.setCoordinateBounds(minx ,maxx, maxx, minx); 
+		        		}	        		
+							
+						// Instead of showing for entire Dataset: display for only the currently showing data	
+						TDindex= Find_Active_TAD(TDindex, minx, maxx); // Reduce the TAD matrix to just showing data	(use only row or X -axis to display TAD information]		
+						
+						
+						
+						if( !compareTAD.isSelected()) {					
+							
+							colorindex = null;
+						
+						}
+						
+						panel.updateData_ext(new_data ,TDindex,useGraphicsYAxis);
+						
+					} catch (FileNotFoundException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}  
+		        	      	
+			 }
+		});
+	    
         gbc.gridx = 0;
         gbc.gridy = y++;    
-        drawtadshowall = new JCheckBox("Show TAD on Heatmap");
-        drawtadshowall.setSelected(false);
-        drawtadshowall .addItemListener(this);
-        listPane.add( drawtadshowall , gbc);
         
+        listPane.add(Box.createVerticalStrut(10), gbc);
+               
         gbc.gridx = 0;
-        gbc.gridy = y++;  
+        gbc.gridy = y++;    
+        compareTAD = new JCheckBox("Display Multiple TADs");
+        compareTAD.setEnabled(true);
+        compareTAD.setSelected(false);
+        compareTAD .addItemListener(this);
+        listPane.add( compareTAD, gbc);
+        
         listPane.add(Box.createVerticalStrut(30), gbc);
+
+       
         gbc.gridx = 0;
-        gbc.gridy = y++;  
-        
-        
-          
+        gbc.gridy = y++; 
+        gbc.gridwidth = 1;
+    	JLabel colorDisplay = new JLabel("Choose Display Color");
+    	listPane.add(colorDisplay,gbc);
+	  	
+    	y++;
+    	 gbc.gridx = 0;
+         gbc.gridy = y; 
+         gbc.gridwidth = 1;
+    	color1=new JRadioButton("Color 1");  
+    	color1.setSelected(true);
+    	listPane.add(color1,gbc);
+    	
+	   	 gbc.gridx = 2;
+	     gbc.gridy = y; 
+	     gbc.gridwidth = 1;
+    	color2=new JRadioButton("Color 2"); 
+    	listPane.add(color2,gbc);
+    	y++;
+	   	 gbc.gridx = 0;
+	     gbc.gridy = y; 
+	     gbc.gridwidth = 1;
+	     color3=new JRadioButton("Color 3"); 
+	     listPane.add(color3,gbc);
+	     
+		 gbc.gridx = 2;
+	     gbc.gridy = y; 
+	     gbc.gridwidth = 1;
+    	color4=new JRadioButton("Color 4");  
+    	 listPane.add(color4,gbc);
+    	 
+    	ButtonGroup bg=new ButtonGroup();    
+    	bg.add(color1);bg.add(color2); bg.add(color3);bg.add(color4); 
+  
+    	
+	   
+	  	
         //----------------------------------------------------------------------
         
    
@@ -749,7 +864,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         panel.setDrawXTicks(true);
         panel.setDrawYTicks(true);
         //Tosin added
-        panel.setrunClusterTAD(true);
+       
         
         
         panel.setColorForeground(Color.black);
@@ -1043,11 +1158,24 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 		int row = TD.length; 
 		int [][] TADIndex  =  new int[row][2];
 		
+		// get the index of default_data
+		int data_last_index = default_data.length - 1 ;
+		int TAD_last_index = convert2index(TD[row-1][1],Start);
+		
+	
+		
 		for (int x= 0; x <row; x++) {
-			
-			TADIndex[x][0] = convert2index(TD[x][0],Start);
-			TADIndex[x][1] = convert2index(TD[x][1],Start);
+			if (TAD_last_index > data_last_index) {
+				TADIndex[x][0] = convert2index(TD[x][0],Start) - 1;
+				TADIndex[x][1] = convert2index(TD[x][1],Start) - 1;
+			}
+			else {
+				TADIndex[x][0] = convert2index(TD[x][0],Start);
+				TADIndex[x][1] = convert2index(TD[x][1],Start);
+			}
 		}
+		
+	
 		
 		return TADIndex;
     }
@@ -1404,38 +1532,18 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 			}
                   
         }     
-        else if (source == drawtadshowall)
-        {
-        	double[][] new_data = null;
-			try {
-				new_data = LoadHeatmap.TransformedData( Transform);
-			} catch (FileNotFoundException e2) {
-				// TODO Auto-generated catch block
-				e2.printStackTrace();
-			}   //Load already transformed data
-			
-        	if (drawtadshowall.isSelected()) {
-	        	double [][] tad_data = null; int rwstart,rwend;   
-	        	
-	        	try {
-					int [][] TDindex = TADindex(LoadHeatmap.Startlocation);
-					// Convert the index to create a square matrix			
-					// double[][] new_data = LoadHeatmap.TransformData(default_data , Transform);
-					panel.updateData_ext(new_data ,TDindex,useGraphicsYAxis);				
-					
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}     
-	        	
-	        	// JOptionPane.showMessageDialog(null, "Task done Successfully!");	
-        	}
-        	else {
-        			// when unchecked 
-        		  panel.updateData(new_data, useGraphicsYAxis);       
-        	}
-        }
+            
         
+        
+        else if (source == compareTAD) {        	
+
+			if( !compareTAD.isSelected()) {					
+				
+				colorindex = null;
+			
+			}
+        }
+       
         else if (source == ShowDataCombo)
         {
         	  double[][] new_data = null; // data to use to draw heatmap
@@ -1508,12 +1616,68 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
             }
         }
         
-    
+      
      
     }
     
     
- 
+    
+    
+    /**
+     * Find the active TAD on the current Heatmap displayed
+     * @param TADindex
+     * @param min_row
+     * @param max_row
+     * @return
+     */
+    
+    public int [][] Find_Active_TAD(int [][] TADindex, int min_row, int max_row) {
+    	
+		// find the index in array that is greater than min_row and min_col
+		int start_index = 0, end_index = TADindex.length-1;
+		boolean startfound = false;
+		boolean endfound = false;
+		
+		for (int i =  0; i < TADindex.length ; i++) {
+			if (min_row!=0) {
+				if (TADindex[i][0] > min_row && !startfound) {
+					start_index = i;
+					startfound = true;
+				}
+			}
+			
+			if (max_row != default_data.length - 1 ) {
+				if (max_row > TADindex[i][1] ) {
+					end_index = i;					
+				}
+			}
+		}
+		
+		// Rearrange the index based on the new dataset [i.e a subset of the big data]
+		int [][] TAD= new int [end_index-start_index+1][2];
+		for (int i =  start_index; i <= end_index ; i++) {
+			TAD [i-start_index][0] =  (int) (TADindex[i][0] - min_row);
+			TAD [i-start_index][1] =  (int) (TADindex[i][1] - min_row);
+		}
+		
+		return TAD;
+		
+    }
+    
+    /**
+     * the color set by user
+     * @return
+     */
+	 public static int getcolor() {
+		 int red = defaulColor.getRed();
+		 int green  = defaulColor.getGreen();
+		 int blue = defaulColor.getBlue();
+		 
+		 Color color = new Color(red, green, blue);
+		 int rgb = color.getRGB(); 
+		 
+		 return rgb;
+	 }
     
     public static int [] updateindex(double min_x, double max_x,double min_y, double max_y, int loc) {
     	int [] val = new int[4];

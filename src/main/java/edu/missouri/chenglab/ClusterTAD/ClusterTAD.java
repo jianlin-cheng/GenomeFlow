@@ -91,7 +91,8 @@ public class ClusterTAD {
 		 
 				while(input.hasNextLine())
 				{	String [] line = null;
-					String rowdata = input.nextLine();					
+					String rowdata = input.nextLine();
+					rowdata = rowdata.trim();
 					//System.out.println(rowdata);
 					line = rowdata.split(sep);						
 					//System.out.println(String.format("col = %d", line.length));

@@ -385,7 +385,7 @@ public class Token {
   public final static int struct_3DMax = scriptCommand | 90 | deprecatedparam;
   public final static int Heatmap2D = scriptCommand | 91 | deprecatedparam;
   public final static int FindTAD2D = scriptCommand | 92 | deprecatedparam;
-
+  public final static int CompareTAD2D = scriptCommand | 93 | deprecatedparam;
   //end
   
   // shapes:
@@ -2501,6 +2501,7 @@ public class Token {
       // 2D visualization
       "Heatmap2D",							new Token(Heatmap2D ),
       "FindTAD2D",							new Token(FindTAD2D ),
+      "CompareTAD2D",							new Token(CompareTAD2D ),
     };
 
     Token tokenLast = null;

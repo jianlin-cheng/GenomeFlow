@@ -146,7 +146,7 @@ import edu.missouri.chenglab.Heatmap.HeatMapDemo;
 import edu.missouri.chenglab.Structure3DMax.algorithm.StructureGenerator3DMax;
 import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
 import edu.missouri.chenglab.ClusterTAD.*;
-
+import  edu.missouri.chenglab.compareTAD.TADComparison;
 
 public class ScriptEvaluator {
 
@@ -5948,7 +5948,7 @@ public class ScriptEvaluator {
 					break;
 				case Token.FindTAD2D:
 					Find_TAD();
-					break;
+					break;				
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
