@@ -15,7 +15,12 @@ import javax.swing.JOptionPane;
 
 public class TADComparison {
 
-
+	public static  int TotalNo;
+	public static  double Recall;
+	public static int eqcount ;
+	public static  int subcount; 
+	public static int confcount ;
+	public static  int newcount;
 	public static int [][] Method1= null;
 	public static int [][] Method2 =null;
 	public static int Resolution = 40000;
@@ -155,11 +160,9 @@ public class TADComparison {
 		 System.out.println(String.format("The Total number of TADs in Method-1 = %d \n", Method1_B1.size()));
 		 log_outputWriter.write(String.format("The Total number of TADs in Method-1 = %d \n", Method1_B1.size()));
 		 
-		 int eqcount = 0;
-		 int subcount = 0; 
-		 int confcount = 0;
-		 int newcount = 0;
+		 
 		 int len = Method1_B1.size();
+		 TotalNo = len;
 		 for (int i = 0; i < Method1_B1.size(); i++) {
 			 //CASE 1
 			 // Get the index where Start border (border 1) exist 
@@ -250,6 +253,7 @@ public class TADComparison {
 			
 			log_outputWriter.write(String.format("CASE 3  = %d\n",confcount));
 			
+			subcount= no_SubTD;
 			
 			//CASE 4
 			
@@ -268,6 +272,7 @@ public class TADComparison {
 			
 			 System.out.println(String.format(" Total Recall  =  %f%%\n",per1));
 			log_outputWriter.write(String.format("Total Recall  =  %f%%\n",per1));
+			Recall = per1;
 			
 	 }
 	
@@ -284,7 +289,10 @@ public class TADComparison {
 		Resolution = Integer.parseInt(args[2]);
 		Outputpath =  args[3];	
 	    
-		
+		 eqcount = 0;
+		 subcount = 0; 
+		 confcount = 0;
+		 newcount = 0;
 		
 		Method1 = readTADFile(fileA,1);
 		Method2= readTADFile(fileB,2);
@@ -319,6 +327,10 @@ public class TADComparison {
 		 Method1_B2.clear();
 		 Method2_B1 .clear();
 		 Method2_B2.clear();
+		 
+		 
+		
+		 
 		
 	   
 	}

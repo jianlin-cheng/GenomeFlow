@@ -26,9 +26,11 @@ package org.openscience.jmol.app.jmolpanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dialog.ModalityType;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -5110,10 +5112,185 @@ public void showStatus(String message) {
 	        gbc.gridwidth = 1;
 	        stopButton.setHorizontalAlignment(JLabel.CENTER);
 	        panel.add(stopButton, gbc);
-	        	        	        
+	        	
+	        ////////////////////////////////////////////////
+	        
+	        y++;
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("============================================================================= ",JLabel.LEFT), gbc);
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        JLabel label = new JLabel();	   
+	        label .setText("COMPARISON REPORT ");
+	        label .setFont(new Font("Serif", Font.BOLD, 15));
+	        label .setForeground(Color.RED);
+			panel.add(label ,gbc);
+	        ////////////////////////////////////////////////
+	
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("============================================================================= ",JLabel.LEFT), gbc);	
+			
+			////////////////////////////////////////////////
+				        
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 2;
+			label = new JLabel("The Total number of TADs in Method-1:",JLabel.LEFT);	
+			label.setFont(new Font("Serif", Font.BOLD, 15));
+			panel.add(label, gbc);
+			
+			
+			JLabel Num = new JLabel();
+			gbc.gridx = 2;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 6;
+			Num.setText("None");
+			Num.setFont(new Font("Serif", Font.BOLD, 15));
+			Num.setForeground(Color.RED);
+			panel.add(Num,gbc);	  
+				        
+	        
+	        ////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 5;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+
+	        
+			////////////////////////////////////////////////
+	        
+	       	y++;      
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 2;
+	        label = new JLabel("The Number of TADs found in both Method 1 and 2:",JLabel.LEFT);	
+	        label.setFont(new Font("Serif", Font.BOLD, 15));
+	        panel.add(label, gbc);
+	        
+	        
+	        JLabel Num_Exact = new JLabel();
+	        gbc.gridx = 2;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 6;
+	        Num_Exact.setText("None");
+	        Num_Exact.setFont(new Font("Serif", Font.BOLD, 15));
+	        Num_Exact.setForeground(Color.RED);
+	        panel.add(Num_Exact,gbc);	        
+	        
+			////////////////////////////////////////////////
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 2;
+			label = new JLabel("The Number of Sub-TADs from Method-1 found in Method-2:",JLabel.LEFT);	
+	        label.setFont(new Font("Serif", Font.BOLD, 15));
+	        panel.add(label, gbc);
+		
+			
+			 JLabel Sub_Exact = new JLabel();
+	        gbc.gridx = 2;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 6;
+	        Sub_Exact.setText("None");
+	        Sub_Exact.setFont(new Font("Serif", Font.BOLD, 15));
+	        Sub_Exact.setForeground(Color.RED);
+	        panel.add(Sub_Exact,gbc);			
+						
+			////////////////////////////////////////////////
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 2;
+			label = new JLabel("The Number of Conflicting TADs found between Method 1 and 2:",JLabel.LEFT);	
+	        label.setFont(new Font("Serif", Font.BOLD, 15));
+	        panel.add(label, gbc);
+			
+			
+			JLabel Con_Exact = new JLabel();
+			gbc.gridx = 2;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 6;
+			Con_Exact.setText("None");
+			Con_Exact.setFont(new Font("Serif", Font.BOLD, 15));
+			Con_Exact.setForeground(Color.RED);
+			panel.add(Con_Exact,gbc);
+			
+			
+			////////////////////////////////////////////////
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 2;
+			label = new JLabel("The Number of TADs found in Method-1 but not in Method-2:",JLabel.LEFT);	
+	        label.setFont(new Font("Serif", Font.BOLD, 15));
+	        panel.add(label, gbc);
+		
+			
+			JLabel Uni_Exact = new JLabel();
+			gbc.gridx = 2;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 6;
+			Uni_Exact.setText("None");
+			Uni_Exact.setFont(new Font("Serif", Font.BOLD, 15));
+			Uni_Exact.setForeground(Color.RED);
+			panel.add(Uni_Exact,gbc);
+			
+			////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+	       			
+			////////////////////////////////////////////////
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 2;
+			label = new JLabel("TAD Recall Percentage:",JLabel.LEFT);	
+	        label.setFont(new Font("Serif", Font.BOLD, 15));
+	        panel.add(label, gbc);
+		
+			JLabel Recal = new JLabel();
+			gbc.gridx = 2;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 6;
+			Recal.setText("None");
+			Recal.setFont(new Font("Serif", Font.BOLD, 15));
+			Recal.setForeground(Color.RED);
+			panel.add(Recal,gbc);
+	
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        panel.add(new JLabel("============================================================================= ",JLabel.LEFT), gbc);	 
+			////////////////////////////////////////////////
+			y++;      
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 3;
+			label = new JLabel("Note: Detailed Report will be saved to output folder ",JLabel.LEFT);	
+			label.setFont(new Font("Serif", Font.ITALIC, 15));
+			panel.add(label, gbc);
+	                
 	        
 	        Frame Structure_3DMaxFrame = new JFrame("Compare TADs to Check Consistency");
-	        Structure_3DMaxFrame.setSize(new Dimension(680,300));
+	        Structure_3DMaxFrame.setSize(new Dimension(980,550));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
@@ -5166,10 +5343,21 @@ public void showStatus(String message) {
 									dialog.dispose();
 									
 									try {
-										String co = comparisonWorkder.get();
-																			
-										String msg =  "Successfully Completed! Report saved in output directory";
-										JOptionPane.showMessageDialog(null, msg);
+										String co = comparisonWorkder.get();																			
+										String msg =  "Successfully Completed! Report saved in output directory";																				
+										//JOptionPane.showMessageDialog(null, msg);	
+										String 	out_text = String.valueOf(TADComparison.TotalNo);	
+										Num.setText(out_text);
+										out_text = String.valueOf(TADComparison.eqcount);
+										Num_Exact.setText(out_text);
+										out_text = String.valueOf(TADComparison.subcount) ;
+										Sub_Exact.setText(out_text);
+										out_text = String.valueOf(TADComparison.confcount) ;
+										Con_Exact.setText(out_text);
+										out_text = String.valueOf(TADComparison.newcount) ;
+										Uni_Exact.setText(out_text);
+										out_text = String.valueOf(String.format("%.2f%%",TADComparison.Recall));
+										Recal.setText(out_text);
 										
 									} catch (InterruptedException e) {									
 										e.printStackTrace();
@@ -5225,6 +5413,21 @@ public void showStatus(String message) {
 	  }
   }
 
+/**
+ * Create output frame for results
+ */
+  public void Createframe() {
+	  
+
+		JFrame frame = new JFrame ("HelloWorldSwing");
+		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		JLabel label = new JLabel("Hello world");
+		Container contentPane = frame.getContentPane();
+		contentPane.add(label);
+		frame.setVisible(true);
+  }
+  
+  
   
   /**
    * Class for PROGRESS BAR to Compare TAD
