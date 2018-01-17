@@ -4828,7 +4828,7 @@ public void showStatus(String message) {
 	        panel.add(stopButton, gbc);
 	        	        	        
 	        
-	        Frame Structure_3DMaxFrame = new JFrame();
+	        Frame Structure_3DMaxFrame = new JFrame("TAD Identification from Contact matrix");
 	        Structure_3DMaxFrame.setSize(new Dimension(580,300));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
