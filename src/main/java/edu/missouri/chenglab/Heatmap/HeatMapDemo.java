@@ -2,6 +2,8 @@ package edu.missouri.chenglab.Heatmap;
 
 import javax.swing.*;
 import javax.swing.SwingWorker.StateValue;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
@@ -236,9 +238,9 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         listPane.add(Box.createVerticalStrut(20), gbc);
         
 
-        isMatrix= new JCheckBox("Is SquareMatrix? (Input contact file )");
+        isMatrix= new JCheckBox("Is Square Matrix? (Input contact file )");
         isMatrix.setSelected(false);
-        isMatrix.addItemListener(this);
+        isMatrix.addItemListener(this);         
         listPane.add(isMatrix, gbc);
         
 
@@ -271,6 +273,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
             }
             
             
+           
            // JOptionPane.showMessageDialog(null, "Click on the DRAW HEATMAP button below to Draw !", "GenomeFlow-2D", JOptionPane.INFORMATION_MESSAGE);	
             	
       	  Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
@@ -911,7 +914,8 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         				
         				
         				if (textResolution.getText().equals("") ||  isMatrix.isSelected()==false) {
-        					JOptionPane.showMessageDialog(null, "Please Specify Matrix Resolution", "GenomeFlow-2D", JOptionPane.INFORMATION_MESSAGE);	            					
+        					JOptionPane.showMessageDialog(null, "Loading Unsuccessful, Please Specify the Matrix Resolution", "GenomeFlow-2D", JOptionPane.ERROR_MESSAGE);
+        					return;
         				}
         				// Input is a Matrix format
         				default_data =  LoadHeatmap.readFile(Filename, sep);
@@ -923,6 +927,9 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                   	    MissingUnits = (col_max - minimum) - mat[1];
                   	    
                   	    Resolution = Integer.valueOf(textResolution.getText()); // Recieve resolution from Text 
+                  	    
+	                  	  GenomeSL = 0; //Genomic start Location
+	                      GenomeEL = 0; //Genomic start Location
                         min= Location(minimum,GenomeSL);
                         r_max = Location(row_max,GenomeSL);
                         c_max = Location(col_max ,GenomeSL);

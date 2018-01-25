@@ -277,6 +277,17 @@ public class TADComparison {
 	 }
 	
 	 /**
+		 *  Create a new folder		
+		 * @param folder
+		 * @throws Exception
+		 */
+		public void make_folder(String folder) throws Exception{
+			File file = new File(folder);
+			file.mkdirs();
+		}
+	 
+	 
+	 /**
 	  * Function to format report 
 	  * @param fileA
 	  * @param fileB
@@ -288,6 +299,13 @@ public class TADComparison {
 		String fileB  = args[1];		
 		Resolution = Integer.parseInt(args[2]);
 		Outputpath =  args[3];	
+		
+		// check if the outputpath exist otherwise create a new one
+		 File dir = new File(Outputpath);
+		 boolean exists = dir.exists();
+		 if (!exists) {
+			 make_folder(Outputpath);
+		 }
 	    
 		 eqcount = 0;
 		 subcount = 0; 

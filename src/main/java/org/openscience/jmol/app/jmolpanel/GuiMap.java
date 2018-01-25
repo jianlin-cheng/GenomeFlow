@@ -270,6 +270,9 @@ public class GuiMap {
     labels.put("CompareTAD", GT._("Check TAD Consistency"));
     labels.put("CompareTADTip", GT._("Click to compare TADs from different algorithms"));
     
+    labels.put("CreateIndex", GT._("Build Index for reference genome"));
+    labels.put("CreateIndexTip", GT._("Click to Create Index for reference genome sequence "));
+    
     labels.put("3DMax", GT._("3DMax-3D Modeller"));
     labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
     

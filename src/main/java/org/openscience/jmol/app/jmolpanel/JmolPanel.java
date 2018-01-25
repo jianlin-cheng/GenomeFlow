@@ -54,8 +54,10 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -76,6 +78,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.InputVerifier;
 import javax.swing.JButton;
@@ -93,6 +96,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
@@ -139,6 +143,7 @@ import org.openscience.jmol.app.webexport.WebExport;
 import com.icl.saxon.exslt.Common;
 
 import edu.missouri.chenglab.ClusterTAD.Parameter;
+import edu.missouri.chenglab.ClusterTAD.TADwriter;
 import edu.missouri.chenglab.Heatmap.LoadHeatmap;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.valueobjects.ComparisonObject;
@@ -220,6 +225,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private HeatmapVisualizeAction heatmap2DvisualizeAction = new HeatmapVisualizeAction(); //Tosin added
   private FindTADAction findTADAction = new FindTADAction(); //Tosin added
   private CompareTADAction compareTADAction = new CompareTADAction(); //Tosin added
+  private CreateIndexAction createIndexAction = new CreateIndexAction(); //Tosin added
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -268,6 +274,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
   private static final String findTadAction = "Find-TAD"; //Tosin added
   private static final String compareTadAction = "CompareTAD"; //Tosin added
+  private static final String createindexAction = "CreateIndex"; //Tosin added
   public String[] CompareTADInput = null; // Tosin added
   
   private static final String newwinAction = "newwin";
@@ -1163,7 +1170,7 @@ public void showStatus(String message) {
       new searchGenomeSequenceTableAction(),  ////last four added -hcf,
 
       extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction, compareModels,// Tuan added
-      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction, compareTADAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
+      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction, compareTADAction,createIndexAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
 
   ;
 
@@ -4783,7 +4790,7 @@ public void showStatus(String message) {
 	        
 	      ///////////////////////////////////////////////	
 			y++;
-			JCheckBox isMatrix = new JCheckBox("Input Is SquareMatrix ?");
+			JCheckBox isMatrix = new JCheckBox("Input Is Square Matrix ?");
 			gbc.gridx = 0;
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
@@ -5452,7 +5459,420 @@ public void showStatus(String message) {
 
   
   
+  
+  
+  /*
+   *  Tosin created a new button for 3DMax Modeller
+   */
+  public class CreateIndexAction extends NewAction{
+	  public CreateIndexAction() {
+		  super(createindexAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField1 = new JTextField();  
+	        
+	                	        
+	        JTextField outputFileField = new JTextField();
+	        JTextField inputReadFileField1 = new JTextField();   
+	        JTextField inputReadFileField2 = new JTextField();   
+	               
+	        JButton openContactFileButton1 = new JButton("Browse File");
+	        JButton openReadFileButton1 = new JButton("Browse File");
+	        JButton openReadFileButton2 = new JButton("Browse File");
+	      
+	        
+	        openContactFileButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField1.setText(fileName);
+					
+				}
+			});
+	        
+	       
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        	        	        
+	        JButton outputReadButton1 = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputReadButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputReadFileField1.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        JButton outputReadButton2 = new JButton("Browse File");
+	        openReadFileButton2.setVisible(false);
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputReadButton2.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputReadFileField2.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input Reference Genome file(.fa, .mfa, .fna ) ",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField1, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton1, gbc);	
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Directory ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Load Read-1(.fastq)",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputReadFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputReadFileField1, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(openReadFileButton1, gbc);
+				        
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			JLabel Readlabel = new JLabel("Load Read-2(.fastq)",JLabel.LEFT);
+			Readlabel.setVisible(false);
+			panel.add(Readlabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			inputReadFileField2.setPreferredSize(new Dimension(300, 21));
+			inputReadFileField2.setVisible(false);
+			panel.add(inputReadFileField2, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;
+			panel.add(openReadFileButton2, gbc);
+	        
+			////////////////////////////////////////////////////////////////////
+				    	
+			y++;			
+			JCheckBox PairRead = new JCheckBox("is Pair End Read?");
+			gbc.gridx = 0;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			panel.add(PairRead, gbc);
+			PairRead.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (PairRead.isSelected()){
+						 Readlabel.setVisible(true);
+						 inputReadFileField2.setVisible(true);
+						 openReadFileButton2.setVisible(true);
+												
+					}else{
+						Readlabel.setVisible(false);
+						 inputReadFileField2.setVisible(false);
+						 openReadFileButton2.setVisible(false);
+					}
+				}
+					
+			});
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Choose tool to use: ",JLabel.LEFT), gbc);	        
+	
+	        ////////////////////////////////////////////////////////////////////
+	
+	        y++;
+	        JRadioButton BWA,Bowtie;			
+			gbc.gridx = 0;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			BWA=new JRadioButton("bwa - Burrows-Wheeler Alignment");  
+	    	BWA.setSelected(true);	    	
+			panel.add(BWA, gbc);
+			
+			
+			gbc.gridx = 2;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			Bowtie=new JRadioButton("bowtie2");
+			panel.add(Bowtie, gbc);	
+			
+			ButtonGroup bg=new ButtonGroup();    
+	    	bg.add(BWA);bg.add(Bowtie);
+			        	        
+	        //////////////////////////////////////////////
+	        y++;
+	        JButton runButton = new JButton("Build Index");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 1;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        runButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(runButton, gbc);
+	        
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;
+	        stopButton.setHorizontalAlignment(JLabel.CENTER);
+	        panel.add(stopButton, gbc);
+	        	
+	        
+				        
+			
+	        
+	        ////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+
+	        			
+			
+			////////////////////////////////////////////////	      
+		
+	        
+	        Frame Structure_3DMaxFrame = new JFrame("Create Index from Reference Genome");
+	        Structure_3DMaxFrame.setSize(new Dimension(680,350));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	      
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        
+	        
+	        
+	        
+	        runButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					String input1 = inputContactFileField1.getText();					
+					String output = outputFileField.getText();
+					String Read1 = inputReadFileField1.getText();
+					String Read2 = inputReadFileField1.getText();
+					String inputdata_type = Parameter.inputtype_Tuple;
+					String res = "";
+					
+					
+					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("") ) {
+						JOptionPane.showMessageDialog(null, "Input file, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					if (PairRead.isSelected()) {
+						if (Read2 ==null || Read2.trim().equals("") ) {
+							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+							return;
+						}
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = output + "/Indexer.sh";
+					if (wt.isExist(Output)) {
+						try {
+							wt.delete_file(Output);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					
+					try {
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						// Create shell script content based on user selection
+						
+						if (PairRead.isSelected()) {
+							
+						}
+						else {
+							
+						}
+							
+						
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
+					
+					 try {
+						log_outputWriter.flush();
+						log_outputWriter.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}  
+				
+					
+					 Compare comparisonWorkder = new Compare();					  
+					comparisonWorkder.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										String co = comparisonWorkder.get();																			
+										String msg =  "Successfully Completed! Report saved in output directory";																				
+										//JOptionPane.showMessageDialog(null, msg);	
+										String 	out_text = String.valueOf(TADComparison.TotalNo);	
+										
+										
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					comparisonWorkder.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "Operation Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+  
   //end
+  
   
   
   
