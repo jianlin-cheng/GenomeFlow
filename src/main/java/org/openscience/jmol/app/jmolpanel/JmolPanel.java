@@ -226,6 +226,10 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private FindTADAction findTADAction = new FindTADAction(); //Tosin added
   private CompareTADAction compareTADAction = new CompareTADAction(); //Tosin added
   private CreateIndexAction createIndexAction = new CreateIndexAction(); //Tosin added
+  private MapAction  mappingFilesAction = new MapAction (); //Tosin added
+  private FilterAction  filterFileAction = new FilterAction (); //Tosin added
+  private FormatAction  formatFileAction = new FormatAction (); //Tosin added
+  private ExpressAction hicexpressAction = new ExpressAction (); //Tosin added
   
   private ExportAction exportAction = new ExportAction();
   private PovrayAction povrayAction = new PovrayAction();
@@ -275,7 +279,13 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String findTadAction = "Find-TAD"; //Tosin added
   private static final String compareTadAction = "CompareTAD"; //Tosin added
   private static final String createindexAction = "CreateIndex"; //Tosin added
+  private static final String mappingAction = "Mapping"; //Tosin added
+  private static final String filterAction = "Filter"; //Tosin added
+  private static final String formatAction = "Format"; //Tosin added
+  private static final String expressAction = "Express"; //Tosin added
+  
   public String[] CompareTADInput = null; // Tosin added
+  public static String createscriptfile = null; //Tosin added
   
   private static final String newwinAction = "newwin";
   private static final String openAction = "open";
@@ -1170,7 +1180,7 @@ public void showStatus(String message) {
       new searchGenomeSequenceTableAction(),  ////last four added -hcf,
 
       extractPDBAction, pdb2GSSAction, lorDGModellerAction, loopDetectAction, annotationAction, extractHiCAction, convertToHiCAction, normalizeHiCAction, compareModels,// Tuan added
-      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction, compareTADAction,createIndexAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
+      structure3DMaxAction, heatmap2DvisualizeAction,findTADAction, compareTADAction,createIndexAction,mappingFilesAction,filterFileAction,formatFileAction,hicexpressAction}// [Tosin added: structure3DMaxAction,heatmap2Dvisualize]
 
   ;
 
@@ -4476,7 +4486,7 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame();
-	        Structure_3DMaxFrame.setSize(new Dimension(650, 400));
+	        Structure_3DMaxFrame.setSize(new Dimension(700, 450));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
@@ -4836,7 +4846,7 @@ public void showStatus(String message) {
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame("TAD Identification from Contact matrix");
-	        Structure_3DMaxFrame.setSize(new Dimension(580,300));
+	        Structure_3DMaxFrame.setSize(new Dimension(750,350));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	        
 	        Structure_3DMaxFrame.add(panel);
@@ -5420,20 +5430,6 @@ public void showStatus(String message) {
 	  }
   }
 
-/**
- * Create output frame for results
- */
-  public void Createframe() {
-	  
-
-		JFrame frame = new JFrame ("HelloWorldSwing");
-		frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-		JLabel label = new JLabel("Hello world");
-		Container contentPane = frame.getContentPane();
-		contentPane.add(label);
-		frame.setVisible(true);
-  }
-  
   
   
   /**
@@ -5462,7 +5458,7 @@ public void showStatus(String message) {
   
   
   /*
-   *  Tosin created a new button for 3DMax Modeller
+   *  Tosin:: Created a Button to create Index for the reference genome
    */
   public class CreateIndexAction extends NewAction{
 	  public CreateIndexAction() {
@@ -5473,17 +5469,482 @@ public void showStatus(String message) {
 	    public void actionPerformed(ActionEvent e) {
 			    	
 	    	
-	        JTextField inputContactFileField1 = new JTextField();  
+	        JTextField inputContactFileField1 = new JTextField(); 	                	        
+	        JTextField outputFileField = new JTextField();	        
+	        JTextField nthreads = new JTextField();   	  
+	        JTextField binaryFileField = new JTextField(); 	 
 	        
-	                	        
+	        JButton openContactFileButton1 = new JButton("Browse File");	       
+	        JLabel threadslabel =  new JLabel("Number of threads",JLabel.LEFT);
+	        
+	        openContactFileButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField1.setText(fileName);
+					
+				}
+			});
+	        
+	       
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	      
+	       
+	        JButton binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binaryFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Input Reference Genome file(.fa, .mfa, .fna ) ",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField1, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton1, gbc);	
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Directory ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+	     
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Choose tool to use: ",JLabel.LEFT), gbc);	        
+	
+	        ////////////////////////////////////////////////////////////////////	
+	        
+	        JRadioButton BWA,Bowtie;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			BWA=new JRadioButton("bwa - Burrows-Wheeler Alignment");  
+	    	BWA.setSelected(true);	    	
+			panel.add(BWA, gbc);
+			
+			
+			gbc.gridx = 2;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			Bowtie=new JRadioButton("bowtie2-build indexer");
+			panel.add(Bowtie, gbc);	
+			
+			ButtonGroup bg=new ButtonGroup();    
+	    	bg.add(BWA);bg.add(Bowtie);
+	    	
+	       Bowtie.addChangeListener(new ChangeListener() {				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (Bowtie.isSelected()){
+						threadslabel.setVisible(true);
+						nthreads.setVisible(true);						
+												
+					}else{
+						threadslabel.setVisible(false);
+						nthreads.setVisible(false);
+						 
+					}
+				}
+					
+			});
+	    	
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			
+			panel.add(new JLabel("Binary file ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binaryFileField.setPreferredSize(new Dimension(300, 21));		
+			panel.add(binaryFileField, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(binaryFileButton, gbc);
+	    	
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;		
+			threadslabel.setVisible(false);
+			panel.add(threadslabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			nthreads.setPreferredSize(new Dimension(300, 21));
+			nthreads.setText("8");
+			nthreads.setVisible(false);
+			panel.add(nthreads, gbc);
+
+			        	        
+			//////////////////////////////////////////////
+			y++;
+			JButton createscriptButton = new JButton("Generate Script");
+			JButton editscriptButton = new JButton("Edit Script");
+			JButton stopButton = new JButton("Stop");
+			  
+			gbc.gridx = 1;	        
+			gbc.gridy = y;
+			gbc.gridwidth = 1;	   
+			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
+			panel.add(createscriptButton, gbc);
+			
+			
+
+	    	JButton OSButton = new JButton("OS Compatibility");	      
+	       	        	     
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        OSButton.setHorizontalAlignment(JLabel.CENTER);
+	        OSButton.setEnabled(false);
+	        panel.add(OSButton, gbc);
+	        
+	      
+	        	
+	               
+			
+	        
+	        ////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+
+	        			
+			
+			////////////////////////////////////////////////	      
+		
+	        
+	        Frame Structure_3DMaxFrame = new JFrame("Create Index for Reference Genome");
+	        Structure_3DMaxFrame.setSize(new Dimension(950,320));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	      
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					String input = inputContactFileField1.getText();					
+					String output = outputFileField.getText();
+					String threads = nthreads.getText();
+					String binary = binaryFileField.getText();
+					
+					String script = "";
+						
+					
+					if (input == null || input.trim().equals("") || output == null ||output.trim().equals("") ) {
+						JOptionPane.showMessageDialog(null, "Input file, Reference genome file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+							
+					
+					if (binary==null || binary.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = output + "/Indexer_script.sh";
+					createscriptfile = Output;
+					if (wt.isExist(Output)) {
+						try {
+							wt.delete_file(Output);
+						} catch (Exception e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
+					}
+					
+					try {
+						//determine the algorithm to use
+						String local_script= "";
+						if (BWA.isSelected()) {
+							local_script = "mkdir bwa ";
+							script =  binary + " index -p bwa/ref_index " + input; 
+						}
+						
+						if (Bowtie.isSelected())
+						{
+							local_script = "mkdir bowtie2";
+							script =  binary + " " + input + " bowtie2/ref_index --threads " + String.valueOf(threads);
+						}
+					    
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script + "\n");
+						log_outputWriter.write(script);
+						
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					
+					
+					 try {
+							log_outputWriter.flush();
+							log_outputWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+					 
+					
+					 OSButton.setEnabled(true);
+					 stopButton.setEnabled(true);
+					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+				}
+				
+	        });
+	        
+	      	        
+	        ///////////////////////////////////////////////
+	        OSButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));						
+					 
+					RunScript scriptWorker = new RunScript();					  
+					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										String msg = scriptWorker.get();												
+																											
+										JOptionPane.showMessageDialog(null, msg);	
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error Occured. Please check OS compatibility and follow the manual Instructiuons for you OS :" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error Occured. Please check OS compatibility and follow the manual Instructiuons for you OS" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					scriptWorker.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        	        
+	        
+	  }
+  }
+
+
+  /**
+   * Class for PROGRESS BAR for Indexer
+   * @author Tosin
+   *
+   */
+  public class RunScript extends SwingWorker<String,Void>{
+  	@Override
+  	protected String doInBackground() throws Exception {
+  		boolean response = false;
+  		String msg = null;
+  		try{
+  			 String filePath = createscriptfile;
+  		     response = excuteCommand(filePath );
+  		}catch(Exception ex){
+  			ex.printStackTrace();
+  			return ex.getMessage();
+  		}
+  		
+  		if (response) {
+  			msg = "Operating System(OS) Supported. Execute the shell(.sh) script generated ";
+  		}
+  		else {
+  			msg = "Operating System(OS) is not Supported. Please check the manual for specific  Instructions on how to run for your OS ";
+  		}
+  		
+  		return msg;
+  	}
+  }
+  
+  
+  /**
+   * Execute the command for the shell script created
+   * @param filePath
+   * @throws IOException
+   */
+  public static boolean excuteCommand(String filePath) throws IOException{
+	     filePath = createscriptfile;
+	    File file = new File(filePath);
+	    if(!file.isFile()){
+	        throw new IllegalArgumentException("The file " + filePath + " does not exist");
+	    }
+	    if(isUnix() || isMac() || isSolaris()){
+	    	 Runtime.getRuntime().exec("chmod u+x "+filePath);
+	         // Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", filePath}, null);
+	        return true;
+	    }
+	    
+	    return false;
+	}
+	public static boolean isUnix(){
+	    String os = System.getProperty("os.name");  
+	    return (os.toLowerCase().indexOf("nux") >= 0 || os.toLowerCase().indexOf("nix") >= 0 || os.toLowerCase().indexOf("aix") >= 0);
+	}
+
+	public static boolean isWindows(){
+	    String os = System.getProperty("os.name");
+	    return os.toLowerCase().indexOf("win") >= 0;
+	}
+  
+	public static boolean isMac() {
+		  String os = System.getProperty("os.name");
+		    return os.toLowerCase().indexOf("mac") >= 0;
+	  }
+	public static boolean isSolaris() {
+		  String os = System.getProperty("os.name");
+		    return os.toLowerCase().indexOf("sunos") >= 0;
+	  }
+  
+  
+  
+  /*
+   *  Tosin created a new button for Mapping RAW files
+   */
+  public class MapAction extends NewAction{
+	  public MapAction () {
+		  super(mappingAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField1 = new JTextField(); 	                	        
 	        JTextField outputFileField = new JTextField();
 	        JTextField inputReadFileField1 = new JTextField();   
 	        JTextField inputReadFileField2 = new JTextField();   
-	               
+	        JTextField binaryFileField = new JTextField();   
+	        JTextField binarysamtoolsField = new JTextField();   
+	        JTextField nthreads = new JTextField();   	          
+	        
 	        JButton openContactFileButton1 = new JButton("Browse File");
 	        JButton openReadFileButton1 = new JButton("Browse File");
 	        JButton openReadFileButton2 = new JButton("Browse File");
-	      
+	        JLabel threadslabel =  new JLabel("Number of threads",JLabel.LEFT);
 	        
 	        openContactFileButton1.addActionListener(new ActionListener() {				
 				@Override
@@ -5512,10 +5973,10 @@ public void showStatus(String message) {
 				}
 			});
 	        
+	       
 	        	        	        
-	        JButton outputReadButton1 = new JButton("Browse File");
 	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
-	        outputReadButton1.addActionListener(new ActionListener() {				
+	        openReadFileButton1.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
@@ -5528,10 +5989,10 @@ public void showStatus(String message) {
 			});
 	        
 	        
-	        JButton outputReadButton2 = new JButton("Browse File");
+	       
 	        openReadFileButton2.setVisible(false);
 	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
-	        outputReadButton2.addActionListener(new ActionListener() {				
+	        openReadFileButton2.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
@@ -5542,6 +6003,37 @@ public void showStatus(String message) {
 					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
 				}
 			});
+	        
+	        JButton binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binaryFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        JButton samtools_binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binarysamtoolsField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        
 	        
 	        GridBagConstraints gbc = new GridBagConstraints();
 	        gbc.insets = new Insets(5, 5, 5, 5);
@@ -5559,7 +6051,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Input Reference Genome file(.fa, .mfa, .fna ) ",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Created Index Directory ",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -5661,15 +6153,14 @@ public void showStatus(String message) {
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	 
 	        gbc.gridwidth = 1;
-	        panel.add(new JLabel("Choose tool to use: ",JLabel.LEFT), gbc);	        
+	        panel.add(new JLabel("Choose Alignment tool to use: ",JLabel.LEFT), gbc);	        
 	
-	        ////////////////////////////////////////////////////////////////////
-	
-	        y++;
+	        ////////////////////////////////////////////////////////////////////	
+	        
 	        JRadioButton BWA,Bowtie;			
-			gbc.gridx = 0;
+			gbc.gridx = 1;
 			gbc.gridy = y;
-			gbc.gridwidth = 2;
+			gbc.gridwidth = 1;
 			BWA=new JRadioButton("bwa - Burrows-Wheeler Alignment");  
 	    	BWA.setSelected(true);	    	
 			panel.add(BWA, gbc);
@@ -5677,33 +6168,104 @@ public void showStatus(String message) {
 			
 			gbc.gridx = 2;
 			gbc.gridy = y;
-			gbc.gridwidth = 2;
+			gbc.gridwidth = 1;
 			Bowtie=new JRadioButton("bowtie2");
 			panel.add(Bowtie, gbc);	
 			
 			ButtonGroup bg=new ButtonGroup();    
 	    	bg.add(BWA);bg.add(Bowtie);
-			        	        
-	        //////////////////////////////////////////////
-	        y++;
-	        JButton runButton = new JButton("Build Index");
+	    		      
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			
+			panel.add(new JLabel("Tool binary file/wrapper ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binaryFileField.setPreferredSize(new Dimension(300, 21));		
+			panel.add(binaryFileField, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(binaryFileButton, gbc);
+	    	
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(threadslabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			nthreads.setPreferredSize(new Dimension(300, 21));
+			nthreads.setText("8");			
+			panel.add(nthreads, gbc);
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Analysis tool to use: ",JLabel.LEFT), gbc);       
+			
+			
+			JRadioButton sam;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			sam=new JRadioButton("samtools");  
+			sam.setSelected(true);	    	
+			panel.add(sam, gbc);
+			
+			
+			ButtonGroup bg1=new ButtonGroup();    
+			bg1.add(sam);
+			
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Samtools binary file  ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binarysamtoolsField.setPreferredSize(new Dimension(300, 21));
+			panel.add(binarysamtoolsField, gbc);	      
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(samtools_binaryFileButton, gbc);
+			//////////////////////////////////////////////
+			y++;
+			JButton createscriptButton = new JButton("Generate Script");
+			JButton editscriptButton = new JButton("Edit Script");
+			
+			gbc.gridx = 1;	        
+			gbc.gridy = y;
+			gbc.gridwidth = 1;	   
+			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
+			panel.add(createscriptButton, gbc);			
+			
+
+	    	JButton OSButton = new JButton("OS Compatibility");
 	        JButton stopButton = new JButton("Stop");
 	       	        	     
-	        gbc.gridx = 1;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 1;	   
-	        runButton.setHorizontalAlignment(JLabel.CENTER);
-	        panel.add(runButton, gbc);
-	        
 	        gbc.gridx = 2;	        
 	        gbc.gridy = y;
-	        gbc.gridwidth = 1;
-	        stopButton.setHorizontalAlignment(JLabel.CENTER);
-	        panel.add(stopButton, gbc);
-	        	
-	        
-				        
-			
+	        gbc.gridwidth = 1;	   
+	        OSButton.setHorizontalAlignment(JLabel.CENTER);
+	        OSButton.setEnabled(false);
+	        panel.add(OSButton, gbc);
+	       
 	        
 	        ////////////////////////////////////////////////
 			y++;
@@ -5717,30 +6279,30 @@ public void showStatus(String message) {
 			////////////////////////////////////////////////	      
 		
 	        
-	        Frame Structure_3DMaxFrame = new JFrame("Create Index from Reference Genome");
-	        Structure_3DMaxFrame.setSize(new Dimension(680,350));
+	        Frame Structure_3DMaxFrame = new JFrame("Mapping the RAW files");
+	        Structure_3DMaxFrame.setSize(new Dimension(830,430));
 	        Structure_3DMaxFrame.setLocation(400, 400);
 	      
 	        Structure_3DMaxFrame.add(panel);
 	        Structure_3DMaxFrame.setVisible(true);
+	        	        
 	        
-	        
-	        
-	        
-	        runButton.addActionListener(new ActionListener() {				
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
 				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					String input1 = inputContactFileField1.getText();					
+				public void actionPerformed(ActionEvent e) {				
+					String input1 = inputContactFileField1 .getText(); // reference index
 					String output = outputFileField.getText();
 					String Read1 = inputReadFileField1.getText();
-					String Read2 = inputReadFileField1.getText();
-					String inputdata_type = Parameter.inputtype_Tuple;
-					String res = "";
+					String Read2 = inputReadFileField2.getText();
+					String script = "";
+					String binary = binaryFileField.getText();	
+					String threads = nthreads.getText();
+					String samtools = binarysamtoolsField.getText();
 					
 					
-					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("") ) {
-						JOptionPane.showMessageDialog(null, "Input file, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -5751,51 +6313,119 @@ public void showStatus(String message) {
 						}
 					}
 					
-					TADwriter wt = new TADwriter();
-					BufferedWriter log_outputWriter = null;
-					String Output = output + "/Indexer.sh";
-					if (wt.isExist(Output)) {
-						try {
-							wt.delete_file(Output);
-						} catch (Exception e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+					if (threads == null || threads.trim().equals("")) {
+						threads = "1";						
+						JOptionPane.showMessageDialog(null, "Number of threads set to 1","Information",JOptionPane.INFORMATION_MESSAGE);						
+						
 					}
 					
+					
+					if (binary==null || binary.trim().equals("") || samtools==null ||  samtools.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = null;
+					
+					
 					try {
-						log_outputWriter = new BufferedWriter(new FileWriter( Output));
-						// Create shell script content based on user selection
+						//determine the algorithm to use
+						String local_script= "";
+						if (BWA.isSelected()) {
+							local_script = "mkdir bwa_align\n";
+							if (!PairRead.isSelected()) {			
+								script = binary + " mem  -t " + String.valueOf(threads) + " " + input1 + " /ref_index " + Read1 + " | " +
+										 samtools  + " view -Shb - > bwa_align/bwa_mapped.bam " ;; 
+							}else {
+								
+								script = binary + " mem  -t " + String.valueOf(threads) + " " + input1 + "/ref_index "  + Read1 + " " + Read2 + " | " +
+										 samtools  + " view -Shb - > bwa_align/bwa_mapped.bam " ;; 
+								
+							}
+							Output = output + "/Mapper_script_bwa.sh";
+							
+						} 
 						
-						if (PairRead.isSelected()) {
-							
+						if (Bowtie.isSelected()) {
+							local_script = "mkdir bowtie2_align\n";
+							if (!PairRead.isSelected()) {							
+							script =  binary + " -x " + input1 + "/ref_index" + " --threads " + String.valueOf(threads) +
+									" -U " + Read1 + "--reorder | " + samtools  + " view -Shb - > bowtie2_align/bowtie2_mapped.bam " ;
+							}
+							else {
+								script =  binary + " -x " + input1 + "/ref_index" + " --threads " + String.valueOf(threads) +
+										" -1 " + Read1 + " -2 " + Read2 + " | "+ samtools  + " view -Shb - > bowtie2_align/bowtie2_mapped.bam " ;;
+							}
+							Output = output + "/Mapper_script_bowtie2.sh";
 						}
-						else {
-							
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 						}
-							
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						
+						createscriptfile = Output;
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
+					
+					
+					 try {
+							log_outputWriter.flush();
+							log_outputWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+					 
+					 editscriptButton.setEnabled(true);
+					 OSButton.setEnabled(true);
+					 stopButton.setEnabled(true);
+					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+				}
+				
+	        });
+	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					
+					
+				}
+					
+					
+	        });
+	        
+	        ///////////////////////////////////////////////
+	        OSButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					
 					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
 					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
 					dialog.setPreferredSize(new Dimension(300,80));
 					
 					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
 					
-					 try {
-						log_outputWriter.flush();
-						log_outputWriter.close();
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}  
-				
-					
-					 Compare comparisonWorkder = new Compare();					  
-					comparisonWorkder.addPropertyChangeListener(new PropertyChangeListener() {
+					 
+					RunScript scriptWorker = new RunScript();					  
+					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
 						
 						@Override
 						public void propertyChange(PropertyChangeEvent evt) {
@@ -5810,11 +6440,10 @@ public void showStatus(String message) {
 									dialog.dispose();
 									
 									try {
-										String co = comparisonWorkder.get();																			
-										String msg =  "Successfully Completed! Report saved in output directory";																				
-										//JOptionPane.showMessageDialog(null, msg);	
-										String 	out_text = String.valueOf(TADComparison.TotalNo);	
 										
+										String msg = scriptWorker.get();												
+										
+										JOptionPane.showMessageDialog(null, msg);	
 										
 									} catch (InterruptedException e) {									
 										e.printStackTrace();
@@ -5840,7 +6469,7 @@ public void showStatus(String message) {
 						}
 					  });				  
 					  
-					comparisonWorkder.execute();
+					scriptWorker.execute();
 					  
 					JProgressBar progressBar = new JProgressBar();
 				    progressBar.setIndeterminate(true);
@@ -5870,6 +6499,1565 @@ public void showStatus(String message) {
 	  }
   }
 
+      
+  
+  /*
+   *  Tosin created a new button for filtering the generated .bam files
+   */
+  public class FilterAction extends NewAction{
+	  public FilterAction () {
+		  super(filterAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputbamFileField = new JTextField(); 	                	        
+	        JTextField outputFileField = new JTextField();
+	        JTextField inputFlagField = new JTextField();   
+	        JTextField inputQualityField = new JTextField();  
+	        JTextField binarysamtoolsField = new JTextField();   
+	       
+	        
+	        JButton openbamFileButton = new JButton("Browse File");	       
+	    
+	        openbamFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputbamFileField.setText(fileName);
+					
+				}
+			});
+	        
+	       
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	       
+	        	        	        
+	      
+	        
+	        JButton samtools_binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binarysamtoolsField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Created .bam file",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputbamFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputbamFileField, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openbamFileButton, gbc);	
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Directory ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Analysis tool to use: ",JLabel.LEFT), gbc);       
+			
+			
+			JRadioButton sam;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			sam=new JRadioButton("samtools");  
+			sam.setSelected(true);	    	
+			panel.add(sam, gbc);
+			
+			
+			ButtonGroup bg1=new ButtonGroup();    
+			bg1.add(sam);
+	    	
+	    	////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Samtools binary file  ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binarysamtoolsField.setPreferredSize(new Dimension(300, 21));
+			panel.add(binarysamtoolsField, gbc);	      
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(samtools_binaryFileButton, gbc);
+			
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Samtools Flag (-F) ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputFlagField.setPreferredSize(new Dimension(300, 21));
+	        inputFlagField.setText("0x4");
+	        panel.add(inputFlagField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        JLabel l1 = new JLabel("Remove Unmapped reads",JLabel.LEFT);
+	        l1.setEnabled(false);
+	        panel.add(l1, gbc);	    
+	        
+				        
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			JLabel Readlabel = new JLabel("Samtools MAPQ (-q)",JLabel.LEFT);			
+			panel.add(Readlabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			inputQualityField.setPreferredSize(new Dimension(300, 21));
+			inputQualityField.setText("1");
+			panel.add(inputQualityField, gbc);
+			
+			gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        JLabel l2 = new JLabel("Remove low quality reads",JLabel.LEFT);
+	        l2.setEnabled(false);
+	        panel.add(l2, gbc);	    
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 1;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			JLabel l3 = new JLabel("Hint: Max MAPQ for bowtie2 = 42 ",JLabel.LEFT);
+			l3.setVisible(false);
+			l3.setFont(new Font("Serif", Font.ITALIC, 12));
+			l3.setForeground(Color.RED);
+	        panel.add(l3, gbc);	    		
+			        
+			
+					
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+			//////////////////////////////////////////////
+			y++;
+			JButton createscriptButton = new JButton("Generate Script");
+			JButton editscriptButton = new JButton("Edit Script");
+			
+			gbc.gridx = 1;	        
+			gbc.gridy = y;
+			gbc.gridwidth = 1;	   
+			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
+			panel.add(createscriptButton, gbc);			
+			
+
+	    	JButton OSButton = new JButton("OS Compatibility");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	   
+	        OSButton.setHorizontalAlignment(JLabel.CENTER);
+	        OSButton.setEnabled(false);
+	        panel.add(OSButton, gbc);
+	       	        
+	       
+
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+		
+			
+			////////////////////////////////////////////////	      
+		
+	        
+	        Frame Structure_3DMaxFrame = new JFrame("Filtering the generated BAM alignment file");
+	        Structure_3DMaxFrame.setSize(new Dimension(720,335));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	      
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {				
+					String input1 = inputbamFileField.getText(); // .bam file
+					String output = outputFileField.getText();
+					String flag =   inputFlagField.getText();
+					String quality = inputQualityField.getText();
+					String script = "";				
+					String samtools = binarysamtoolsField.getText();
+					
+					
+					if (input1 == null || input1.trim().equals("")|| output == null || output.trim().equals("") ||  quality ==null|| quality.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Input, quality path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					if (samtools ==null ||samtools.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = null;
+					String name = null;
+					String[] tmp = input1.split("[\\/ \\. \\\\]");
+					if (input1.contains(".")){
+						name = tmp[tmp.length - 2];
+					}else{
+						name = tmp[tmp.length - 1];
+					}
+					
+					try {
+						//determine the algorithm to use
+						String local_script= "";
+						if (sam.isSelected()) {							
+							
+							if (flag ==null || flag.trim().equals("") ) {
+								script = samtools  + " view -b " + " -q " + quality + " " +  input1 +" > " + name + ".filtered.bam " ; 
+							
+							}
+							else
+							{
+								script = samtools  + " view -b -F " + flag + " -q " + quality + " " + input1 +" > " + name + ".filtered.bam " ; 
+							
+							}
+							
+							Output = output + "/Filter_script_samtools.sh";
+							
+						} 
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						
+						createscriptfile = Output;
+						
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					
+					
+					 try {
+							log_outputWriter.flush();
+							log_outputWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+					 
+					 editscriptButton.setEnabled(true);
+					 OSButton.setEnabled(true);
+					 stopButton.setEnabled(true);
+					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+				}
+				
+	        });
+	        
+	     
+	        
+	        ///////////////////////////////////////////////
+	        OSButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
+					
+					 
+					RunScript scriptWorker = new RunScript();					  
+					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										
+										String msg = scriptWorker.get();												
+										
+										JOptionPane.showMessageDialog(null, msg);	
+										
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					scriptWorker.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "Operation Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+  
+  
+  
+  /*
+   *  Tosin created a new button for formatting the filtered .bam files
+   */
+  public class FormatAction extends NewAction{
+	  public FormatAction () {
+		  super(formatAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputbamFileField = new JTextField(); 	                	        
+	        JTextField outputFileField = new JTextField();
+	       
+	        JTextField binarysamtoolsField = new JTextField();   
+	       
+	        
+	        JButton openbamFileButton = new JButton("Browse File");	       
+	    
+	        openbamFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputbamFileField.setText(fileName);
+					
+				}
+			});
+	        
+	       
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	       
+	        	        	        
+	      
+	        
+	        JButton samtools_binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binarysamtoolsField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Created .bam file",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputbamFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputbamFileField, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openbamFileButton, gbc);	
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Directory ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Analysis tool to use: ",JLabel.LEFT), gbc);       
+			
+			
+			JRadioButton sam;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			sam=new JRadioButton("samtools");  
+			sam.setSelected(true);	    	
+			panel.add(sam, gbc);
+			
+			
+			ButtonGroup bg1=new ButtonGroup();    
+			bg1.add(sam);
+	    	
+	    	////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Samtools binary file  ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binarysamtoolsField.setPreferredSize(new Dimension(300, 21));
+			panel.add(binarysamtoolsField, gbc);	      
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(samtools_binaryFileButton, gbc);
+			
+	        
+					
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+			//////////////////////////////////////////////
+			y++;
+			JButton createscriptButton = new JButton("Generate Script");
+			JButton editscriptButton = new JButton("Edit Script");
+			
+			gbc.gridx = 1;	        
+			gbc.gridy = y;
+			gbc.gridwidth = 1;	   
+			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
+			panel.add(createscriptButton, gbc);			
+			
+
+	    	JButton OSButton = new JButton("OS Compaibility");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;	   
+	        OSButton.setHorizontalAlignment(JLabel.CENTER);
+	        OSButton.setEnabled(false);
+	        panel.add(OSButton, gbc);
+	       	        
+	       
+
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+		
+			
+			////////////////////////////////////////////////	      
+		
+	        
+	        Frame FilterFrame = new JFrame("Format a filtered BAM file");
+	        FilterFrame.setSize(new Dimension(720,290));
+	        FilterFrame.setLocation(400, 400);
+	      
+	        FilterFrame.add(panel);
+	        FilterFrame.setVisible(true);
+	        	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {				
+					String input1 = inputbamFileField.getText(); // .bam file
+					String output = outputFileField.getText();
+					
+					String script = "";				
+					String samtools = binarysamtoolsField.getText();
+					
+					
+					if (input1 == null || output == null ||  samtools ==null ||samtools.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Index folder, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					if (samtools ==null ||samtools.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = null;					
+					
+					try {
+						//determine the algorithm to use
+						String local_script= "";
+						if (sam.isSelected()) {							
+							
+							script = samtools + " view "  +  input1 + " | " + 
+									"awk 'BEGIN {FS=\"\\t\"; OFS=\"\\t\"} {name1=$1; str1=and($2,16); chr1=substr($3, 4); pos1=$4; mapq1=$5; getline; name2=$1; str2=and($2,16); chr2=substr($3, 4); pos2=$4; mapq2=$5; if(name1==name2) { if (chr1>chr2){print name1, str2, chr2, pos2,1, str1, chr1, pos1, 0, mapq2, mapq1} else {print name1, str1, chr1, pos1, 0, str2, chr2, pos2 ,1, mapq1, mapq2}}}'  | sort -k3,3d -k7,7d > "+
+									"GenomeFlow_HiC_Medium_Format.input" ; 
+						
+							Output = output + "/Format_script_samtools.sh";
+							
+						} 
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						createscriptfile = Output;
+						
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					
+					
+					 try {
+							log_outputWriter.flush();
+							log_outputWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+					 
+					 editscriptButton.setEnabled(true);
+					 OSButton.setEnabled(true);
+					 stopButton.setEnabled(true);
+					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+				}
+				
+	        });
+	        
+	     
+	        
+	        ///////////////////////////////////////////////
+	        OSButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
+					
+					 
+					RunScript scriptWorker = new RunScript();					  
+					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										
+										String msg = scriptWorker.get();												
+										
+										JOptionPane.showMessageDialog(null, msg);	
+										
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					scriptWorker.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "Operation Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+   
+  /**
+   * Function to make the 3 Processes above automatic
+   * @author Tosin
+   *
+   */
+  
+  public class ExpressAction extends NewAction{
+	  public ExpressAction () {
+		  super(expressAction);
+	  }
+	  
+	  @Override
+	    public void actionPerformed(ActionEvent e) {
+			    	
+	    	
+	        JTextField inputContactFileField1 = new JTextField(); 	                	        
+	        JTextField outputFileField = new JTextField();
+	        JTextField inputReadFileField1 = new JTextField();   
+	        JTextField inputReadFileField2 = new JTextField();   
+	        JTextField binaryFileField = new JTextField();   
+	        JTextField binarysamtoolsField = new JTextField();   
+	        JTextField nthreads = new JTextField();   	    
+	        
+	        JTextField inputQualityField = new JTextField();   
+	        JTextField  inputFlagField =new JTextField();  
+	        
+	        JButton openContactFileButton1 = new JButton("Browse File");
+	        JButton openReadFileButton1 = new JButton("Browse File");
+	        JButton openReadFileButton2 = new JButton("Browse File");
+	        JLabel threadslabel =  new JLabel("Number of threads",JLabel.LEFT);
+	        
+	        openContactFileButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputContactFileField1.setText(fileName);
+					
+				}
+			});
+	        
+	       
+	        
+	        JButton outputFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        outputFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					outputFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	       
+	        	        	        
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        openReadFileButton1.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputReadFileField1.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	       
+	        openReadFileButton2.setVisible(false);
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        openReadFileButton2.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					inputReadFileField2.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        JButton binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binaryFileField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        JButton samtools_binaryFileButton = new JButton("Browse File");
+	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					
+					binarysamtoolsField.setText(fileName);
+					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+				}
+			});
+	        
+	        
+	        
+	        
+	        GridBagConstraints gbc = new GridBagConstraints();
+	        gbc.insets = new Insets(5, 5, 5, 5);
+	        
+	        JPanel panel = new JPanel(){
+	        	@Override
+	            public Dimension getPreferredSize() {
+	                return new Dimension(450, 350);
+	            }	       
+	        };	                
+	        
+	        panel.setLayout(new GridBagLayout());  	        
+	        
+	        int y = 0;
+	        ////////////////////////////////////////////////	        
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	                
+	        panel.add(new JLabel("Created Index Directory ",JLabel.LEFT), gbc);
+	        
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputContactFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputContactFileField1, gbc);
+	        
+	        	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	  
+	        gbc.gridwidth = 1;
+	        panel.add(openContactFileButton1, gbc);	
+	        	      
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Directory ",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        outputFileField.setPreferredSize(new Dimension(300, 21));
+	        panel.add(outputFileField, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(outputFileButton, gbc);
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Load Read-1(.fastq)",JLabel.LEFT), gbc);	        
+	
+	        gbc.gridx = 1;
+	        gbc.gridy = y;
+	        gbc.gridwidth = 2;
+	        inputReadFileField1.setPreferredSize(new Dimension(300, 21));
+	        panel.add(inputReadFileField1, gbc);
+	        
+	        gbc.gridx = 3;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(openReadFileButton1, gbc);
+				        
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			JLabel Readlabel = new JLabel("Load Read-2(.fastq)",JLabel.LEFT);
+			Readlabel.setVisible(false);
+			panel.add(Readlabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			inputReadFileField2.setPreferredSize(new Dimension(300, 21));
+			inputReadFileField2.setVisible(false);
+			panel.add(inputReadFileField2, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;
+			panel.add(openReadFileButton2, gbc);
+	        
+			////////////////////////////////////////////////////////////////////
+				    	
+			y++;			
+			JCheckBox PairRead = new JCheckBox("is Pair End Read?");
+			gbc.gridx = 0;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			panel.add(PairRead, gbc);
+			PairRead.addChangeListener(new ChangeListener() {
+				
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					if (PairRead.isSelected()){
+						 Readlabel.setVisible(true);
+						 inputReadFileField2.setVisible(true);
+						 openReadFileButton2.setVisible(true);
+												
+					}else{
+						Readlabel.setVisible(false);
+						 inputReadFileField2.setVisible(false);
+						 openReadFileButton2.setVisible(false);
+					}
+				}
+					
+			});
+	        
+	        ////////////////////////////////////////////////
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Choose Alignment tool to use: ",JLabel.LEFT), gbc);	        
+	
+	        ////////////////////////////////////////////////////////////////////	
+	        
+	        JRadioButton BWA,Bowtie;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			BWA=new JRadioButton("bwa - Burrows-Wheeler Alignment");  
+	    	BWA.setSelected(true);	    	
+			panel.add(BWA, gbc);
+			
+			
+			gbc.gridx = 2;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			Bowtie=new JRadioButton("bowtie2");
+			panel.add(Bowtie, gbc);	
+			
+			ButtonGroup bg=new ButtonGroup();    
+	    	bg.add(BWA);bg.add(Bowtie);
+	    		      
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			
+			panel.add(new JLabel("Tool binary file/wrapper ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binaryFileField.setPreferredSize(new Dimension(300, 21));		
+			panel.add(binaryFileField, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(binaryFileButton, gbc);
+	    	
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(threadslabel, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			nthreads.setPreferredSize(new Dimension(300, 21));
+			nthreads.setText("8");			
+			panel.add(nthreads, gbc);
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Analysis tool to use: ",JLabel.LEFT), gbc);       
+			
+			
+			JRadioButton sam;			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 1;
+			sam=new JRadioButton("samtools");  
+			sam.setSelected(true);	    	
+			panel.add(sam, gbc);
+			
+			
+			ButtonGroup bg1=new ButtonGroup();    
+			bg1.add(sam);
+			
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Samtools binary file  ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			binarysamtoolsField.setPreferredSize(new Dimension(300, 21));
+			panel.add(binarysamtoolsField, gbc);	      
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;			
+			panel.add(samtools_binaryFileButton, gbc);
+			
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("Samtools Flag (-F) ",JLabel.LEFT), gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			inputFlagField.setPreferredSize(new Dimension(300, 21));
+			inputFlagField.setText("0x4");
+			panel.add(inputFlagField, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;
+			JLabel l1 = new JLabel("Remove Unmapped reads",JLabel.LEFT);
+			l1.setEnabled(false);
+			panel.add(l1, gbc);	    
+			
+			
+			////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			JLabel label = new JLabel("Samtools MAPQ (-q)",JLabel.LEFT);			
+			panel.add(label, gbc);	        
+			
+			gbc.gridx = 1;
+			gbc.gridy = y;
+			gbc.gridwidth = 2;
+			inputQualityField.setPreferredSize(new Dimension(300, 21));
+			inputQualityField.setText("1");
+			panel.add(inputQualityField, gbc);
+			
+			gbc.gridx = 3;
+			gbc.gridy = y;	
+			gbc.gridwidth = 1;
+			JLabel l2 = new JLabel("Remove low quality reads",JLabel.LEFT);
+			l2.setEnabled(false);
+			panel.add(l2, gbc);	    
+			////////////////////////////////////////////////
+			
+			y++;
+			JButton createscriptButton = new JButton("Generate Script");
+			JButton editscriptButton = new JButton("Edit Script");
+			
+			gbc.gridx = 1;	        
+			gbc.gridy = y;
+			gbc.gridwidth = 1;	   
+			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
+			panel.add(createscriptButton, gbc);			
+			
+
+	    	JButton OSButton = new JButton("OS Compatibility");
+	        JButton stopButton = new JButton("Stop");
+	       	        	     
+	        gbc.gridx = 2;	        
+	        gbc.gridy = y;
+	        gbc.gridwidth = 1;	   
+	        OSButton.setHorizontalAlignment(JLabel.CENTER);
+	        OSButton.setEnabled(false);
+	        panel.add(OSButton, gbc);
+	       
+	        
+	        ////////////////////////////////////////////////
+			y++;
+			gbc.gridx = 0;
+			gbc.gridy = y;	 
+			gbc.gridwidth = 1;
+			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
+
+	        			
+			
+			////////////////////////////////////////////////	      
+		
+	        
+	        Frame Structure_3DMaxFrame = new JFrame("HiC-Express");
+	        Structure_3DMaxFrame.setSize(new Dimension(880,510));
+	        Structure_3DMaxFrame.setLocation(400, 400);
+	      
+	        Structure_3DMaxFrame.add(panel);
+	        Structure_3DMaxFrame.setVisible(true);
+	        	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {				
+					String input1 = inputContactFileField1 .getText(); // reference index
+					String output = outputFileField.getText();
+					String Read1 = inputReadFileField1.getText();
+					String Read2 = inputReadFileField2.getText();
+					String script = "";
+					String binary = binaryFileField.getText();	
+					String threads = nthreads.getText();
+					String samtools = binarysamtoolsField.getText();
+					String flag =   inputFlagField.getText();
+					String quality = inputQualityField.getText();
+					String globalscript = "";
+					
+					
+					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					if (PairRead.isSelected()) {
+						if (Read2 ==null || Read2.trim().equals("") ) {
+							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+							return;
+						}
+					}
+					
+					if (threads == null || threads.trim().equals("")) {
+						threads = "1";						
+						JOptionPane.showMessageDialog(null, "Number of threads set to 1","Information",JOptionPane.INFORMATION_MESSAGE);						
+						
+					}
+					
+					
+					if (binary==null || binary.trim().equals("") || samtools==null ||  samtools.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					//quality 
+					if ( quality ==null || quality.trim().equals("")) {
+						JOptionPane.showMessageDialog(null, "Quality path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					TADwriter wt = new TADwriter();
+					BufferedWriter log_outputWriter = null;
+					String Output = null;
+					
+					// Mapping
+				
+					try {
+						//determine the algorithm to use
+						String local_script= "";
+						if (BWA.isSelected()) {
+							local_script = "mkdir bwa_align\n";
+							if (!PairRead.isSelected()) {			
+								script = binary + " mem  -t " + String.valueOf(threads) + " " + input1 + " /ref_index " + Read1 + " | " +
+										 samtools  + " view -Shb - > bwa_align/bwa_mapped.bam " ;; 
+							}else {
+								
+								script = binary + " mem  -t " + String.valueOf(threads) + " " + input1 + "/ref_index "  + Read1 + " " + Read2 + " | " +
+										 samtools  + " view -Shb - > bwa_align/bwa_mapped.bam " ;; 
+								
+							}
+							Output = output + "/Mapper_script_bwa.sh";
+							globalscript +=  "echo 'Mapping started.................'\n" + "./Mapper_script_bwa.sh\n";
+							
+							
+						} 
+						
+						if (Bowtie.isSelected()) {
+							local_script = "mkdir bowtie2_align\n";
+							if (!PairRead.isSelected()) {							
+							script =  binary + " -x " + input1 + "/ref_index" + " --threads " + String.valueOf(threads) +
+									" -U " + Read1 + "--reorder | " + samtools  + " view -Shb - > bowtie2_align/bowtie2_mapped.bam " ;
+							}
+							else {
+								script =  binary + " -x " + input1 + "/ref_index" + " --threads " + String.valueOf(threads) +
+										" -1 " + Read1 + " -2 " + Read2 + " | "+ samtools  + " view -Shb - > bowtie2_align/bowtie2_mapped.bam " ;;
+							}
+							Output = output + "/Mapper_script_bowtie2.sh";
+							
+							globalscript +="\necho 'Mapping started.................'\n" +"./Mapper_script_bowtie2.sh\n";
+						
+						}
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						log_outputWriter.flush();
+						log_outputWriter.close();
+					 
+						
+						// Filtering
+						Output = null;
+						String Map_out  = null;
+						String name = null;
+						
+						if (BWA.isSelected()) {
+							Map_out = output + "/bwa_align/bwa_mapped.bam ";					
+											
+						}
+						
+						if (Bowtie.isSelected()) {
+							Map_out = output + "/bowtie2_align/bowtie2_mapped.bam ";						
+						}
+						
+						String[] tmp = Map_out.split("[\\/ \\. \\\\]");
+						if ( Map_out.contains(".")){
+							name = tmp[tmp.length - 2];
+						}else{
+							name = tmp[tmp.length - 1];
+						}	
+						
+					
+						//determine the algorithm to use
+						local_script= "";
+						if (sam.isSelected()) {							
+							
+							if (flag ==null || flag.trim().equals("") ) {
+								script = samtools  + " view -b " + " -q " + quality + " " +  Map_out +" > " + name + ".filtered.bam " ; 
+							
+							}
+							else
+							{
+								script = samtools  + " view -b -F " + flag + " -q " + quality + " " + Map_out +" > " + name + ".filtered.bam " ; 
+							
+							}
+							
+							Output = output + "/Filter_script_samtools.sh";
+							globalscript +="\necho 'Filtering started.................'\n" +"./Filter_script_samtools.sh\n";
+							
+						} 
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+						log_outputWriter = new BufferedWriter(new FileWriter(Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						log_outputWriter.flush();
+						log_outputWriter.close();
+						
+						
+						// Format
+						Output = null;
+						String Format_out = name +  ".filtered.bam " ; 
+						//determine the algorithm to use
+					    local_script= "";
+						if (sam.isSelected()) {							
+							
+							script = samtools + " view "  +  Format_out + " | " + 
+									"awk 'BEGIN {FS=\"\\t\"; OFS=\"\\t\"} {name1=$1; str1=and($2,16); chr1=substr($3, 4); pos1=$4; mapq1=$5; getline; name2=$1; str2=and($2,16); chr2=substr($3, 4); pos2=$4; mapq2=$5; if(name1==name2) { if (chr1>chr2){print name1, str2, chr2, pos2,1, str1, chr1, pos1, 0, mapq2, mapq1} else {print name1, str1, chr1, pos1, 0, str2, chr2, pos2 ,1, mapq1, mapq2}}}'  | sort -k3,3d -k7,7d > "+
+									 "GenomeFlow_HiC_Medium_Format.input" ; 
+						
+							Output = output + "/Format_script_samtools.sh";
+							globalscript +="\necho 'Formatting started.................'\n" +"./Format_script_samtools.sh\n";
+						} 
+					    
+						if (wt.isExist(Output)) {
+							try {
+								wt.delete_file(Output);
+							} catch (Exception e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+						}
+						
+						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(local_script);
+						log_outputWriter.write(script);
+						log_outputWriter.flush();
+						log_outputWriter.close();
+							
+						globalscript +="\n echo 'HiC-Express Processes Completed Succesfully.................'\n";
+						// Now Write the global script that Contains All
+						String change_dir = "cd " + output + "\n";
+						String Ultimate = output + "/HiC-Express.sh";
+						log_outputWriter = new BufferedWriter(new FileWriter(Ultimate));
+						log_outputWriter.write(change_dir);
+						log_outputWriter.write(globalscript);
+						log_outputWriter.flush();
+						log_outputWriter.close();
+						
+						createscriptfile = Output;
+						
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+					
+					
+					 try {
+							log_outputWriter.flush();
+							log_outputWriter.close();
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} 
+					 
+					 editscriptButton.setEnabled(true);
+					 OSButton.setEnabled(true);
+					 stopButton.setEnabled(true);
+					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+				}
+				
+	        });
+	        
+	        
+	        ///////////////////////////////////////////////
+	        createscriptButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					
+					
+					
+				}
+					
+					
+	        });
+	        
+	        ///////////////////////////////////////////////
+	        OSButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {					
+					Parameter.stoprunning = false;					
+					
+					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
+					dialog.setPreferredSize(new Dimension(300,80));
+					
+					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
+					
+					 
+					RunScript scriptWorker = new RunScript();					  
+					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										
+										String msg = scriptWorker.get();												
+										
+										JOptionPane.showMessageDialog(null, msg);	
+										
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+					scriptWorker.execute();
+					  
+					JProgressBar progressBar = new JProgressBar();
+				    progressBar.setIndeterminate(true);
+				    JPanel panel = new JPanel(new BorderLayout());
+				      
+				    panel.add(progressBar, BorderLayout.CENTER);
+				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
+				    dialog.add(panel);
+				    dialog.pack();
+				    dialog.setLocationRelativeTo(win);
+				    dialog.setVisible(true);
+
+			    	
+				}
+			});
+	        
+	        stopButton.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+				// set stop running to true					
+				Parameter.stoprunning = true;
+				JOptionPane.showMessageDialog(null, "Operation Stopped");
+				}
+			});
+	        
+	  }
+  }
+
+      
+  
+  
   
   //end
   

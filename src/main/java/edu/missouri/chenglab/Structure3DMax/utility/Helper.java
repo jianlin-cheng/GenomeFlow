@@ -179,6 +179,7 @@ public class Helper {
 		FileReader fr = null;
 		BufferedReader br = null;
 		ArrayList<Constraint> lst = new ArrayList<Constraint>();
+			
 		
 		try{
 			Pattern splitRegex = Pattern.compile("\\s+");
@@ -249,6 +250,7 @@ public class Helper {
 
 		
 		try{
+			
 			Pattern splitRegex = Pattern.compile("[:\\s]+");
 			fr = new FileReader(file);
 			br = new BufferedReader(fr);
@@ -261,10 +263,13 @@ public class Helper {
 			int x,y,nbr = -1; // number of elements in one line
 			double f;
 			int prevProgress = 0;
+			
 			while((ln = br.readLine()) != null){
 				
 				readLength += ln.length();
 				readPercent = (int) Math.round(lengthPerPercent * readLength);
+			
+				
 				
 				if (inputPara.getViewer() != null && readPercent > prevProgress && readPercent % 5 == 0){					
 					inputPara.getViewer().displayMessage(new String[]{"Reading input data ... " + readPercent + " %" });
@@ -277,6 +282,8 @@ public class Helper {
 				if (nbr == -1){
 					nbr = splitRegex.split(ln).length;
 				}
+				
+			
 				
 				//read every a thoudsand lines and split at once
 				sb.append(ln).append(" ");
@@ -303,6 +310,8 @@ public class Helper {
 						//interaction frequency
 						f = Double.parseDouble(st[i * nbr + 2]);
 						
+						
+						
 						if (x != y && !Double.isNaN(f) && f > thr 
 								/*&& Math.abs(x-y) < Constants.MAX_CONTACT_LENGTH
 									&& Math.abs(x-y) > Constants.MIN_CONTACT_LENGTH*/){
@@ -319,6 +328,7 @@ public class Helper {
 						System.out.print(".");
 				}		
 			}
+			
 			
 			//if sb is not empty
 			if (sb.toString().trim().length() > 0){

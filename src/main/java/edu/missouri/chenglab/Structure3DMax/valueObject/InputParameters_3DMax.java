@@ -1,6 +1,7 @@
 package edu.missouri.chenglab.Structure3DMax.valueObject;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jmol.api.JmolViewer;
 
@@ -35,6 +36,8 @@ public class InputParameters_3DMax {
 	//to map ID to genomic ID in 3D model
 	private List<Integer> lstPos = null;
 	
+	private Map<Integer, GenomicLocation> idToGenomLocation;
+	
 	private boolean isStopRunning = false;
 	
 	private boolean isSearchingConversionFactor = false;
@@ -43,7 +46,7 @@ public class InputParameters_3DMax {
 	private String genomeID = "hg19";
 	
 	private double minConversionFactor = 0.1;
-	private double maxConversionFactor = 2.0;
+	private double maxConversionFactor = 3.0;
 	
 	public InputParameters_3DMax copy(){
 		InputParameters_3DMax inputParameter = new InputParameters_3DMax();
@@ -78,10 +81,25 @@ public class InputParameters_3DMax {
 		inputParameter.setMinConversionFactor(minConversionFactor);
 		inputParameter.setMaxConversionFactor(maxConversionFactor);
 		
+		inputParameter.setIdToGenomLocation(idToGenomLocation);
+		
 		return inputParameter;
 	}
 	
 	
+	
+	public Map<Integer, GenomicLocation> getIdToGenomLocation() {
+		return idToGenomLocation;
+	}
+
+
+
+	public void setIdToGenomLocation(Map<Integer, GenomicLocation> idToGenomLocation) {
+		this.idToGenomLocation = idToGenomLocation;
+	}
+
+
+
 	public double getMinConversionFactor() {
 		return minConversionFactor;
 	}

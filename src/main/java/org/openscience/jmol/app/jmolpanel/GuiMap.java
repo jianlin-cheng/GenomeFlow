@@ -272,6 +272,15 @@ public class GuiMap {
     
     labels.put("CreateIndex", GT._("Build Index for reference genome"));
     labels.put("CreateIndexTip", GT._("Click to Create Index for reference genome sequence "));
+    labels.put("Mapping", GT._("Map the raw FASTQ files"));
+    labels.put("MappingTip", GT._("Click to start Mapping the RAW .fatq files "));
+    labels.put("Filter", GT._("Filter a BAM alignment file"));
+    labels.put("FilterTip", GT._("Click to filter the .bam file"));
+    labels.put("Format", GT._("Convert a BAM file to a HiC input file Format"));
+    labels.put("FormatTip", GT._("Click to format the .bam file"));
+    
+    labels.put("Express", GT._("HiC-Express"));
+    labels.put("ExpressTip", GT._("Click to Process input Fastq file"));
     
     labels.put("3DMax", GT._("3DMax-3D Modeller"));
     labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
