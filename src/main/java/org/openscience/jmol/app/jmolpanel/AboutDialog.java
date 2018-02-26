@@ -25,14 +25,18 @@ package org.openscience.jmol.app.jmolpanel;
 
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
@@ -45,6 +49,7 @@ import org.jmol.util.Logger;
 class AboutDialog extends JDialog implements HyperlinkListener {
 
   protected JEditorPane html;
+  protected JEditorPane contact;
   protected URL aboutURL;
   
   private JmolViewer viewer;
@@ -67,9 +72,12 @@ class AboutDialog extends JDialog implements HyperlinkListener {
   
   AboutDialog(JFrame fr, JmolViewer viewer) {
 
-    super(fr, GT._("About Jmol"), true);
-    this.viewer = viewer;
+   
+    /*
+     super(fr, GT._("About Jmol"), true);   
+     this.viewer = viewer;
     try {
+ 
       aboutURL = this.getClass().getClassLoader().getResource(
           JmolResourceHandler.getStringX("About.aboutURL"));
       if (aboutURL != null) {
@@ -83,16 +91,37 @@ class AboutDialog extends JDialog implements HyperlinkListener {
       }
       html.setEditable(false);
       html.addHyperlinkListener(this);
+    
+      
     } catch (MalformedURLException e) {
       Logger.warn("Malformed URL: " + e);
     } catch (IOException e) {
       Logger.warn("IOException: " + e);
     }
+     */
+	//Tosin added 
+    super(fr, GT._("About GenomeFlow"), true);
+	this.viewer = viewer;
+	
+	contact = new JEditorPane("text/plain", GT._(
+	            "Bioinformatics, Data Mining, Machine Learning (BDM) Laboratory,\n"
+	            + "University of Missouri, Columbia MO 65211.\n\n" 
+	            + " Jianlin Cheng, PhD.\n"
+	            + " Electrical Engineering and Computer Science Department,\n"
+	            + " University of Missouri, Columbia.\n"
+	            + " Email: chengji@missouri.edu.\n\n"	            
+				+ " Copyright 2018. All right reserved")); 
+	
+	contact .setEditable(false);
+	contact.setFont(new Font("Segoe UI", 0, 14));
+	contact .addHyperlinkListener(this);
+	//end
+	
     scroller = new JScrollPane() {
 
       @Override
       public Dimension getPreferredSize() {
-        return new Dimension(500, 400);
+        return new Dimension(500, 200);
       }
 
       @Override
@@ -101,7 +130,8 @@ class AboutDialog extends JDialog implements HyperlinkListener {
       }
     };
     scroller.getViewport().add(html);
-
+    scroller.getViewport().add(contact); //Tosin added
+    
     JPanel htmlWrapper = new JPanel(new BorderLayout());
     htmlWrapper.setAlignmentX(LEFT_ALIGNMENT);
     htmlWrapper.add(scroller, BorderLayout.CENTER);

@@ -206,7 +206,8 @@ public class GuiMap {
     labels.put("surfaceTool", GT._("SurfaceTool..."));
     labels.put("surfaceToolTip", GT._("Control Display of Surfaces"));
     labels.put("help", GT._("&Help"));
-    labels.put("about", GT._("About Jmol"));
+    // labels.put("about", GT._("About Jmol"));
+    labels.put("about", GT._("Contact us"));
     labels.put("uguide", GT._("User Guide"));
     labels.put("whatsnew", GT._("What's New"));
     labels.put("Prefs.showHydrogens", GT._("Hydrogens"));

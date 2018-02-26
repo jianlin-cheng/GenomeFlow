@@ -284,6 +284,9 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String formatAction = "Format"; //Tosin added
   private static final String expressAction = "Express"; //Tosin added
   
+  private static String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n " + 
+			 "However, if you have installed Cygwin/MinGW, you are getting this error because, it appears that you are working outside your Cygwin/MinGW directory.\n " +
+			 "Please make sure all your files and output folders are in the Cygwin/MinGW directory.\n" ;
   public String[] CompareTADInput = null; // Tosin added
   public static String createscriptfile = null; //Tosin added
   
@@ -1218,8 +1221,11 @@ public void showStatus(String message) {
 
     @Override
 	public void actionPerformed(ActionEvent e) {
-      AboutDialog ad = new AboutDialog(frame, viewer);
-      ad.setVisible(true);
+     AboutDialog ad = new AboutDialog(frame, viewer);
+     ad.setVisible(true);
+    
+      
+      
     }
 
   }
@@ -5483,7 +5489,23 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputContactFileField1.setText(fileName);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputContactFileField1.setText(fileName);			         				       
+				    }
+					 else {
+						 
+						 fileName = pathEdit(fileName);
+						 
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+						 inputContactFileField1.setText(fileName);
+						 }
+					 }
+					
 					
 				}
 			});
@@ -5494,13 +5516,28 @@ public void showStatus(String message) {
 	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
 	        outputFileButton.addActionListener(new ActionListener() {				
 				@Override
-				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+				public void actionPerformed(ActionEvent e) {					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					outputFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 outputFileField.setText(fileName);		         				       
+				    }
+					 else {
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (!isValidpath(fileName)) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 outputFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	      
@@ -5510,12 +5547,30 @@ public void showStatus(String message) {
 	        binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binaryFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binaryFileField.setText(fileName);	         				       
+				    }
+					 else {
+						 
+						 fileName= pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binaryFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -5660,21 +5715,7 @@ public void showStatus(String message) {
 			createscriptButton.setHorizontalAlignment(JLabel.CENTER);
 			panel.add(createscriptButton, gbc);
 			
-			
-
-	    	JButton OSButton = new JButton("OS Compatibility");	      
-	       	        	     
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 1;	   
-	        OSButton.setHorizontalAlignment(JLabel.CENTER);
-	        OSButton.setEnabled(false);
-	        panel.add(OSButton, gbc);
-	        
-	      
-	        	
-	               
-			
+		
 	        
 	        ////////////////////////////////////////////////
 			y++;
@@ -5685,9 +5726,7 @@ public void showStatus(String message) {
 
 	        			
 			
-			////////////////////////////////////////////////	      
-		
-	        
+			////////////////////////////////////////////////  
 	        Frame Structure_3DMaxFrame = new JFrame("Create Index for Reference Genome");
 	        Structure_3DMaxFrame.setSize(new Dimension(950,320));
 	        Structure_3DMaxFrame.setLocation(400, 400);
@@ -5765,142 +5804,98 @@ public void showStatus(String message) {
 							e1.printStackTrace();
 						} 
 					 
-					
-					 OSButton.setEnabled(true);
-					 stopButton.setEnabled(true);
+								
+					 
 					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
 	        });
 	        
 	      	        
-	        ///////////////////////////////////////////////
-	        OSButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					
-					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
-					dialog.setPreferredSize(new Dimension(300,80));
-					
-					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));						
-					 
-					RunScript scriptWorker = new RunScript();					  
-					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
-							switch (evt.getPropertyName()){
-							case "progress":
-								break;
-							case "state":
-								switch ((StateValue)evt.getNewValue()){
-								case DONE:
-									
-									win.setEnabled(true);
-									dialog.dispose();
-									
-									try {
-										String msg = scriptWorker.get();												
-																											
-										JOptionPane.showMessageDialog(null, msg);	
-									} catch (InterruptedException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error Occured. Please check OS compatibility and follow the manual Instructiuons for you OS :" + e.getMessage());
-									} catch (ExecutionException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error Occured. Please check OS compatibility and follow the manual Instructiuons for you OS" + e.getMessage());
-									}
-									
-									
-									break;
-								case PENDING:								
-									break;
-								case STARTED:
-									dialog.setVisible(true);
-									win.setEnabled(false);								
-									break;
-								default:								
-									break;
-								}
-							}
-							
-						}
-					  });				  
-					  
-					scriptWorker.execute();
-					  
-					JProgressBar progressBar = new JProgressBar();
-				    progressBar.setIndeterminate(true);
-				    JPanel panel = new JPanel(new BorderLayout());
-				      
-				    panel.add(progressBar, BorderLayout.CENTER);
-				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
-				    dialog.add(panel);
-				    dialog.pack();
-				    dialog.setLocationRelativeTo(win);
-				    dialog.setVisible(true);
-
-			    	
-				}
-			});
-	        	        
+	                
 	        
 	  }
   }
 
 
-  /**
-   * Class for PROGRESS BAR for Indexer
-   * @author Tosin
-   *
-   */
-  public class RunScript extends SwingWorker<String,Void>{
-  	@Override
-  	protected String doInBackground() throws Exception {
-  		boolean response = false;
-  		String msg = null;
-  		try{
-  			 String filePath = createscriptfile;
-  		     response = excuteCommand(filePath );
-  		}catch(Exception ex){
-  			ex.printStackTrace();
-  			return ex.getMessage();
-  		}
-  		
-  		if (response) {
-  			msg = "Operating System(OS) Supported. Execute the shell(.sh) script generated ";
-  		}
-  		else {
-  			msg = "Operating System(OS) is not Supported. Please check the manual for specific  Instructions on how to run for your OS ";
-  		}
-  		
-  		return msg;
-  	}
+  public static boolean isValidpath(String path) {
+	  
+	  //change to lower case
+	  String text = path.toLowerCase();
+	  String wordToFind_1 = "cygwin";	
+	  String wordToFind_2 = "mingw";	
+	  int position_1 = text.indexOf (wordToFind_1);
+	  int position_2 = text.indexOf (wordToFind_2);
+	  	
+	  boolean resp = true;
+	  if (position_1 < 0 && position_2 < 0) {
+		  //not found
+		  resp =  false;		  
+	  } 
+	  
+	 return resp;
+	  
   }
   
   
+   
+  
   /**
-   * Execute the command for the shell script created
-   * @param filePath
-   * @throws IOException
+   * Edit and Rewrite the path for windows user
+   * @param path
    */
-  public static boolean excuteCommand(String filePath) throws IOException{
-	     filePath = createscriptfile;
-	    File file = new File(filePath);
-	    if(!file.isFile()){
-	        throw new IllegalArgumentException("The file " + filePath + " does not exist");
-	    }
-	    if(isUnix() || isMac() || isSolaris()){
-	    	 Runtime.getRuntime().exec("chmod u+x "+filePath);
-	         // Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", filePath}, null);
-	        return true;
-	    }
-	    
-	    return false;
+   public static String pathEdit(String path) {
+	   //change to lower case
+	   String lowpath = path.toLowerCase();
+	   //search for cygwin and mingw in the string.
+	   String found = findword(lowpath,path);
+	   // if string cannot be found give error message
+	   if(found==null || found.trim().equals("")) {
+		   path = "";
+	   }
+	   else {
+		  path = found; 
+	   }
+		   
+	  return path;
+   }
+   
+   /**
+    * 
+    * @param text
+    * @return
+    */
+  public static String findword(String text, String Oldtext) {	 
+	  String wordToFind_1 = "cygwin";	
+	  String wordToFind_2 = "mingw";	
+	  int position_1 = text.indexOf (wordToFind_1);
+	  int position_2 = text.indexOf (wordToFind_2);
+	  int index = 0;
+	
+	  String resp = null;
+	  if (position_1 < 0 && position_2 < 0) {
+		  //not found
+		  resp = null;		  
+	  } else {
+		  // found 
+		  if (position_1 >=0) {
+			  index = position_1;
+		  }else {
+			  index = position_2;
+		  }
+		  text = text.replace(text.substring(0,index), "");
+		  text = Oldtext.substring(index, Oldtext.length());
+		  // find the position of first (front_slash)
+		  int pos = text.indexOf("\\");
+		  text = text.replace(text.substring(0,pos), "");
+		  //change all front slash to back slash
+		  text = text.replace("\\", "/");
+		  resp = text;
 	}
-	public static boolean isUnix(){
+	  
+	 return resp; 
+  }
+   public static boolean isUnix(){
 	    String os = System.getProperty("os.name");  
 	    return (os.toLowerCase().indexOf("nux") >= 0 || os.toLowerCase().indexOf("nix") >= 0 || os.toLowerCase().indexOf("aix") >= 0);
 	}
@@ -5952,7 +5947,22 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputContactFileField1.setText(fileName);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputContactFileField1.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName = pathEdit(fileName);
+												 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputContactFileField1.setText(fileName);
+						 }
+					 }
+					
 					
 				}
 			});
@@ -5968,8 +5978,25 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					outputFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 outputFileField.setText(fileName);
+				    }
+					 else {
+						 
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (!isValidpath(fileName)) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
+								
+						 }else {
+							 outputFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -5979,28 +6006,63 @@ public void showStatus(String message) {
 	        openReadFileButton1.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputReadFileField1.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputReadFileField1.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName= pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputReadFileField1.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
 	        
 	       
 	        openReadFileButton2.setVisible(false);
-	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	      
 	        openReadFileButton2.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputReadFileField2.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputReadFileField2.setText(fileName);
+						 }
+					 }
 					
-					inputReadFileField2.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					
 				}
 			});
 	        
@@ -6009,12 +6071,30 @@ public void showStatus(String message) {
 	        binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+				
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binaryFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binaryFileField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName= pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binaryFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -6023,12 +6103,30 @@ public void showStatus(String message) {
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binarysamtoolsField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binarysamtoolsField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binarysamtoolsField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -6256,17 +6354,7 @@ public void showStatus(String message) {
 			panel.add(createscriptButton, gbc);			
 			
 
-	    	JButton OSButton = new JButton("OS Compatibility");
-	        JButton stopButton = new JButton("Stop");
-	       	        	     
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 1;	   
-	        OSButton.setHorizontalAlignment(JLabel.CENTER);
-	        OSButton.setEnabled(false);
-	        panel.add(OSButton, gbc);
-	       
-	        
+	    		        
 	        ////////////////////////////////////////////////
 			y++;
 			gbc.gridx = 0;
@@ -6391,8 +6479,7 @@ public void showStatus(String message) {
 						} 
 					 
 					 editscriptButton.setEnabled(true);
-					 OSButton.setEnabled(true);
-					 stopButton.setEnabled(true);
+					
 					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
@@ -6411,90 +6498,7 @@ public void showStatus(String message) {
 					
 	        });
 	        
-	        ///////////////////////////////////////////////
-	        OSButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					
-					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
-					dialog.setPreferredSize(new Dimension(300,80));
-					
-					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
-					
-					 
-					RunScript scriptWorker = new RunScript();					  
-					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
-							switch (evt.getPropertyName()){
-							case "progress":
-								break;
-							case "state":
-								switch ((StateValue)evt.getNewValue()){
-								case DONE:
-									
-									win.setEnabled(true);
-									dialog.dispose();
-									
-									try {
-										
-										String msg = scriptWorker.get();												
-										
-										JOptionPane.showMessageDialog(null, msg);	
-										
-									} catch (InterruptedException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
-									} catch (ExecutionException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
-									}
-									
-									
-									break;
-								case PENDING:								
-									break;
-								case STARTED:
-									dialog.setVisible(true);
-									win.setEnabled(false);								
-									break;
-								default:								
-									break;
-								}
-							}
-							
-						}
-					  });				  
-					  
-					scriptWorker.execute();
-					  
-					JProgressBar progressBar = new JProgressBar();
-				    progressBar.setIndeterminate(true);
-				    JPanel panel = new JPanel(new BorderLayout());
-				      
-				    panel.add(progressBar, BorderLayout.CENTER);
-				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
-				    dialog.add(panel);
-				    dialog.pack();
-				    dialog.setLocationRelativeTo(win);
-				    dialog.setVisible(true);
-
-			    	
-				}
-			});
-	        
-	        stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Parameter.stoprunning = true;
-				JOptionPane.showMessageDialog(null, "Operation Stopped");
-				}
-			});
+	       
 	        
 	  }
   }
@@ -6528,7 +6532,22 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputbamFileField.setText(fileName);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputbamFileField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+												 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputbamFileField.setText(fileName);
+						 }
+					 }
+					
 					
 				}
 			});
@@ -6544,8 +6563,26 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					outputFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 outputFileField.setText(fileName);
+				    }
+					 else {
+						
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (!isValidpath(fileName)) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);		
+							 					
+								
+						 }else {
+							 outputFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -6558,12 +6595,30 @@ public void showStatus(String message) {
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binarysamtoolsField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binarysamtoolsField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binarysamtoolsField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -6720,7 +6775,7 @@ public void showStatus(String message) {
 			//////////////////////////////////////////////
 			y++;
 			JButton createscriptButton = new JButton("Generate Script");
-			JButton editscriptButton = new JButton("Edit Script");
+	
 			
 			gbc.gridx = 1;	        
 			gbc.gridy = y;
@@ -6729,17 +6784,6 @@ public void showStatus(String message) {
 			panel.add(createscriptButton, gbc);			
 			
 
-	    	JButton OSButton = new JButton("OS Compatibility");
-	        JButton stopButton = new JButton("Stop");
-	       	        	     
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 2;	   
-	        OSButton.setHorizontalAlignment(JLabel.CENTER);
-	        OSButton.setEnabled(false);
-	        panel.add(OSButton, gbc);
-	       	        
-	       
 
 			////////////////////////////////////////////////
 			y++;
@@ -6841,100 +6885,13 @@ public void showStatus(String message) {
 							e1.printStackTrace();
 						} 
 					 
-					 editscriptButton.setEnabled(true);
-					 OSButton.setEnabled(true);
-					 stopButton.setEnabled(true);
+					
 					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
 	        });
 	        
 	     
-	        
-	        ///////////////////////////////////////////////
-	        OSButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					
-					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
-					dialog.setPreferredSize(new Dimension(300,80));
-					
-					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
-					
-					 
-					RunScript scriptWorker = new RunScript();					  
-					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
-							switch (evt.getPropertyName()){
-							case "progress":
-								break;
-							case "state":
-								switch ((StateValue)evt.getNewValue()){
-								case DONE:
-									
-									win.setEnabled(true);
-									dialog.dispose();
-									
-									try {
-										
-										String msg = scriptWorker.get();												
-										
-										JOptionPane.showMessageDialog(null, msg);	
-										
-									} catch (InterruptedException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
-									} catch (ExecutionException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
-									}
-									
-									
-									break;
-								case PENDING:								
-									break;
-								case STARTED:
-									dialog.setVisible(true);
-									win.setEnabled(false);								
-									break;
-								default:								
-									break;
-								}
-							}
-							
-						}
-					  });				  
-					  
-					scriptWorker.execute();
-					  
-					JProgressBar progressBar = new JProgressBar();
-				    progressBar.setIndeterminate(true);
-				    JPanel panel = new JPanel(new BorderLayout());
-				      
-				    panel.add(progressBar, BorderLayout.CENTER);
-				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
-				    dialog.add(panel);
-				    dialog.pack();
-				    dialog.setLocationRelativeTo(win);
-				    dialog.setVisible(true);
-
-			    	
-				}
-			});
-	        
-	        stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Parameter.stoprunning = true;
-				JOptionPane.showMessageDialog(null, "Operation Stopped");
-				}
-			});
 	        
 	  }
   }
@@ -6968,7 +6925,22 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputbamFileField.setText(fileName);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputbamFileField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+												 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputbamFileField.setText(fileName);
+						 }
+					 }
+					
 					
 				}
 			});
@@ -6980,11 +6952,29 @@ public void showStatus(String message) {
 	        outputFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+				
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
-					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);					
-					outputFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);		
+					
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 outputFileField.setText(fileName);
+				    }
+					 else {
+						 
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (!isValidpath(fileName)) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
+								
+						 }else {
+							 outputFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -6993,16 +6983,34 @@ public void showStatus(String message) {
 	      
 	        
 	        JButton samtools_binaryFileButton = new JButton("Browse File");
-	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
+	       
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binarysamtoolsField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binarysamtoolsField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binarysamtoolsField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -7114,17 +7122,6 @@ public void showStatus(String message) {
 			panel.add(createscriptButton, gbc);			
 			
 
-	    	JButton OSButton = new JButton("OS Compaibility");
-	        JButton stopButton = new JButton("Stop");
-	       	        	     
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 2;	   
-	        OSButton.setHorizontalAlignment(JLabel.CENTER);
-	        OSButton.setEnabled(false);
-	        panel.add(OSButton, gbc);
-	       	        
-	       
 
 			////////////////////////////////////////////////
 			y++;
@@ -7212,100 +7209,13 @@ public void showStatus(String message) {
 						} 
 					 
 					 editscriptButton.setEnabled(true);
-					 OSButton.setEnabled(true);
-					 stopButton.setEnabled(true);
+					
 					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
 	        });
 	        
 	     
-	        
-	        ///////////////////////////////////////////////
-	        OSButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					
-					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
-					dialog.setPreferredSize(new Dimension(300,80));
-					
-					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
-					
-					 
-					RunScript scriptWorker = new RunScript();					  
-					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
-							switch (evt.getPropertyName()){
-							case "progress":
-								break;
-							case "state":
-								switch ((StateValue)evt.getNewValue()){
-								case DONE:
-									
-									win.setEnabled(true);
-									dialog.dispose();
-									
-									try {
-										
-										String msg = scriptWorker.get();												
-										
-										JOptionPane.showMessageDialog(null, msg);	
-										
-									} catch (InterruptedException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
-									} catch (ExecutionException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
-									}
-									
-									
-									break;
-								case PENDING:								
-									break;
-								case STARTED:
-									dialog.setVisible(true);
-									win.setEnabled(false);								
-									break;
-								default:								
-									break;
-								}
-							}
-							
-						}
-					  });				  
-					  
-					scriptWorker.execute();
-					  
-					JProgressBar progressBar = new JProgressBar();
-				    progressBar.setIndeterminate(true);
-				    JPanel panel = new JPanel(new BorderLayout());
-				      
-				    panel.add(progressBar, BorderLayout.CENTER);
-				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
-				    dialog.add(panel);
-				    dialog.pack();
-				    dialog.setLocationRelativeTo(win);
-				    dialog.setVisible(true);
-
-			    	
-				}
-			});
-	        
-	        stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Parameter.stoprunning = true;
-				JOptionPane.showMessageDialog(null, "Operation Stopped");
-				}
-			});
-	        
 	  }
   }
 
@@ -7347,7 +7257,23 @@ public void showStatus(String message) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputContactFileField1.setText(fileName);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputContactFileField1.setText(fileName);        				       
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+								inputContactFileField1.setText(fileName);
+						 }
+					 }
+					
+					
 					
 				}
 			});
@@ -7359,12 +7285,29 @@ public void showStatus(String message) {
 	        outputFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					outputFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+							outputFileField.setText(fileName);    				       
+				    }
+					 else {
+						
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (!isValidpath(fileName)) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+								outputFileField.setText(fileName);
+						 }
+					 }
+				
+					
 				}
 			});
 	        
@@ -7374,12 +7317,30 @@ public void showStatus(String message) {
 	        openReadFileButton1.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					inputReadFileField1.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputReadFileField1.setText(fileName);   				       
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputReadFileField1.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -7393,9 +7354,26 @@ public void showStatus(String message) {
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 inputReadFileField2.setText(fileName); 				       
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 inputReadFileField2.setText(fileName);
+						 }
+					 }
 					
-					inputReadFileField2.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					
 				}
 			});
 	        
@@ -7404,12 +7382,30 @@ public void showStatus(String message) {
 	        binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
-					binaryFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 binaryFileField.setText(fileName);			       
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+							 binaryFileField.setText(fileName);
+						 }
+					 }
+					
+					
 				}
 			});
 	        
@@ -7421,9 +7417,26 @@ public void showStatus(String message) {
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
+					//Check OS before setting
+					 if(isUnix() || isMac() || isSolaris()){ 
+							binarysamtoolsField.setText(fileName);
+				    }
+					 else {
+						 
+						 fileName=  pathEdit(fileName);
+						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
+						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
+						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 						
+						 if (fileName==null || fileName.trim().equals("")) {
+							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+								
+						 }else {
+								binarysamtoolsField.setText(fileName);
+						 }
+					 }
+				
 					
-					binarysamtoolsField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
 				}
 			});
 	        
@@ -7696,16 +7709,6 @@ public void showStatus(String message) {
 			panel.add(createscriptButton, gbc);			
 			
 
-	    	JButton OSButton = new JButton("OS Compatibility");
-	        JButton stopButton = new JButton("Stop");
-	       	        	     
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 1;	   
-	        OSButton.setHorizontalAlignment(JLabel.CENTER);
-	        OSButton.setEnabled(false);
-	        panel.add(OSButton, gbc);
-	       
 	        
 	        ////////////////////////////////////////////////
 			y++;
@@ -7947,8 +7950,7 @@ public void showStatus(String message) {
 						} 
 					 
 					 editscriptButton.setEnabled(true);
-					 OSButton.setEnabled(true);
-					 stopButton.setEnabled(true);
+					
 					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
@@ -7967,91 +7969,7 @@ public void showStatus(String message) {
 					
 	        });
 	        
-	        ///////////////////////////////////////////////
-	        OSButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {					
-					Parameter.stoprunning = false;					
-					
-					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
-					final JDialog dialog = new JDialog(win, "Creating Index ... please wait !", ModalityType.APPLICATION_MODAL);
-					dialog.setPreferredSize(new Dimension(300,80));
-					
-					// log_outputWriter.write(String.format("Recommended Number of Cluster (K) = %d\n",k_opt));	
-					
-					 
-					RunScript scriptWorker = new RunScript();					  
-					scriptWorker.addPropertyChangeListener(new PropertyChangeListener() {
-						
-						@Override
-						public void propertyChange(PropertyChangeEvent evt) {
-							switch (evt.getPropertyName()){
-							case "progress":
-								break;
-							case "state":
-								switch ((StateValue)evt.getNewValue()){
-								case DONE:
-									
-									win.setEnabled(true);
-									dialog.dispose();
-									
-									try {
-										
-										String msg = scriptWorker.get();												
-										
-										JOptionPane.showMessageDialog(null, msg);	
-										
-									} catch (InterruptedException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models:" + e.getMessage());
-									} catch (ExecutionException e) {									
-										e.printStackTrace();
-										JOptionPane.showMessageDialog(null, "Error while comparing models" + e.getMessage());
-									}
-									
-									
-									break;
-								case PENDING:								
-									break;
-								case STARTED:
-									dialog.setVisible(true);
-									win.setEnabled(false);								
-									break;
-								default:								
-									break;
-								}
-							}
-							
-						}
-					  });				  
-					  
-					scriptWorker.execute();
-					  
-					JProgressBar progressBar = new JProgressBar();
-				    progressBar.setIndeterminate(true);
-				    JPanel panel = new JPanel(new BorderLayout());
-				      
-				    panel.add(progressBar, BorderLayout.CENTER);
-				    panel.add(new JLabel(""), BorderLayout.PAGE_START);
-				    dialog.add(panel);
-				    dialog.pack();
-				    dialog.setLocationRelativeTo(win);
-				    dialog.setVisible(true);
-
-			    	
-				}
-			});
-	        
-	        stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Parameter.stoprunning = true;
-				JOptionPane.showMessageDialog(null, "Operation Stopped");
-				}
-			});
-	        
+	       
 	  }
   }
 
