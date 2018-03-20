@@ -62,6 +62,7 @@ import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -285,7 +286,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String expressAction = "Express"; //Tosin added
   
   private static String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n " + 
-			 "However, if you have installed Cygwin/MinGW, you are getting this error because, it appears that you are working outside your Cygwin/MinGW directory.\n " +
+			 "However, if you have installed Cygwin/MinGW, you are getting this error because it appears that you are working outside your Cygwin/MinGW directory.\n " +
 			 "Please make sure all your files and output folders are in the Cygwin/MinGW directory.\n" ;
   public String[] CompareTADInput = null; // Tosin added
   public static String createscriptfile = null; //Tosin added
@@ -2015,7 +2016,7 @@ public void showStatus(String message) {
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
-		  panel.add(new JLabel("Output File"), gbc);
+		  panel.add(new JLabel("Output Folder"), gbc); //tosin changed
 		  
 		  JTextField outputField = new JTextField();
 		  outputField.setPreferredSize(new Dimension(300,20));
@@ -2024,13 +2025,18 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 2;
 		  panel.add(outputField, gbc);
 		  
-		  JButton browserOutputFileButton = new JButton("Browse File");
+		  JButton browserOutputFileButton = new JButton("Browse File"); // tosin changed
 		  browserOutputFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
-					if (fileName == null) return;
+					if (fileName == null)  //tosin changed
+					{
+						String msgg = "Please choose the output directory to save the generated .hic file ";
+						JOptionPane.showMessageDialog(null, msgg,"Alert!",JOptionPane.ERROR_MESSAGE);
+						// return;
+					}
 					outputField.setText(fileName);					
 				}
 			});
@@ -2227,17 +2233,47 @@ public void showStatus(String message) {
 		  JButton processDataButton = new JButton("Convert to HiC");
 		  panel.add(processDataButton, gbc);
 		  
+		 
+		  
+		  
 		  processDataButton.addActionListener(new ActionListener() {
 				
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				
 				Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
 				final JDialog dialog = new JDialog(win, "Converting data ... please wait !", ModalityType.APPLICATION_MODAL);
 				dialog.setPreferredSize(new Dimension(300,80));
-				
-				
+								
 				String inputFile = inputField.getText();
 				String outputFile = outputField.getText();
+				
+								
+				if (inputFile == null ||inputFile.trim().equals("") || outputFile == null ||outputFile.trim().equals("")) {
+					JOptionPane.showMessageDialog(null, "Please specify the correct parameters. The Input File and the Output Directory are required fields.","Alert!",JOptionPane.ERROR_MESSAGE);						
+					return;
+				}	
+												
+				// Determine the input type tosin added
+				String newFile; String FileExt =  "hic";
+				newFile="GenomeFlow_Convert_" + generateUniqueFileName() + "." + FileExt;
+				
+				/* Format Input acepted //tosin added
+				 * if (!inputFile.endsWith(".input") ) {
+					JOptionPane.showMessageDialog(null, "Input File Error – expected file type is .input","Alert!",JOptionPane.ERROR_MESSAGE);						
+					return;
+				}*/
+				
+			    // Specify the output directory tosin added
+				File file = new File(outputFile);
+				if (!file.isDirectory()) {		
+					JOptionPane.showMessageDialog(null, "Output Directory Error – expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);	
+			        return;
+				}
+				
+				outputFile = outputFile + '/' + newFile;
+								
+				
 				int countThreshold = 0;
 				if (contactThresholdField.getText().length() > 0) countThreshold = Integer.parseInt(contactThresholdField.getText());
 				
@@ -2334,8 +2370,9 @@ public void showStatus(String message) {
 			    dialog.setLocationRelativeTo(win);
 			    dialog.setVisible(true);	
 				
-			}
-		});
+		
+		  }
+		  });
 
 		  
 		  
@@ -2403,10 +2440,13 @@ public void showStatus(String message) {
 		  browserFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					if (fileName == null) return;
-					pathField.setText(pathField.getText() + fileName + ";");					
+					pathField.setText("");// tosin added
+					pathField.setText(pathField.getText() + fileName + ";");						
+					
 				}
 			});
 		  gbc.gridx = 3;
@@ -2600,7 +2640,7 @@ public void showStatus(String message) {
 			
 			  @Override
 			  public void actionPerformed(ActionEvent e) {
-				  
+								  
 				  chrom1List.removeAllItems();
 				  chrom2List.removeAllItems();
 				  
@@ -2750,7 +2790,7 @@ public void showStatus(String message) {
 		  y++;
 		  gbc.gridx = 0;
 		  gbc.gridy = y;
-		  panel.add(new JLabel("Output File"), gbc);
+		  panel.add(new JLabel("Output Folder"), gbc);
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
@@ -2771,14 +2811,24 @@ public void showStatus(String message) {
 				
 				
 				if (outputFileField.getText().length() == 0) {
-					JOptionPane.showMessageDialog(null, "Please specify an output file!");
+					JOptionPane.showMessageDialog(null, "Please specify an output directory!");
 					return;
 				}
+								
+				//tosin edited
+				if (!CommonFunctions.isFolder(outputFileField.getText())) {
+					JOptionPane.showMessageDialog(null, "Output Directory Error – expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);
+					return;
+				}								
+				// Determine the input type tosin added
+				String newFile; String FileExt =  "txt";
+				newFile= "GenomeFlow_Extract_" + generateUniqueFileName() + "." + FileExt;		
+				String direct  = outputFileField.getText();
+				newFile = direct + '/' + newFile;
+				outputFileField.setText(newFile);
 				
-				if (CommonFunctions.isFolder(outputFileField.getText())) {
-					JOptionPane.showMessageDialog(null, "Please specify a file!");
-					return;
-				}
+				
+				
 				
 				ReadHiCData readHiCData = new ReadHiCData();				
 				
@@ -2803,6 +2853,8 @@ public void showStatus(String message) {
 				//if (!matrix.equals("Observed")) matrix = "oe";
 				MatrixType matrixType = MatrixType.enumValueFromString(matrix);
 				String outputfile = outputFileField.getText();
+				
+				outputFileField.setText(direct); //tosin added
 				
 				int chr1From = 0;
 				int chr1To = chr1.getLength();
@@ -5525,10 +5577,7 @@ public void showStatus(String message) {
 						 outputFileField.setText(fileName);		         				       
 				    }
 					 else {
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+						 					
 						 if (!isValidpath(fileName)) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -5558,10 +5607,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName= pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+											 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -5984,10 +6030,7 @@ public void showStatus(String message) {
 				    }
 					 else {
 						 
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (!isValidpath(fileName)) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
 								
@@ -6017,9 +6060,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName= pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						 
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
@@ -6050,10 +6091,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+						 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -6082,10 +6120,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName= pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -6114,10 +6149,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+						 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -6149,7 +6181,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Created Index Directory ",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Index Directory ",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -6569,10 +6601,7 @@ public void showStatus(String message) {
 				    }
 					 else {
 						
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+										 						
 						 if (!isValidpath(fileName)) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);		
 							 					
@@ -6606,10 +6635,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -6897,7 +6923,23 @@ public void showStatus(String message) {
   }
 
   
+  /**
+   * To get a new file name
+   * @author Tosin
+   *
+   */
   
+  public String generateUniqueFileName() {
+	    String filename = "";
+	    long millis = System.currentTimeMillis();
+	    String datetime = new Date().toGMTString();
+	    datetime = datetime.replace(" ", "");
+	    datetime = datetime.replace(":", "");
+	   
+	    filename =  Long.toString(millis);
+	    		
+	    return filename;
+	}
   
   /*
    *  Tosin created a new button for formatting the filtered .bam files
@@ -6962,10 +7004,7 @@ public void showStatus(String message) {
 				    }
 					 else {
 						 
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (!isValidpath(fileName)) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
 								
@@ -6998,10 +7037,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -7294,11 +7330,7 @@ public void showStatus(String message) {
 							outputFileField.setText(fileName);    				       
 				    }
 					 else {
-						
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												
 						 if (!isValidpath(fileName)) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -7328,10 +7360,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+					
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -7361,10 +7390,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -7393,9 +7419,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
+						
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
@@ -7424,10 +7448,7 @@ public void showStatus(String message) {
 					 else {
 						 
 						 fileName=  pathEdit(fileName);
-						 String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n  " + 
-						 "However, if you have installed Cygwin/MinGW, You are getting this error because, it appears your are working outside your Cygwin/MinGW directory\n " +
-						 "Please make sure all your files and output folders are in the Cygwin/MinGW directory\n" ;
-						 						
+												 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
 								
@@ -7459,7 +7480,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Created Index Directory ",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Index Directory ",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;

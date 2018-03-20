@@ -247,7 +247,7 @@ public class GuiMap {
     labels.put("2Dtools", GT._("2D-Funtions"));
     labels.put("3Dtools", GT._("3D-Funtions"));
     
-    labels.put("LorDG", GT._("LorDG-3D Modeller"));
+    labels.put("LorDG", GT._("LorDG-3D Modeler"));
     labels.put("LorDGTip", GT._("Click to reconstruct 3D chromosome/genome model with LorDG"));
     labels.put("LoopDetector", GT._("Loop Detection"));
     labels.put("LoopDetectorTip", GT._("Click to identify chromatin loops"));
@@ -283,7 +283,7 @@ public class GuiMap {
     labels.put("Express", GT._("HiC-Express"));
     labels.put("ExpressTip", GT._("Click to Process input Fastq file"));
     
-    labels.put("3DMax", GT._("3DMax-3D Modeller"));
+    labels.put("3DMax", GT._("3DMax-3D Modeler"));
     labels.put("3DMaxTip", GT._("Click to reconstruct 3D chromosome/genome model with 3DMax"));
     
    

@@ -7,6 +7,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import org.jmol.export.dialog.Dialog;
+
 import edu.missouri.chenglab.ClusterTAD.ClusterTAD;
 
 import java.awt.*;
@@ -15,13 +17,13 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 import edu.missouri.chenglab.Heatmap.TADFrame;
 import edu.missouri.chenglab.swingutilities.ExtractHiCWorker;
-
 
 /**
  * <p>This class shows the various options of the HeatMap.</p>
@@ -142,21 +144,20 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     
     ImageIcon[] icons;
     String[] names = {
-    		 		 
+    				  "GRADIENT_HOT",
     				  "GRADIENT_BLACK_TO_WHITE",
                       "GRADIENT_BLUE_TO_RED",
                       "GRADIENT_GREEN_YELLOW_ORANGE_RED",  
-                      "GRADIENT_HEAT",
-                      "GRADIENT_HOT",
+                      "GRADIENT_HEAT",                      
                       "GRADIENT_MAROON_TO_GOLD",
                       "GRADIENT_RAINBOW",
                       "GRADIENT_RED_TO_GREEN",
                       "GRADIENT_ROY"};
-    Color[][] gradients = {Gradient.GRADIENT_BLACK_TO_WHITE,
+    Color[][] gradients = {Gradient.GRADIENT_HOT,
+    					   Gradient.GRADIENT_BLACK_TO_WHITE,
                            Gradient.GRADIENT_BLUE_TO_RED,
                            Gradient.GRADIENT_GREEN_YELLOW_ORANGE_RED,
-                           Gradient.GRADIENT_HEAT,
-                           Gradient.GRADIENT_HOT,
+                           Gradient.GRADIENT_HEAT,                           
                            Gradient.GRADIENT_MAROON_TO_GOLD,
                            Gradient.GRADIENT_RAINBOW,
                            Gradient.GRADIENT_RED_TO_GREEN,
@@ -263,16 +264,17 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         openContactFileButton = new JButton("Browse File & Load");
         openContactFileButton.setBackground(Color.YELLOW);
         openContactFileButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {             
-            JFileChooser fc = new JFileChooser();
-            fc.setCurrentDirectory(new java.io.File("C:/Users"));
-            fc.setDialogTitle("File Browser.");
+            public void actionPerformed(ActionEvent e) {          
+     
+        	File workingDirectory = new File(System.getProperty("user.dir"));
+        	JFileChooser fc = new JFileChooser();
+        	fc.setCurrentDirectory(workingDirectory);
+        	fc.setDialogTitle("File Browser.");
             fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             if (fc.showOpenDialog(openContactFileButton) == JFileChooser.APPROVE_OPTION){
             	inputContactFileField .setText(fc.getSelectedFile().getAbsolutePath());
             }
-            
-            
+                    
            
            // JOptionPane.showMessageDialog(null, "Click on the DRAW HEATMAP button below to Draw !", "GenomeFlow-2D", JOptionPane.INFORMATION_MESSAGE);	
             	
@@ -608,13 +610,15 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         loadtadFileButton.setBackground(Color.YELLOW);
         loadtadFileButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {             
-            JFileChooser fc = new JFileChooser();
-            fc.setCurrentDirectory(new java.io.File("C:/Users"));
-            fc.setDialogTitle("File Browser.");
-            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-            if (fc.showOpenDialog(openContactFileButton) == JFileChooser.APPROVE_OPTION){
-            	inputtadFileField .setText(fc.getSelectedFile().getAbsolutePath());
-            }
+            	File workingDirectory = new File(System.getProperty("user.dir"));
+            	JFileChooser fc = new JFileChooser();
+            	fc.setCurrentDirectory(workingDirectory);
+            	fc.setDialogTitle("File Browser.");
+                fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+                if (fc.showOpenDialog(openContactFileButton) == JFileChooser.APPROVE_OPTION){
+                	inputContactFileField .setText(fc.getSelectedFile().getAbsolutePath());
+                }
+            
             
           //Disable zoom
         	if (Zoom.isSelected()) {

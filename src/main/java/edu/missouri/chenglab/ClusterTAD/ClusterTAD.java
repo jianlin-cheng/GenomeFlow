@@ -1110,7 +1110,7 @@ public class ClusterTAD {
 		    String Qscorefile =TADFolder + name + "_TAD_QualityScore_List.txt"; //file to hold Quality score of TAD written to file		   
 			wt.delete_file( Qscorefile);
 		    wt.writeList(Qscorefile, Quality); 
-		    JOptionPane.showMessageDialog(null, "Successfully Completed!, Check output directory for output files");
+		    JOptionPane.showMessageDialog(null, "Successfully Completed, Check output directory for output files");
 		    
 		  
 		    
