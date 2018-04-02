@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------------------------------------------------------------
 A comprehensive graphical tool to facilitate the entire process of 3D genome organization, modeling and analysis of Hi-C data. 
 
-GenomeFlow is capable of creating index for reference genome, generate maps from raw fastq data files, and support the reconstruction of  two-dimensional (2D) and 
+GenomeFlow is capable of creating index for reference genome, generating maps from raw fastq data files, supporting the reconstruction of  two-dimensional (2D) and 
 three-Dimensional (3D) chromosome and genome models with our graphical user interface.
 
 If you have further difficulties using GenomeFlow, please do not hesitate to contact us (chengji@missouri.edu) 
