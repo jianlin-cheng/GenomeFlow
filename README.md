@@ -27,7 +27,7 @@ In this repository, we include the folowing:
 --------------------------------------------------------------------	
 # Hardware and Software Requirements
 
-GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions, and three-dimensional (3D) models analysis called 3D-Function tools.  
+GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned Hi-C file called 2D-Functions, and three-dimensional (3D) models analysis called 3D-Functions tools.  
 
 ## Requirements
 GenomeFlow requires the use of a computer, with ideally >= 4 cores (min 1 core) and >= 4 GB RAM (min 2 GB RAM)
@@ -51,9 +51,8 @@ The latest version of Bowtie2 should be installed from  http://bowtie-bio.source
 
 The latest version of Bowtie2 should be installed Samtools (http://samtools.sourceforge.net/)
 
-
-Instructions on how to install BWA, Bowtie2, and Samtools can be found [here](https://github.com/jianlin-cheng/GenomeFlow/wiki/Installation)
-
+--------------------------------------------------------------------
+Installation Instructions for BWA, Bowtie2, and Samtools can be found [here](https://github.com/jianlin-cheng/GenomeFlow/wiki/Installation)
 --------------------------------------------------------------------	
 
 # Building from source code
