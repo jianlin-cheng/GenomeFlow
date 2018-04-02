@@ -3,7 +3,7 @@
 ------------------------------------------------------------------------------------------------------------------------------------
 A comprehensive graphical tool to facilitate the entire process of 3D genome organization, modeling and analysis of Hi-C data. 
 
-GenomeFlow is capable of creating index for reference genome, generating maps from raw fastq data files, supporting the reconstruction of  two-dimensional (2D) and 
+GenomeFlow is capable of creating index for reference genome, generating maps from raw fastq data files, and reconstructing two-dimensional (2D) and 
 three-Dimensional (3D) chromosome and genome models with a graphical user interface.
 
 If you have further difficulties using GenomeFlow, please do not hesitate to contact us (chengji@missouri.edu) 
@@ -27,7 +27,7 @@ In this repository, we include the folowing:
 --------------------------------------------------------------------	
 # Hardware and Software Requirements
 
-GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions, and the reconstruction and visualization of chromosome and genome three-dimensional (3D) models with our 3D-Function tools.  
+GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions, and three-dimensional (3D) models analysis called 3D-Function tools.  
 
 ## Requirements
 GenomeFlow requires the use of a computer, with ideally >= 4 cores (min 1 core) and >= 4 GB RAM (min 2 GB RAM)
