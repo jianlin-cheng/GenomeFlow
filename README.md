@@ -2,10 +2,11 @@
 # GenomeFlow : A Graphical Tool for Modeling and Analyzing 3D Genome Structure 
 ------------------------------------------------------------------------------------------------------------------------------------
 A comprehensive graphical tool to facilitate the entire process of 3D genome organization, modeling and analysis of Hi-C data. 
-GenomeFlow is capable of creatinf index for reference genome, generate maps from raw fastq data files, and support the reconstruction of  two-dimensional (2D) and 
+
+GenomeFlow is capable of creating index for reference genome, generate maps from raw fastq data files, and support the reconstruction of  two-dimensional (2D) and 
 three- Dimensional (3D) chromosome and genome models with our graphical user interface.
 
-If you have further difficulties using GenomeFlow, please do not hesitate to contact us:
+If you have further difficulties using GenomeFlow, please do not hesitate to contact us:<br />
 **Contact:** <br />
 		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jianlin Cheng, PhD <br />
 		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Department of Computer Science <br />
@@ -23,14 +24,11 @@ Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an e
 In this repository, we include the folowing
 * **executable**: contains the GenomeFlow .jar executable file and sample. Download latest version from [here](https://github.com/jianlin-cheng/GenomeFlow/releases)
 * examples: contains example data and outputs generated from ClusterTAD for these datasets 
-
 * src: contains the  source codes
-
 * user_guide: contains user guide
-
 * lib: contains the external libraries used in source code
 
-#Hardware and Software Requirements
+# Hardware and Software Requirements
 
 GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions. The third part Reconstruct and visualize three- Dimensional (3D) of chromosome and genome models with our 3D-Function tools  
 
@@ -50,7 +48,7 @@ The latest version of BWA should be installed from http://bio-bwa.sourceforge.ne
 
 ## Bowtie2 for 1D-Function 
 
-The latest version of Bowtie2  should be installed from  (http://bowtie-bio.sourceforge.net/index.shtml) 
+The latest version of Bowtie2  should be installed from  http://bowtie-bio.sourceforge.net/index.shtml
 
 # Building new jars
 The project uses JUnit for testing and Maven to manage dependencies and builds. It can be imported into Eclipse as a Maven project.
