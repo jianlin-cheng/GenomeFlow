@@ -53,6 +53,7 @@ The latest version of Bowtie2 should be installed Samtools (http://samtools.sour
 
 
 Installation Instructions for BWA, Bowtie2, and Samtools can be found [here](https://github.com/jianlin-cheng/GenomeFlow/wiki/Installation)
+
 --------------------------------------------------------------------	
 
 # Building from source code
