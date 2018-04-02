@@ -18,7 +18,7 @@ Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an e
 
 # Distribution
 
-In this repository, we include the folowing
+In this repository, we include the folowing:
 * **executable**: contains the GenomeFlow .jar executable file and sample datasets. Download latest version from [here](https://github.com/jianlin-cheng/GenomeFlow/releases)
 * src: contains the GenomeFlow source codes
 * user_guide: contains user guide
@@ -27,7 +27,7 @@ In this repository, we include the folowing
 --------------------------------------------------------------------	
 # Hardware and Software Requirements
 
-GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions. The third part Reconstruct and visualize three- Dimensional (3D) of chromosome and genome models with our 3D-Function tools.  
+GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions. The third part reconstruct and visualize three-dimensional (3D) of chromosome and genome models with our 3D-Function tools.  
 
 ## Requirements
 GenomeFlow requires the use of a computer, with ideally >= 4 cores (min 1 core) and >= 4 GB RAM (min 2 GB RAM)
@@ -52,6 +52,8 @@ The latest version of Bowtie2 should be installed from  http://bowtie-bio.source
 The latest version of Bowtie2 should be installed Samtools (http://samtools.sourceforge.net/)
 
 
+Instructions on how to install BWA, Bowtie2, and Samtools can be found [here](https://github.com/jianlin-cheng/GenomeFlow/wiki/Installation)
+
 --------------------------------------------------------------------	
 
 # Building from source code
@@ -69,7 +71,7 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 `mvn package`: to compile, test and package <br>
 
 
-## Compiling Source code
+## Compiling source code
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
 
 
