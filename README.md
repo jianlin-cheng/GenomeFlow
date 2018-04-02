@@ -6,18 +6,15 @@ A comprehensive graphical tool to facilitate the entire process of 3D genome org
 GenomeFlow is capable of creating index for reference genome, generate maps from raw fastq data files, and support the reconstruction of  two-dimensional (2D) and 
 three- Dimensional (3D) chromosome and genome models with our graphical user interface.
 
-If you have further difficulties using GenomeFlow, please do not hesitate to contact us:<br />
-**Contact:** <br />
-		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Jianlin Cheng, PhD <br />
-		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Department of Computer Science <br />
-		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;University of Missouri, Columbia <br />
-		 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Email: chengji@missouri.edu 
-	
+If you have further difficulties using GenomeFlow, please do not hesitate to contact us (chengji@missouri.edu) 
+
+--------------------------------------------------------------------		
 
 # Documentation
 
 Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an extensive documentation, or download the [user guide](https://github.com/jianlin-cheng/GenomeFlow/raw/master/user_guide/UserGuide_4.2.docx)
 
+--------------------------------------------------------------------	
 
 # Distribution
 
@@ -28,9 +25,10 @@ In this repository, we include the folowing
 * user_guide: contains user guide
 * lib: contains the external libraries used in source code
 
+--------------------------------------------------------------------	
 # Hardware and Software Requirements
 
-GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions. The third part Reconstruct and visualize three- Dimensional (3D) of chromosome and genome models with our 3D-Function tools  
+GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the 1D-Function, the analysis of binned HiC file called 2D-Functions. The third part Reconstruct and visualize three- Dimensional (3D) of chromosome and genome models with our 3D-Function tools.  
 
 ## Requirements
 GenomeFlow requires the use of a computer, with ideally >= 4 cores (min 1 core) and >= 4 GB RAM (min 2 GB RAM)
@@ -50,7 +48,9 @@ The latest version of BWA should be installed from http://bio-bwa.sourceforge.ne
 
 The latest version of Bowtie2  should be installed from  http://bowtie-bio.sourceforge.net/index.shtml
 
-# Building new jars
+--------------------------------------------------------------------	
+
+# Building from source code
 The project uses JUnit for testing and Maven to manage dependencies and builds. It can be imported into Eclipse as a Maven project.
 
 ## Requirements
@@ -69,3 +69,4 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
 
 
+--------------------------------------------------------------------	
