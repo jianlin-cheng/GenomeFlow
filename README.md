@@ -4,7 +4,7 @@
 A comprehensive graphical tool to facilitate the entire process of 3D genome organization, modeling and analysis of Hi-C data. 
 
 GenomeFlow is capable of creating index for reference genome, generate maps from raw fastq data files, and support the reconstruction of  two-dimensional (2D) and 
-three- Dimensional (3D) chromosome and genome models with our graphical user interface.
+three-Dimensional (3D) chromosome and genome models with our graphical user interface.
 
 If you have further difficulties using GenomeFlow, please do not hesitate to contact us (chengji@missouri.edu) 
 
@@ -19,9 +19,8 @@ Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an e
 # Distribution
 
 In this repository, we include the folowing
-* **executable**: contains the GenomeFlow .jar executable file and sample. Download latest version from [here](https://github.com/jianlin-cheng/GenomeFlow/releases)
-* examples: contains example data and outputs generated from ClusterTAD for these datasets 
-* src: contains the  source codes
+* **executable**: contains the GenomeFlow .jar executable file and sample datasets. Download latest version from [here](https://github.com/jianlin-cheng/GenomeFlow/releases)
+* src: contains the GenomeFlow source codes
 * user_guide: contains user guide
 * lib: contains the external libraries used in source code
 
@@ -41,12 +40,17 @@ To download and install the latest Java Runtime Environment (JRE), please go to 
 
 
 ## Burrows-Wheeler Aligner (BWA) for 1D-Function
-The latest version of BWA should be installed from http://bio-bwa.sourceforge.net/
+The latest version of BWA should be installed from http://bio-bwa.sourceforge.net/. 
 
 
 ## Bowtie2 for 1D-Function 
 
-The latest version of Bowtie2  should be installed from  http://bowtie-bio.sourceforge.net/index.shtml
+The latest version of Bowtie2 should be installed from  http://bowtie-bio.sourceforge.net/index.shtml
+
+## Samtools for 1D-Function	
+
+The latest version of Bowtie2 should be installed Samtools (http://samtools.sourceforge.net/)
+
 
 --------------------------------------------------------------------	
 
