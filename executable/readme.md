@@ -4,9 +4,11 @@ Flow with GenomeFlow!
 
 ----------
 
+UNIX/Linux/Mac OS X
+> - Start the program by executing the script: genomeflow.sh
 
-> - Start the program by executing the script: <kbd>genomeflow.sh</kbd>
-
+Windows OS
+> - Start the program by executing the script: genomeflow.bat
 
 **Folders**
 > - sample_data: sample data (including 3D models) to run functions
