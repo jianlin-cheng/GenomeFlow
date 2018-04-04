@@ -27,7 +27,7 @@ In this repository, we include the folowing:
 --------------------------------------------------------------------	
 # Hardware and Software Requirements
 
-GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the `[1D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/1D-Functions)`, the analysis of binned Hi-C file called `[2D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/2D-Functions)`, and three-dimensional (3D) models analysis called `[3D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/3D-Functions)` tools.  
+GenomeFlow consists of three parts: the pipeline that takes raw fastq files to create a formatted text files called the [1D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/1D-Functions), the analysis of binned Hi-C file called [2D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/2D-Functions), and three-dimensional (3D) models analysis called [3D-Functions](https://github.com/jianlin-cheng/GenomeFlow/wiki/3D-Functions) tools.  
 
 ## Requirements
 GenomeFlow requires the use of a computer, with ideally >= 4 cores (min 1 core) and >= 4 GB RAM (min 2 GB RAM)
