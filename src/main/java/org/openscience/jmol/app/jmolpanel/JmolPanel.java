@@ -5744,7 +5744,7 @@ public void showStatus(String message) {
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
 			nthreads.setPreferredSize(new Dimension(300, 21));
-			nthreads.setText("8");
+			nthreads.setText("3");
 			nthreads.setVisible(false);
 			panel.add(nthreads, gbc);
 
@@ -6335,7 +6335,7 @@ public void showStatus(String message) {
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
 			nthreads.setPreferredSize(new Dimension(300, 21));
-			nthreads.setText("8");			
+			nthreads.setText("3");			
 			panel.add(nthreads, gbc);
 			////////////////////////////////////////////////
 			y++;
@@ -7634,7 +7634,7 @@ public void showStatus(String message) {
 			gbc.gridy = y;
 			gbc.gridwidth = 2;
 			nthreads.setPreferredSize(new Dimension(300, 21));
-			nthreads.setText("8");			
+			nthreads.setText("3");			
 			panel.add(nthreads, gbc);
 			////////////////////////////////////////////////
 			y++;
