@@ -2781,7 +2781,14 @@ public void showStatus(String message) {
 					
 					if (fileName == null) return;
 					if (CommonFunctions.isFolder(fileName)){
-						fileName = fileName + "\\";
+											
+						//Check OS before setting
+						 if(isUnix() || isMac() || isSolaris()){ 
+							 fileName = fileName + "/";
+						 }
+						 else {						
+							 fileName = fileName + "\\";						
+						 }
 					}
 					outputFileField.setText(fileName);
 				}
