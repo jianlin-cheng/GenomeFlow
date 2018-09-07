@@ -1,5 +1,6 @@
 package edu.missouri.chenglab.Heatmap;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.SwingWorker.StateValue;
 import javax.swing.event.ChangeEvent;
@@ -15,6 +16,7 @@ import java.awt.*;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -113,6 +115,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
     JButton findtadButton;
     JButton displayheatmapButton;
     JButton exitButton;
+    JButton saveButton;
     public static JRadioButton color1,color2,color3,color4;      
     
     private final static String FILE_OPEN_WINDOW_NAME = "FileOpen";
@@ -238,6 +241,46 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
              
         listPane.add(Box.createVerticalStrut(20), gbc);
         
+        
+      // Try to Add Save Button
+        saveButton = new JButton("Save HeatMap");
+        saveButton.setBackground(Color.YELLOW);
+        saveButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {          
+     
+        	File workingDirectory = new File(System.getProperty("user.dir"));
+        	JFileChooser fc = new JFileChooser();
+        	fc.setCurrentDirectory(workingDirectory);
+        	fc.setDialogTitle("File Browser.");
+            fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+            int retrieval = fc.showSaveDialog(null);
+             
+            if (retrieval == JFileChooser.APPROVE_OPTION) {
+                try {
+                    //FileWriter fw = new FileWriter(chooser.getSelectedFile()+".png");
+                    //fw.write(sb.toString());
+                    //fw.close();
+                    File f = fc.getSelectedFile();
+                      String filePath = f.getPath();
+                      if(!filePath.toLowerCase().endsWith(".png"))
+                      {
+                          f = new File(filePath + ".png");
+                      }
+                    ImageIO.write((RenderedImage) panel.Image, "PNG", f);
+                    //ImageIo.
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+          
+            
+          }
+    });
+        listPane.add( saveButton, gbc);
+        
+                
+        listPane.add(Box.createVerticalStrut(10), gbc);
+        
 
         isMatrix= new JCheckBox("Is Square Matrix? (Input contact file )");
         isMatrix.setSelected(false);
@@ -348,7 +391,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         listPane.add(openContactFileButton, gbc);
         
                 
-        listPane.add(Box.createVerticalStrut(10), gbc);
+        listPane.add(Box.createVerticalStrut(9), gbc);
         
         JLabel label = new JLabel("Title:");
         listPane.add(label, gbc);
@@ -371,7 +414,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textYTitle.addFocusListener(this);
         listPane.add(textYTitle, gbc);
         
-        listPane.add(Box.createVerticalStrut(20), gbc);
+        listPane.add(Box.createVerticalStrut(13), gbc);
                
         label = new JLabel("Specify Matrix Index:");
         listPane.add(label, gbc);
@@ -381,43 +424,43 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         gbc.weightx = 1.0;
         label = new JLabel("X min:");
         gbc.gridx = 0;
-        gbc.gridy = 25;
+        gbc.gridy = 26;
         listPane.add(label, gbc);
         textXMin = new JTextField();
         textXMin.addFocusListener(this);
-        gbc.gridy = 26;
+        gbc.gridy = 27;
         listPane.add(textXMin, gbc);
         
         label = new JLabel("X max:");
         gbc.gridx = 1;
-        gbc.gridy = 25;
+        gbc.gridy = 26;
         listPane.add(label, gbc);
         textXMax = new JTextField();
         textXMax.addFocusListener(this);
-        gbc.gridy = 26;
+        gbc.gridy = 27;
         listPane.add(textXMax, gbc);
         
         label = new JLabel("Y min:");
         gbc.gridx = 2;
-        gbc.gridy = 25;
+        gbc.gridy = 26;
         listPane.add(label, gbc);
         textYMin = new JTextField();
         textYMin.addFocusListener(this);
-        gbc.gridy = 26;
+        gbc.gridy = 27;
         listPane.add(textYMin, gbc);
         
         label = new JLabel("Y max:");
         gbc.gridx = 3;
-        gbc.gridy = 25;
+        gbc.gridy = 26;
         listPane.add(label, gbc);
         textYMax = new JTextField();
         textYMax.addFocusListener(this);
-        gbc.gridy = 26;
+        gbc.gridy = 27;
         listPane.add(textYMax, gbc);
         
         //line 27        
         gbc.gridx = 0;
-        gbc.gridy = 27;
+        gbc.gridy = 28;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         
         listPane.add(Box.createVerticalStrut(20), gbc);
@@ -429,55 +472,55 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         gbc.weightx = 1.0;
         label = new JLabel("X min:");
         gbc.gridx = 0;
-        gbc.gridy = 28;
+        gbc.gridy = 29;
         listPane.add(label, gbc);
         textXMinG = new JTextField();
         textXMinG.addFocusListener(this);
         textXMinG.setEditable(false);
-        gbc.gridy = 29;
+        gbc.gridy = 30;
         listPane.add(textXMinG, gbc);
         
         label = new JLabel("X max:");
         gbc.gridx = 1;
-        gbc.gridy = 28;
+        gbc.gridy = 29;
         listPane.add(label, gbc);
         textXMaxG = new JTextField();
         textXMaxG.addFocusListener(this);
         textXMaxG.setEditable(false);
-        gbc.gridy = 29;
+        gbc.gridy = 30;
         listPane.add(textXMaxG, gbc);
         
         label = new JLabel("Y min:");
         gbc.gridx = 2;
-        gbc.gridy = 28;
+        gbc.gridy = 29;
         listPane.add(label, gbc);
         textYMinG = new JTextField();
         textYMinG.addFocusListener(this);
         textYMinG.setEditable(false);
-        gbc.gridy = 29;
+        gbc.gridy = 30;
         listPane.add(textYMinG, gbc);
         
         label = new JLabel("Y max:");
         gbc.gridx = 3;
-        gbc.gridy = 28;
+        gbc.gridy = 29;
         listPane.add(label, gbc);
         textYMaxG = new JTextField();
         textYMaxG.addFocusListener(this);
         textYMaxG.setEditable(false);
-        gbc.gridy = 29;
+        gbc.gridy = 30;
         listPane.add(textYMaxG, gbc);
         
         
         labelx = new JLabel("Number of Units detected:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 0;
-        gbc.gridy = 30;
+        gbc.gridy = 31;
         listPane.add(labelx, gbc);
         
         textnumUnits = new JTextField();
         textnumUnits.addFocusListener(this);
         gbc.gridx = 0;
-        gbc.gridy = 31;
+        gbc.gridy = 32;
         gbc.gridwidth = 2;
         listPane.add(textnumUnits, gbc);
         
@@ -485,13 +528,13 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         labelx = new JLabel("Number of Missing Units:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 2;
-        gbc.gridy = 30;
+        gbc.gridy = 31;
         listPane.add(labelx, gbc);
         
         textnumMUnits = new JTextField();
         textnumMUnits.addFocusListener(this);
         gbc.gridx = 2;
-        gbc.gridy = 31;
+        gbc.gridy = 32;
         gbc.gridwidth = 2;
         listPane.add(textnumMUnits, gbc);
         
@@ -499,13 +542,13 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         labelx = new JLabel("Resolution detected:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 0;
-        gbc.gridy = 32;       
+        gbc.gridy = 33;       
         listPane.add(labelx, gbc);
         
         textResdet = new JTextField();
         textResdet.addFocusListener(this);
         gbc.gridx = 0;
-        gbc.gridy = 33;
+        gbc.gridy = 34;
         gbc.gridwidth = 2;
         listPane.add(textResdet, gbc);
         
@@ -513,26 +556,26 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         labelx = new JLabel("Initial Start Position:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 0;
-        gbc.gridy = 34;
+        gbc.gridy = 35;
         listPane.add(labelx, gbc);
         
         textstart = new JTextField();
         textstart.addFocusListener(this);
         gbc.gridx = 0;
-        gbc.gridy = 35;
+        gbc.gridy = 36;
         gbc.gridwidth = 2;      
         listPane.add(textstart, gbc);
         
         labelx = new JLabel("Initial End Position:");
         labelx.setFont(new Font("Arial", Font.BOLD, 10));
         gbc.gridx = 2;
-        gbc.gridy = 34;       
+        gbc.gridy = 35;       
         listPane.add(labelx, gbc);
         
         textend = new JTextField();
         textend.addFocusListener(this);      
         gbc.gridx = 2;
-        gbc.gridy = 35;
+        gbc.gridy = 36;
         gbc.gridwidth = 2;
         listPane.add(textend, gbc);
         
@@ -578,7 +621,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         
         
         JLabel tlabel = new JLabel("TAD Annotation");
-        gbc.gridy = 44;
+        gbc.gridy = 45;
         tlabel.setFont(new Font("Arial", Font.BOLD, 14));       
         listPane.add(tlabel, gbc);
         gbc.gridy = GridBagConstraints.RELATIVE;
@@ -588,7 +631,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         listPane.add(Box.createVerticalStrut(10), gbc);
         
-        int y = 46;        
+        int y = 47;        
         
         gbc.gridx = 0;
         gbc.gridy = y++;  
@@ -616,7 +659,7 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
             	fc.setDialogTitle("File Browser.");
                 fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
                 if (fc.showOpenDialog(openContactFileButton) == JFileChooser.APPROVE_OPTION){
-                	inputContactFileField .setText(fc.getSelectedFile().getAbsolutePath());
+                	 inputtadFileField .setText(fc.getSelectedFile().getAbsolutePath());
                 }
             
             
