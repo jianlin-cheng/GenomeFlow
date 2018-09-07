@@ -1,2 +1,2 @@
 #!/bin/bash
-java -jar GenomeFlow.jar
+java -jar GenomeFlow_v1.0.1.jar
