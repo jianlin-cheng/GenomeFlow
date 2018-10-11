@@ -75,10 +75,11 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
 
 ## Todo list
-To further improve GenomeFlow, the following will soon be added:
-* More informed error messages
-* Automated execution of scripts 
-* 1D-Fuction un-normalized data creation
+To further improve GenomeFlow, the following will soon be done:
+* More detailed error messages
+* 1D-Function Automated execution of scripts 
+* 1D-Function un-normalized data creation
 * Parameters reduction
+* Bugs Fix
 
 --------------------------------------------------------------------	
