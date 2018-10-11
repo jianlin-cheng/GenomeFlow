@@ -12,7 +12,7 @@ If you have further difficulties using GenomeFlow, please do not hesitate to con
 
 # Documentation
 
-Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an extensive documentation, or download the [user guide](https://github.com/jianlin-cheng/GenomeFlow/blob/master/user_guide/UserGuide_4.3.pdf)
+Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an extensive documentation, or download the [user guide](https://github.com/jianlin-cheng/GenomeFlow/blob/master/user_guide/UserGuide_4.3.1.pdf)
 
 --------------------------------------------------------------------	
 
