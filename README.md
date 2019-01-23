@@ -12,7 +12,7 @@ If you have further difficulties using GenomeFlow, please do not hesitate to con
 
 # Documentation
 
-Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an extensive documentation, or download the [user guide](https://github.com/jianlin-cheng/GenomeFlow/blob/master/user_guide/UserGuide_4.3.pdf)
+Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an extensive documentation, or download the [user guide](https://github.com/jianlin-cheng/GenomeFlow/blob/master/user_guide/UserGuide_4.3.1.pdf)
 
 --------------------------------------------------------------------	
 
@@ -74,5 +74,12 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 ## Compiling source code
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
 
+## Todo list
+To further improve GenomeFlow, the following will soon be done:
+* More detailed error messages
+* 1D-Function Automated execution of scripts 
+* 1D-Function un-normalized data creation
+* Parameters reduction
+* Bugs Fix
 
 --------------------------------------------------------------------	
