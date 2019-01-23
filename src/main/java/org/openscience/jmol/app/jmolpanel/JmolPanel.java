@@ -288,6 +288,9 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n " + 
 			 "However, if you have installed Cygwin/MinGW, you are getting this error because it appears that you are working outside your Cygwin/MinGW directory.\n " +
 			 "Please make sure all your files and output folders are in the Cygwin/MinGW directory.\n" ;
+  private static String cygwin_user_msg = "It appears that you are a Cygwin/MinGW user. The available option for Cygwin/MinGW users is to manually execute the Indexer script(Indexer_script.sh) generated into the output directory.\n " +
+  		  		     "How To Execute Indexer Script: Open a Cygwin/MinGW terminal -> change directory to the Output Directory -> Execute the generated  Indexer_script.sh script." ;
+			
   public String[] CompareTADInput = null; // Tosin added
   public static String createscriptfile = null; //Tosin added
   
@@ -2260,14 +2263,14 @@ public void showStatus(String message) {
 				
 				/* Format Input acepted //tosin added
 				 * if (!inputFile.endsWith(".input") ) {
-					JOptionPane.showMessageDialog(null, "Input File Error – expected file type is .input","Alert!",JOptionPane.ERROR_MESSAGE);						
+					JOptionPane.showMessageDialog(null, "Input File Error ï¿½ expected file type is .input","Alert!",JOptionPane.ERROR_MESSAGE);						
 					return;
 				}*/
 				
 			    // Specify the output directory tosin added
 				File file = new File(outputFile);
 				if (!file.isDirectory()) {		
-					JOptionPane.showMessageDialog(null, "Output Directory Error – expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);	
+					JOptionPane.showMessageDialog(null, "Output Directory Error ï¿½ expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);	
 			        return;
 				}
 				
@@ -2824,7 +2827,7 @@ public void showStatus(String message) {
 								
 				//tosin edited
 				if (!CommonFunctions.isFolder(outputFileField.getText())) {
-					JOptionPane.showMessageDialog(null, "Output Directory Error – expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Output Directory Error ï¿½ expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);
 					return;
 				}								
 				// Determine the input type tosin added
@@ -5554,8 +5557,7 @@ public void showStatus(String message) {
 				    }
 					 else {
 						 
-						 fileName = pathEdit(fileName);
-						 
+						 fileName = pathEdit(fileName);						 
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
 							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
@@ -5564,8 +5566,15 @@ public void showStatus(String message) {
 						 inputContactFileField1.setText(fileName);
 						 }
 					 }
-					
-					
+					 
+					//Check the input extension::: .fa, .mfa, .fna
+						String ext = getFileExtension(new File(inputContactFileField1.getText()));						
+						if (!ext.equals("fa") && !ext.equals("mfa")  && !ext.equals("fna") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect Reference genome file. Reference genome file with extension .fa, .mfa, or .fna expected.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputContactFileField1.setText("");
+							return;
+						} 
+			
 				}
 			});
 	        
@@ -5758,7 +5767,7 @@ public void showStatus(String message) {
 			        	        
 			//////////////////////////////////////////////
 			y++;
-			JButton createscriptButton = new JButton("Generate Script");
+			JButton createscriptButton = new JButton("Execute");
 			JButton editscriptButton = new JButton("Edit Script");
 			JButton stopButton = new JButton("Stop");
 			  
@@ -5798,8 +5807,9 @@ public void showStatus(String message) {
 					String binary = binaryFileField.getText();
 					
 					String script = "";
-						
 					
+					
+					//check input or output is valid
 					if (input == null || input.trim().equals("") || output == null ||output.trim().equals("") ) {
 						JOptionPane.showMessageDialog(null, "Input file, Reference genome file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -5857,9 +5867,23 @@ public void showStatus(String message) {
 							e1.printStackTrace();
 						} 
 					 
-								
+						//Check OS before setting before script Execution
+					 if(isUnix() || isMac() || isSolaris()){ 
+						 try {
+						
+							Process procBuildScript = new ProcessBuilder(Output).start();
+							JOptionPane.showMessageDialog(null, "Indexer Script Execution Started","Executing Script!!",JOptionPane.INFORMATION_MESSAGE);
+						    
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}   				       
+				    }else {
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	 
+				    }
 					 
-					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+					
 				}
 				
 	        });
@@ -5870,6 +5894,26 @@ public void showStatus(String message) {
 	  }
   }
 
+  
+  /**
+   * get the file extension
+   * @param file
+   * @return
+   */
+  public String getFileExtension(File file) {
+	    if (file == null) {
+	        return "";
+	    }
+	    String name = file.getName();
+	    int i = name.lastIndexOf('.');
+	    String ext = i > 0 ? name.substring(i + 1) : "";
+	    return ext;
+	}
+  /**
+   * Determine the cygwin/mgwin path
+   * @param path
+   * @return
+   */
 
   public static boolean isValidpath(String path) {
 	  
