@@ -54,11 +54,14 @@ import java.awt.print.PrinterJob;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -276,7 +279,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String compareModel = "Compare";
 
   private static final String structure3DMAXAction = "3DMax";//Tosin added
-  private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
+  private static final String heatmap2DVisualizeAction = "VisualizeTosin"; //Tosin added
   private static final String findTadAction = "Find-TAD"; //Tosin added
   private static final String compareTadAction = "CompareTAD"; //Tosin added
   private static final String createindexAction = "CreateIndex"; //Tosin added
@@ -286,7 +289,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String expressAction = "Express"; //Tosin added
   
   private static String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n " + 
-			 "However, if you have installed Cygwin/MinGW, you are getting this error because it appears that you are working outside your Cygwin/MinGW directory.\n " +
+			 "However, if you have installed Cygwin/MinGW, you are getting this error because you are currently working outside your Cygwin/MinGW directory.\n " +
 			 "Please make sure all your files and output folders are in the Cygwin/MinGW directory.\n" ;
   private static String cygwin_user_msg = "It appears that you are a Cygwin/MinGW user. The available option for Cygwin/MinGW users is to manually execute the Indexer script(Indexer_script.sh) generated into the output directory.\n " +
   		  		     "How To Execute Indexer Script: Open a Cygwin/MinGW terminal -> change directory to the Output Directory -> Execute the generated  Indexer_script.sh script." ;
@@ -5821,6 +5824,14 @@ public void showStatus(String message) {
 						return;
 					}
 					
+					int Int = Integer.parseInt(threads);
+					if (threads == null || threads.trim().equals("") || Int < 1) {
+						threads = "1";						
+						JOptionPane.showMessageDialog(null, "Number of threads set to 1","Information",JOptionPane.INFORMATION_MESSAGE);						
+						
+					}
+
+					
 					TADwriter wt = new TADwriter();
 					BufferedWriter log_outputWriter = null;
 					String Output = output + "/Indexer_script.sh";
@@ -5837,6 +5848,7 @@ public void showStatus(String message) {
 					try {
 						//determine the algorithm to use
 						String local_script= "";
+						String working_dir = "cd " + output;
 						if (BWA.isSelected()) {
 							local_script = "mkdir bwa ";
 							script =  binary + " index -p bwa/ref_index " + input; 
@@ -5850,11 +5862,14 @@ public void showStatus(String message) {
 					    
 						
 						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(working_dir + "\n");
 						log_outputWriter.write(local_script + "\n");
 						log_outputWriter.write(script);
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+
 						e2.printStackTrace();
 					}
 					
@@ -5868,18 +5883,21 @@ public void showStatus(String message) {
 						} 
 					 
 						//Check OS before setting before script Execution
-					 if(isUnix() || isMac() || isSolaris()){ 
+					 if(isUnix() || isMac() || isSolaris()){ 						 
+						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
 						 try {
-						
-							Process procBuildScript = new ProcessBuilder(Output).start();
-							JOptionPane.showMessageDialog(null, "Indexer Script Execution Started","Executing Script!!",JOptionPane.INFORMATION_MESSAGE);
-						    
+							Process procScript = Runtime.getRuntime().exec(cmdScript);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}   				       
+							JOptionPane.showMessageDialog(null, "An error occured. Indexing operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							e1.printStackTrace();							
+						}
+
+							JOptionPane.showMessageDialog(null, "Indexing operation running in background","Indexing Started",JOptionPane.INFORMATION_MESSAGE);
+						    
+						   				       
 				    }else {
-				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Indexing script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
 				    	 
 				    }
 					 
@@ -5895,6 +5913,7 @@ public void showStatus(String message) {
   }
 
   
+   	     
   /**
    * get the file extension
    * @param file
@@ -6059,8 +6078,9 @@ public void showStatus(String message) {
 							 inputContactFileField1.setText(fileName);
 						 }
 					 }
-					
-					
+					 
+					 
+										
 				}
 			});
 	        
@@ -6120,6 +6140,15 @@ public void showStatus(String message) {
 							 inputReadFileField1.setText(fileName);
 						 }
 					 }
+					 
+					//Check the input extension::: .fastq and .fq	
+					 String ext = getFileExtension(new File(inputReadFileField1.getText()));						
+						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputReadFileField1.setText("");
+							return;
+						} 
+						
 					
 					
 				}
@@ -6150,6 +6179,14 @@ public void showStatus(String message) {
 							 inputReadFileField2.setText(fileName);
 						 }
 					 }
+					 
+					//Check the input extension::: .fastq and .fq
+						String ext = getFileExtension(new File(inputReadFileField2.getText()));						
+						if (!ext.equals("fastq") && !ext.equals("fq") &&  !ext.equals("gz")  ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputReadFileField2.setText("");
+							return;
+						} 
 					
 					
 				}
@@ -6354,7 +6391,8 @@ public void showStatus(String message) {
 			panel.add(Bowtie, gbc);	
 			
 			ButtonGroup bg=new ButtonGroup();    
-	    	bg.add(BWA);bg.add(Bowtie);
+	    	bg.add(BWA);bg.add(Bowtie);	    	
+	   	
 	    		      
 			////////////////////////////////////////////////
 			y++;
@@ -6427,7 +6465,7 @@ public void showStatus(String message) {
 			panel.add(samtools_binaryFileButton, gbc);
 			//////////////////////////////////////////////
 			y++;
-			JButton createscriptButton = new JButton("Generate Script");
+			JButton createscriptButton = new JButton("Execute ");
 			JButton editscriptButton = new JButton("Edit Script");
 			
 			gbc.gridx = 1;	        
@@ -6483,8 +6521,8 @@ public void showStatus(String message) {
 							return;
 						}
 					}
-					
-					if (threads == null || threads.trim().equals("")) {
+					int Int = Integer.parseInt(threads);
+					if (threads == null || threads.trim().equals("") || Int < 1) {
 						threads = "1";						
 						JOptionPane.showMessageDialog(null, "Number of threads set to 1","Information",JOptionPane.INFORMATION_MESSAGE);						
 						
@@ -6504,6 +6542,7 @@ public void showStatus(String message) {
 					try {
 						//determine the algorithm to use
 						String local_script= "";
+						String working_dir = "cd " + output + "\n";
 						if (BWA.isSelected()) {
 							local_script = "mkdir bwa_align\n";
 							if (!PairRead.isSelected()) {			
@@ -6542,6 +6581,7 @@ public void showStatus(String message) {
 						}
 						
 						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
 						
@@ -6558,29 +6598,39 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
 							e1.printStackTrace();
 						} 
 					 
-					 editscriptButton.setEnabled(true);
+					// editscriptButton.setEnabled(true);
+					 
+					 
+					 
+					//Check OS before setting before script Execution
+					 if(isUnix() || isMac() || isSolaris()){ 						 
+						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
+						 try {
+							Process procScript = Runtime.getRuntime().exec(cmdScript);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "An error occured. Mapping operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							e1.printStackTrace();							
+						}
+
+							JOptionPane.showMessageDialog(null, "Mapping operation running in background","Mapping Started",JOptionPane.INFORMATION_MESSAGE);
+						    
+						   				       
+				    }else {
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Mapping script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	 
+				    }
+					 
 					
-					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
 				}
 				
 	        });
-	        
-	        
-	        ///////////////////////////////////////////////
-	        createscriptButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					
-					
-					
-				}
-					
-					
-	        });
-	        
+	       
+        
 	       
 	        
 	  }
@@ -6630,6 +6680,14 @@ public void showStatus(String message) {
 							 inputbamFileField.setText(fileName);
 						 }
 					 }
+					 
+						//Check the input extension::: .bam
+						String ext = getFileExtension(new File(inputbamFileField.getText()));						
+						if (!ext.equals("bam")  ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputbamFileField.setText("");
+							return;
+						} 
 					
 					
 				}
@@ -6851,7 +6909,7 @@ public void showStatus(String message) {
 			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
 			//////////////////////////////////////////////
 			y++;
-			JButton createscriptButton = new JButton("Generate Script");
+			JButton createscriptButton = new JButton("Execute");
 	
 			
 			gbc.gridx = 1;	        
@@ -6917,6 +6975,7 @@ public void showStatus(String message) {
 					try {
 						//determine the algorithm to use
 						String local_script= "";
+						String working_dir= "cd " + output + "\n";
 						if (sam.isSelected()) {							
 							
 							if (flag ==null || flag.trim().equals("") ) {
@@ -6943,6 +7002,7 @@ public void showStatus(String message) {
 						}
 						
 						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
 						
@@ -6950,6 +7010,8 @@ public void showStatus(String message) {
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+
 						e2.printStackTrace();
 					}
 					
@@ -6959,11 +7021,31 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+
 							e1.printStackTrace();
 						} 
 					 
 					
-					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+					//Check OS before setting before script Execution
+					 if(isUnix() || isMac() || isSolaris()){ 						 
+						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
+						 try {
+							Process procScript = Runtime.getRuntime().exec(cmdScript);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "An error occured. Filtering operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							e1.printStackTrace();							
+						}
+
+							JOptionPane.showMessageDialog(null, "Filtering operation running in background","Filtering Started",JOptionPane.INFORMATION_MESSAGE);
+						    
+						   				       
+				    }else {
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Filtering script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	 
+				    }
+
 				}
 				
 	        });
@@ -7034,7 +7116,14 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+						//Check the input extension::: .bam
+						String ext = getFileExtension(new File(inputbamFileField.getText()));						
+						if (!ext.equals("bam")  ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputbamFileField.setText("");
+							return;
+						} 
+
 				}
 			});
 	        
@@ -7257,6 +7346,7 @@ public void showStatus(String message) {
 					try {
 						//determine the algorithm to use
 						String local_script= "";
+						String working_dir="cd " + output + "\n";
 						if (sam.isSelected()) {							
 							
 							script = samtools + " view "  +  input1 + " | " + 
@@ -7277,12 +7367,15 @@ public void showStatus(String message) {
 						}
 						
 						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
 						createscriptfile = Output;
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+
 						e2.printStackTrace();
 					}
 					
@@ -7292,12 +7385,31 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+
 							e1.printStackTrace();
 						} 
 					 
-					 editscriptButton.setEnabled(true);
+					// editscriptButton.setEnabled(true);
 					
-					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+						//Check OS before setting before script Execution
+					 if(isUnix() || isMac() || isSolaris()){ 						 
+						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
+						 try {
+							Process procScript = Runtime.getRuntime().exec(cmdScript);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							e1.printStackTrace();							
+						}
+
+							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
+						    
+						   				       
+				    }else {
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	 
+				    }
 				}
 				
 	        });
@@ -7420,7 +7532,15 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+					 
+					//Check the input extension::: .fastq and .fq	
+					 String ext = getFileExtension(new File(inputReadFileField1.getText()));						
+						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputReadFileField1.setText("");
+							return;
+						} 
+						
 				}
 			});
 	        
@@ -7449,7 +7569,15 @@ public void showStatus(String message) {
 							 inputReadFileField2.setText(fileName);
 						 }
 					 }
-					
+					 
+					//Check the input extension::: .fastq and .fq	
+					 String ext = getFileExtension(new File(inputReadFileField2.getText()));						
+						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							inputReadFileField2.setText("");
+							return;
+						} 
+						
 					
 				}
 			});
@@ -7830,11 +7958,11 @@ public void showStatus(String message) {
 							return;
 						}
 					}
-					
-					if (threads == null || threads.trim().equals("")) {
+					int Int = Integer.parseInt(threads);
+					if (threads == null || threads.trim().equals("") || Int < 1) {
 						threads = "1";						
-						JOptionPane.showMessageDialog(null, "Number of threads set to 1","Information",JOptionPane.INFORMATION_MESSAGE);						
-						
+						JOptionPane.showMessageDialog(null, "Incorrect number of threads specified. Number of threads must be greater than 0","Information",JOptionPane.INFORMATION_MESSAGE);						
+						return;
 					}
 					
 					
@@ -7844,8 +7972,10 @@ public void showStatus(String message) {
 					}
 					
 					//quality 
-					if ( quality ==null || quality.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Quality path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					int Qua = Integer.parseInt(quality);
+
+					if ( quality ==null || quality.trim().equals("") || Qua < 0) {
+						JOptionPane.showMessageDialog(null, "Incorrect Quality Value Specified, Empty or negative values not accepted !","Alert!",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -7858,6 +7988,7 @@ public void showStatus(String message) {
 					try {
 						//determine the algorithm to use
 						String local_script= "";
+						String working_dir = "cd " + output + "\n";
 						if (BWA.isSelected()) {
 							local_script = "mkdir bwa_align\n";
 							if (!PairRead.isSelected()) {			
@@ -7902,6 +8033,7 @@ public void showStatus(String message) {
 						
 						
 						log_outputWriter = new BufferedWriter(new FileWriter( Output));
+						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
 						log_outputWriter.flush();
