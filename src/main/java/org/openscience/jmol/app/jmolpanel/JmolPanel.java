@@ -2040,7 +2040,7 @@ public void showStatus(String message) {
 					if (fileName == null)  //tosin changed
 					{
 						String msgg = "Please choose the output directory to save the generated .hic file ";
-						JOptionPane.showMessageDialog(null, msgg,"Alert!",JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, msgg,"Alert",JOptionPane.ERROR_MESSAGE);
 						// return;
 					}
 					outputField.setText(fileName);					
@@ -2256,7 +2256,7 @@ public void showStatus(String message) {
 				
 								
 				if (inputFile == null ||inputFile.trim().equals("") || outputFile == null ||outputFile.trim().equals("")) {
-					JOptionPane.showMessageDialog(null, "Please specify the correct parameters. The Input File and the Output Directory are required fields.","Alert!",JOptionPane.ERROR_MESSAGE);						
+					JOptionPane.showMessageDialog(null, "Please specify the correct parameters. The Input File and the Output Directory are required fields.","Alert",JOptionPane.ERROR_MESSAGE);						
 					return;
 				}	
 												
@@ -2266,14 +2266,14 @@ public void showStatus(String message) {
 				
 				/* Format Input acepted //tosin added
 				 * if (!inputFile.endsWith(".input") ) {
-					JOptionPane.showMessageDialog(null, "Input File Error � expected file type is .input","Alert!",JOptionPane.ERROR_MESSAGE);						
+					JOptionPane.showMessageDialog(null, "Input File Error � expected file type is .input","Alert",JOptionPane.ERROR_MESSAGE);						
 					return;
 				}*/
 				
 			    // Specify the output directory tosin added
 				File file = new File(outputFile);
 				if (!file.isDirectory()) {		
-					JOptionPane.showMessageDialog(null, "Output Directory Error � expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);	
+					JOptionPane.showMessageDialog(null, "Output Directory Error � expected a path to directory.","Alert",JOptionPane.ERROR_MESSAGE);	
 			        return;
 				}
 				
@@ -2830,7 +2830,7 @@ public void showStatus(String message) {
 								
 				//tosin edited
 				if (!CommonFunctions.isFolder(outputFileField.getText())) {
-					JOptionPane.showMessageDialog(null, "Output Directory Error � expected a path to directory.","Alert!",JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Output Directory Error � expected a path to directory.","Alert",JOptionPane.ERROR_MESSAGE);
 					return;
 				}								
 				// Determine the input type tosin added
@@ -4822,7 +4822,7 @@ public void showStatus(String message) {
 	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
 					
 					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert!",JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert",JOptionPane.ERROR_MESSAGE);
 						
 						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
 					}
@@ -4938,13 +4938,13 @@ public void showStatus(String message) {
 					String algorithm= "";
 					String startlocation = "0";
 					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
-						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
 					if (IFResolutionField.isVisible()) {
 						if ( resolution > 250000 ) {
-							JOptionPane.showMessageDialog(null, "For TAD identification, dataset is required to have resolution in the range [1KB - 250KB] ","Alert!",JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(null, "For TAD identification, dataset is required to have resolution in the range [1KB - 250KB] ","Alert",JOptionPane.ERROR_MESSAGE);
 							IFResolutionField.setText("50000");
 							return;
 						}
@@ -4970,7 +4970,7 @@ public void showStatus(String message) {
 						
 						resolution = Integer.parseInt(res);
 						if ( resolution > 250000 ) {
-							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Maximum Resolution = 250KB. Get new datasets ","Alert!",JOptionPane.ERROR_MESSAGE);							
+							JOptionPane.showMessageDialog(null, "Resolution too High for TAD identification. Maximum Resolution = 250KB. Get new datasets ","Alert",JOptionPane.ERROR_MESSAGE);							
 							return;
 						}
 					}
@@ -5151,7 +5151,7 @@ public void showStatus(String message) {
 	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
 					
 					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
-						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert!",JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert",JOptionPane.ERROR_MESSAGE);
 						
 						 IFResolutionField.setText(currentTxt.substring(0, currentTxt.length() - 1));
 					}
@@ -5400,7 +5400,7 @@ public void showStatus(String message) {
 					
 					String startlocation = "0";
 					if (input1 == null || input1.trim().equals("") || input2 == null || input2.trim().equals("") || output == null || output.trim().equals("") ) {
-						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -5563,7 +5563,7 @@ public void showStatus(String message) {
 						 fileName = pathEdit(fileName);						 
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 						 inputContactFileField1.setText(fileName);
@@ -5573,7 +5573,7 @@ public void showStatus(String message) {
 					//Check the input extension::: .fa, .mfa, .fna
 						String ext = getFileExtension(new File(inputContactFileField1.getText()));						
 						if (!ext.equals("fa") && !ext.equals("mfa")  && !ext.equals("fna") ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect Reference genome file. Reference genome file with extension .fa, .mfa, or .fna expected.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Incorrect Reference genome file. Reference genome file with extension .fa, .mfa, or .fna expected.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputContactFileField1.setText("");
 							return;
 						} 
@@ -5598,13 +5598,19 @@ public void showStatus(String message) {
 					 else {
 						 					
 						 if (!isValidpath(fileName)) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 outputFileField.setText(fileName);
 						 }
 					 }
 					
+					 // confirm it is a directory or not
+					 
+					 if (!isDir(outputFileField.getText())) {
+						JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+						
+					 }
 					
 				}
 			});
@@ -5615,7 +5621,7 @@ public void showStatus(String message) {
 	        binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+										
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
@@ -5628,7 +5634,7 @@ public void showStatus(String message) {
 						 fileName= pathEdit(fileName);
 											 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binaryFileField.setText(fileName);
@@ -5750,6 +5756,24 @@ public void showStatus(String message) {
 			gbc.gridy = y;	
 			gbc.gridwidth = 1;			
 			panel.add(binaryFileButton, gbc);
+			
+			
+			////////////////////////////////////////////////////
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+										
+				if(BWA.isSelected()) {
+					JOptionPane.showMessageDialog(null, "<html>The bwa tool indexer binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool indexer file name is <b>bowtie2-build</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+				}
+				}
+			});
+	        
+	                
 	    	
 			////////////////////////////////////////////////
 			y++;
@@ -5813,14 +5837,14 @@ public void showStatus(String message) {
 					
 					
 					//check input or output is valid
-					if (input == null || input.trim().equals("") || output == null ||output.trim().equals("") ) {
-						JOptionPane.showMessageDialog(null, "Input file, Reference genome file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input == null || input.trim().equals("") || output == null ||output.trim().equals("") || !isDir(output)) {
+						JOptionPane.showMessageDialog(null, "Input file, Reference genome file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 							
 					
 					if (binary==null || binary.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -5868,7 +5892,7 @@ public void showStatus(String message) {
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
-						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 
 						e2.printStackTrace();
 					}
@@ -5883,18 +5907,15 @@ public void showStatus(String message) {
 						} 
 					 
 						//Check OS before setting before script Execution
-					 if(isUnix() || isMac() || isSolaris()){ 						 
-						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
-						 try {
-							Process procScript = Runtime.getRuntime().exec(cmdScript);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Indexing operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
-							e1.printStackTrace();							
-						}
+					 if(isUnix() || isMac() || isSolaris()){ 	
+							    JOptionPane.showMessageDialog(null, "Indexing operation running in background","Indexing Started",JOptionPane.INFORMATION_MESSAGE);
 
-							JOptionPane.showMessageDialog(null, "Indexing operation running in background","Indexing Started",JOptionPane.INFORMATION_MESSAGE);
-						    
+						 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
+						 		Map<Integer, String> map = new HashMap<>();
+							    map = execCommand(cmdScript);							    		
+								JOptionPane.showMessageDialog(null, "Indexing was started but returned exit code: " + map.get(0).toString() + "\n" +
+										"command result:\n" + map.get(1).toString(),"Indexing Started",JOptionPane.INFORMATION_MESSAGE);
+							
 						   				       
 				    }else {
 				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Indexing script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
@@ -5905,14 +5926,64 @@ public void showStatus(String message) {
 				}
 				
 	        });
-	        
-	      	        
-	                
-	        
+   	               
 	  }
   }
 
-  
+  /**
+   * execute shell command
+   * @param str
+   * @return
+   */
+  public static Map execCommand(String... str) {
+	    Map<Integer, String> map = new HashMap<>();
+	    ProcessBuilder pb = new ProcessBuilder(str);
+	    pb.redirectErrorStream(true);
+	    Process process = null;
+	    try {
+	        process = pb.start();
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    BufferedReader reader = null;
+	    if (process != null) {
+	        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+	    }
+
+	    String line;
+	    StringBuilder stringBuilder = new StringBuilder();
+	    try {
+	        if (reader != null) {
+	            while ((line = reader.readLine()) != null) {
+	                stringBuilder.append(line).append("\n");
+	            }
+	        }
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+
+	    try {
+	        if (process != null) {
+	            process.waitFor();
+	        }
+	    } catch (InterruptedException e) {
+	        e.printStackTrace();
+	    }
+
+	    if (process != null) {
+	        map.put(0, String.valueOf(process.exitValue()));
+	    }
+
+	    try {
+	        map.put(1, stringBuilder.toString());
+	    } catch (StringIndexOutOfBoundsException e) {
+	        if (stringBuilder.toString().length() == 0) {
+	            return map;
+	        }
+	    }
+	    return map;
+	}
    	     
   /**
    * get the file extension
@@ -5926,6 +5997,14 @@ public void showStatus(String message) {
 	    String name = file.getName();
 	    int i = name.lastIndexOf('.');
 	    String ext = i > 0 ? name.substring(i + 1) : "";
+	    
+	    //Takes care if fast1.gz file
+	    if (ext.equals("gz")) {
+		    name = name.substring(0,i);
+		    i = name.lastIndexOf('.');
+		    ext = i > 0 ? name.substring(i + 1) : "";
+	    }
+	    
 	    return ext;
 	}
   /**
@@ -6029,7 +6108,11 @@ public void showStatus(String message) {
 		  String os = System.getProperty("os.name");
 		    return os.toLowerCase().indexOf("sunos") >= 0;
 	  }
-  
+	public static boolean isDir(String path) {
+		File dir = new File(path);
+		return dir.isDirectory();
+		
+	}
   
   
   /*
@@ -6072,13 +6155,18 @@ public void showStatus(String message) {
 						 fileName = pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputContactFileField1.setText(fileName);
 						 }
 					 }
 					 
+					 //Confirm if it is directory or not
+					 if (!isDir(inputContactFileField1.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+							
+					 }
 					 
 										
 				}
@@ -6103,13 +6191,20 @@ public void showStatus(String message) {
 						 
 												 						
 						 if (!isValidpath(fileName)) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);							
 								
 						 }else {
 							 outputFileField.setText(fileName);
 						 }
 					 }
 					
+					 //Confirm if it is directory or not
+					 if (!isDir( outputFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+							
+					 }
+					 
+					 
 					
 				}
 			});
@@ -6134,7 +6229,7 @@ public void showStatus(String message) {
 						 
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputReadFileField1.setText(fileName);
@@ -6143,8 +6238,8 @@ public void showStatus(String message) {
 					 
 					//Check the input extension::: .fastq and .fq	
 					 String ext = getFileExtension(new File(inputReadFileField1.getText()));						
-						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						if (!ext.equals("fastq") && !ext.equals("fq") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputReadFileField1.setText("");
 							return;
 						} 
@@ -6173,7 +6268,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 						 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputReadFileField2.setText(fileName);
@@ -6182,8 +6277,8 @@ public void showStatus(String message) {
 					 
 					//Check the input extension::: .fastq and .fq
 						String ext = getFileExtension(new File(inputReadFileField2.getText()));						
-						if (!ext.equals("fastq") && !ext.equals("fq") &&  !ext.equals("gz")  ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						if (!ext.equals("fastq") && !ext.equals("fq") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputReadFileField2.setText("");
 							return;
 						} 
@@ -6210,7 +6305,7 @@ public void showStatus(String message) {
 						 fileName= pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binaryFileField.setText(fileName);
@@ -6223,10 +6318,12 @@ public void showStatus(String message) {
 	        
 	        JButton samtools_binaryFileButton = new JButton("Browse File");
 	        //openMappingFileButton.setPreferredSize(new Dimension(40, 20));
-	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
+	        samtools_binaryFileButton.addActionListener(new ActionListener() {		
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					//////////////////////////////////////////////
+					JOptionPane.showMessageDialog(null, "<html>The samtool binary file to use is <b>samtools</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
@@ -6239,13 +6336,15 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 						 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binarysamtoolsField.setText(fileName);
 						 }
 					 }
 					
+					////////////////////////////////////////////////////
+
 					
 				}
 			});
@@ -6392,7 +6491,22 @@ public void showStatus(String message) {
 			
 			ButtonGroup bg=new ButtonGroup();    
 	    	bg.add(BWA);bg.add(Bowtie);	    	
-	   	
+	    	
+			
+			////////////////////////////////////////////////////
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+										
+				if(BWA.isSelected()) {
+					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+				}
+				}
+			});
 	    		      
 			////////////////////////////////////////////////
 			y++;
@@ -6510,14 +6624,14 @@ public void showStatus(String message) {
 					String samtools = binarysamtoolsField.getText();
 					
 					
-					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("") || !isDir(input1) || !isDir(output)) {
+						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
 					if (PairRead.isSelected()) {
 						if (Read2 ==null || Read2.trim().equals("") ) {
-							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 							return;
 						}
 					}
@@ -6530,7 +6644,7 @@ public void showStatus(String message) {
 					
 					
 					if (binary==null || binary.trim().equals("") || samtools==null ||  samtools.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -6598,7 +6712,7 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 							e1.printStackTrace();
 						} 
 					 
@@ -6607,13 +6721,13 @@ public void showStatus(String message) {
 					 
 					 
 					//Check OS before setting before script Execution
-					 if(isUnix() || isMac() || isSolaris()){ 						 
+					/* if(isUnix() || isMac() || isSolaris()){ 						 
 						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
 						 try {
 							Process procScript = Runtime.getRuntime().exec(cmdScript);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Mapping operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "An error occured. Mapping operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
 							e1.printStackTrace();							
 						}
 
@@ -6623,7 +6737,23 @@ public void showStatus(String message) {
 				    }else {
 				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Mapping script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
 				    	 
-				    }
+				    }*/
+					 
+					 if(isUnix() || isMac() || isSolaris()){ 	
+							JOptionPane.showMessageDialog(null, "Mapping operation running in background","Mapping Started",JOptionPane.INFORMATION_MESSAGE);
+
+					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
+					 		Map<Integer, String> map = new HashMap<>();
+						    map = execCommand(cmdScript);							    		
+							JOptionPane.showMessageDialog(null, "Mapping was started but returned exit code: " + map.get(0).toString() + "\n" +
+									"command result:\n" + map.get(1).toString(),"Mapping Started",JOptionPane.INFORMATION_MESSAGE);
+						
+					   				       
+			    }else {
+			    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Mapping script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+			    	 
+			    }
+
 					 
 					
 				}
@@ -6674,7 +6804,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputbamFileField.setText(fileName);
@@ -6684,7 +6814,7 @@ public void showStatus(String message) {
 						//Check the input extension::: .bam
 						String ext = getFileExtension(new File(inputbamFileField.getText()));						
 						if (!ext.equals("bam")  ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputbamFileField.setText("");
 							return;
 						} 
@@ -6712,7 +6842,7 @@ public void showStatus(String message) {
 						
 										 						
 						 if (!isValidpath(fileName)) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);		
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);		
 							 					
 								
 						 }else {
@@ -6720,6 +6850,11 @@ public void showStatus(String message) {
 						 }
 					 }
 					
+					 //Confirm if it is directory or not
+					 if (!isDir(outputFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+						
+					 }
 					
 				}
 			});
@@ -6733,7 +6868,9 @@ public void showStatus(String message) {
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					//////////////////////////////////////////////
+					JOptionPane.showMessageDialog(null, "<html>The samtool binary file to use is <b>samtools</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
@@ -6746,7 +6883,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binarysamtoolsField.setText(fileName);
@@ -6951,13 +7088,22 @@ public void showStatus(String message) {
 					String samtools = binarysamtoolsField.getText();
 					
 					
-					if (input1 == null || input1.trim().equals("")|| output == null || output.trim().equals("") ||  quality ==null|| quality.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Input, quality path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input1 == null || input1.trim().equals("")|| output == null || output.trim().equals("") || !isDir(output))  {
+						JOptionPane.showMessageDialog(null, "Input or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
+					//quality 
+					int Qua = Integer.parseInt(quality);
+
+					if ( quality ==null || quality.trim().equals("") || Qua < 0) {
+						JOptionPane.showMessageDialog(null, "Incorrect Quality Value Specified, Empty or negative values not accepted !","Alert",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}
+					
+					
 					if (samtools ==null ||samtools.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -7010,7 +7156,7 @@ public void showStatus(String message) {
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
-						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 
 						e2.printStackTrace();
 					}
@@ -7021,20 +7167,20 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 
 							e1.printStackTrace();
 						} 
 					 
 					
 					//Check OS before setting before script Execution
-					 if(isUnix() || isMac() || isSolaris()){ 						 
+					/* if(isUnix() || isMac() || isSolaris()){ 						 
 						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
 						 try {
 							Process procScript = Runtime.getRuntime().exec(cmdScript);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Filtering operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "An error occured. Filtering operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
 							e1.printStackTrace();							
 						}
 
@@ -7044,7 +7190,22 @@ public void showStatus(String message) {
 				    }else {
 				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Filtering script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
 				    	 
-				    }
+				    }*/
+					 if(isUnix() || isMac() || isSolaris()){ 	
+							JOptionPane.showMessageDialog(null, "Filtering operation running in background","Filtering Started",JOptionPane.INFORMATION_MESSAGE);
+
+					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
+					 		Map<Integer, String> map = new HashMap<>();
+						    map = execCommand(cmdScript);							    		
+							JOptionPane.showMessageDialog(null, "Filtering was started but returned exit code: " + map.get(0).toString() + "\n" +
+									"command result:\n" + map.get(1).toString(),"Filtering Started",JOptionPane.INFORMATION_MESSAGE);
+						
+					   				       
+			    }else {
+			    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Filtering script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+			    	 
+			    }
+
 
 				}
 				
@@ -7109,7 +7270,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputbamFileField.setText(fileName);
@@ -7119,7 +7280,7 @@ public void showStatus(String message) {
 						//Check the input extension::: .bam
 						String ext = getFileExtension(new File(inputbamFileField.getText()));						
 						if (!ext.equals("bam")  ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Incorrect BAM file. Expected .bam file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputbamFileField.setText("");
 							return;
 						} 
@@ -7146,14 +7307,19 @@ public void showStatus(String message) {
 						 
 												 						
 						 if (!isValidpath(fileName)) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);							
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);							
 								
 						 }else {
 							 outputFileField.setText(fileName);
 						 }
 					 }
 					
-					
+					 //Confirm if it is directory or not
+					 if (!isDir(outputFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+						
+					 }
+				
 				}
 			});
 	        
@@ -7166,7 +7332,9 @@ public void showStatus(String message) {
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					
+					//////////////////////////////////////////////
+					JOptionPane.showMessageDialog(null, "<html>The samtool binary file to use is <b>samtools</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
@@ -7179,7 +7347,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binarysamtoolsField.setText(fileName);
@@ -7288,7 +7456,7 @@ public void showStatus(String message) {
 			panel.add(new JLabel("",JLabel.LEFT), gbc);	 
 			//////////////////////////////////////////////
 			y++;
-			JButton createscriptButton = new JButton("Generate Script");
+			JButton createscriptButton = new JButton("Execute");
 			JButton editscriptButton = new JButton("Edit Script");
 			
 			gbc.gridx = 1;	        
@@ -7329,13 +7497,13 @@ public void showStatus(String message) {
 					String samtools = binarysamtoolsField.getText();
 					
 					
-					if (input1 == null || output == null ||  samtools ==null ||samtools.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Index folder, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input1 == null || output == null ||  samtools ==null || !isDir(output)) {
+						JOptionPane.showMessageDialog(null, "Index folder, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
 					if (samtools ==null ||samtools.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "samtools binary file/Wrapper script for tool not selected !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -7374,7 +7542,7 @@ public void showStatus(String message) {
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
-						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 
 						e2.printStackTrace();
 					}
@@ -7385,21 +7553,21 @@ public void showStatus(String message) {
 							log_outputWriter.close();
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Output directory not found. A problem occured with the specified directory.","Alert",JOptionPane.ERROR_MESSAGE);						
 
 							e1.printStackTrace();
 						} 
 					 
 					// editscriptButton.setEnabled(true);
 					
-						//Check OS before setting before script Execution
-					 if(isUnix() || isMac() || isSolaris()){ 						 
+					//Check OS before setting before script Execution
+					 /*if(isUnix() || isMac() || isSolaris()){ 						 
 						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
 						 try {
 							Process procScript = Runtime.getRuntime().exec(cmdScript);
 						} catch (IOException e1) {
 							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
 							e1.printStackTrace();							
 						}
 
@@ -7409,7 +7577,23 @@ public void showStatus(String message) {
 				    }else {
 				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
 				    	 
-				    }
+				    }*/
+					 if(isUnix() || isMac() || isSolaris()){ 	
+							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
+
+					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
+					 		Map<Integer, String> map = new HashMap<>();
+						    map = execCommand(cmdScript);							    		
+							JOptionPane.showMessageDialog(null, "Formatting was started but returned exit code: " + map.get(0).toString() + "\n" +
+									"command result:\n" + map.get(1).toString(),"Formatting Started",JOptionPane.INFORMATION_MESSAGE);
+						
+					   				       
+			    }else {
+			    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+			    	 
+			    }
+
+					 
 				}
 				
 	        });
@@ -7465,14 +7649,18 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 								inputContactFileField1.setText(fileName);
 						 }
 					 }
 					
-					
+					 //Confirm if it is directory or not
+					 if (!isDir(inputContactFileField1.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+						
+					 }
 					
 				}
 			});
@@ -7495,14 +7683,19 @@ public void showStatus(String message) {
 					 else {
 												
 						 if (!isValidpath(fileName)) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 								outputFileField.setText(fileName);
 						 }
 					 }
 				
-					
+					//Confirm if it is directory or not
+					 if (!isDir(outputFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+						
+					 }
+
 				}
 			});
 	        
@@ -7525,7 +7718,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 					
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputReadFileField1.setText(fileName);
@@ -7535,8 +7728,8 @@ public void showStatus(String message) {
 					 
 					//Check the input extension::: .fastq and .fq	
 					 String ext = getFileExtension(new File(inputReadFileField1.getText()));						
-						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						if (!ext.equals("fastq") && !ext.equals("fq")) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputReadFileField1.setText("");
 							return;
 						} 
@@ -7563,7 +7756,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 inputReadFileField2.setText(fileName);
@@ -7572,8 +7765,8 @@ public void showStatus(String message) {
 					 
 					//Check the input extension::: .fastq and .fq	
 					 String ext = getFileExtension(new File(inputReadFileField2.getText()));						
-						if (!ext.equals("fastq") && !ext.equals("fq") && !ext.equals("gz") ) {						
-							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert!",JOptionPane.ERROR_MESSAGE);						
+						if (!ext.equals("fastq") && !ext.equals("fq") ) {						
+							JOptionPane.showMessageDialog(null, "Incorrect FASTQ file. Expected .fastq, .fastq.gz, .fq or .fq.gz file extension.","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputReadFileField2.setText("");
 							return;
 						} 
@@ -7601,7 +7794,7 @@ public void showStatus(String message) {
 						
 						 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 							 binaryFileField.setText(fileName);
@@ -7617,6 +7810,9 @@ public void showStatus(String message) {
 	        samtools_binaryFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					//////////////////////////////////////////////
+					JOptionPane.showMessageDialog(null, "<html>The samtool binary file to use is <b>samtools</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
 					//viewerOptions.put(Constants.ISCHOOSINGFOLDER, true);
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
@@ -7629,7 +7825,7 @@ public void showStatus(String message) {
 						 fileName=  pathEdit(fileName);
 												 						
 						 if (fileName==null || fileName.trim().equals("")) {
-							 JOptionPane.showMessageDialog(null, msg,"Alert!",JOptionPane.ERROR_MESSAGE);						
+							 JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.ERROR_MESSAGE);						
 								
 						 }else {
 								binarysamtoolsField.setText(fileName);
@@ -7659,7 +7855,7 @@ public void showStatus(String message) {
 	        ////////////////////////////////////////////////	        
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	                
-	        panel.add(new JLabel("Index Directory ",JLabel.LEFT), gbc);
+	        panel.add(new JLabel("Reference genome Index Directory ",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -7782,7 +7978,21 @@ public void showStatus(String message) {
 			
 			ButtonGroup bg=new ButtonGroup();    
 	    	bg.add(BWA);bg.add(Bowtie);
-	    		      
+	    	
+			////////////////////////////////////////////////////
+	        binaryFileButton.addActionListener(new ActionListener() {				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+										
+				if(BWA.isSelected()) {
+					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+				}
+				}
+			});
 			////////////////////////////////////////////////
 			y++;
 			gbc.gridx = 0;
@@ -7947,14 +8157,20 @@ public void showStatus(String message) {
 					String globalscript = "";
 					
 					
-					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+					if (input1 == null || output == null || !isDir(input1) || !isDir(output)) {
+						JOptionPane.showMessageDialog(null, "Index or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
+					if (Read1 ==null || Read1.trim().equals("")) {
+							JOptionPane.showMessageDialog(null, "Read-1 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
+							return;
+						}
+					
+					
 					if (PairRead.isSelected()) {
 						if (Read2 ==null || Read2.trim().equals("") ) {
-							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert!",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "Read-2 file path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 							return;
 						}
 					}
@@ -7967,15 +8183,14 @@ public void showStatus(String message) {
 					
 					
 					if (binary==null || binary.trim().equals("") || samtools==null ||  samtools.trim().equals("")) {
-						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool not selected !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Binary file/Wrapper script for tool was not selected !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
 					//quality 
 					int Qua = Integer.parseInt(quality);
-
 					if ( quality ==null || quality.trim().equals("") || Qua < 0) {
-						JOptionPane.showMessageDialog(null, "Incorrect Quality Value Specified, Empty or negative values not accepted !","Alert!",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "Incorrect Quality Value Specified, Empty or negative values not accepted !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
 					}
 					
@@ -7984,7 +8199,7 @@ public void showStatus(String message) {
 					String Output = null;
 					
 					// Mapping
-				
+					String Ultimate = null;
 					try {
 						//determine the algorithm to use
 						String local_script= "";
@@ -8073,7 +8288,6 @@ public void showStatus(String message) {
 							else
 							{
 								script = samtools  + " view -b -F " + flag + " -q " + quality + " " + Map_out +" > " + name + ".filtered.bam " ; 
-							
 							}
 							
 							Output = output + "/Filter_script_samtools.sh";
@@ -8130,7 +8344,7 @@ public void showStatus(String message) {
 						globalscript +="\n echo 'HiC-Express Processes Completed Succesfully.................'\n";
 						// Now Write the global script that Contains All
 						String change_dir = "cd " + output + "\n";
-						String Ultimate = output + "/HiC-Express.sh";
+						Ultimate = output + "/HiC-Express.sh";
 						log_outputWriter = new BufferedWriter(new FileWriter(Ultimate));
 						log_outputWriter.write(change_dir);
 						log_outputWriter.write(globalscript);
@@ -8153,27 +8367,50 @@ public void showStatus(String message) {
 							e1.printStackTrace();
 						} 
 					 
-					 editscriptButton.setEnabled(true);
+					// editscriptButton.setEnabled(true);
 					
-					 JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+					// JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
+						//Check OS before setting before script Execution
+					/* if(isUnix() || isMac() || isSolaris()){ 						 
+						 String[] cmdScript = new String[]{"/bin/bash", Ultimate}; 
+						 try {
+							Process procScript = Runtime.getRuntime().exec(cmdScript);
+						} catch (IOException e1) {
+							// TODO Auto-generated catch block
+							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
+							e1.printStackTrace();							
+						}
+
+							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
+						    
+						   				       
+				    }else {
+				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+				    	 
+				    }*/
+					 
+					 if(isUnix() || isMac() || isSolaris()){ 	
+							JOptionPane.showMessageDialog(null, "Hi-C Express operation running in background","Hi-C Express Started",JOptionPane.INFORMATION_MESSAGE);
+
+					 		String[] cmdScript = new String[]{"/bin/bash", }; 
+					 		Map<Integer, String> map = new HashMap<>();
+						    map = execCommand(cmdScript);							    		
+							JOptionPane.showMessageDialog(null, "Hi-C Express was started but returned exit code: " + map.get(0).toString() + "\n" +
+									"command result:\n" + map.get(1).toString(),"Formatting Started",JOptionPane.INFORMATION_MESSAGE);
+						
+					   				       
+			    }else {
+			    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Hi-C Express script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
+			    	 
+			    }
+
+
+					 
 				}
 				
 	        });
-	        
-	        
-	        ///////////////////////////////////////////////
-	        createscriptButton.addActionListener(new ActionListener() {				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					
-					
-					
-				}
-					
-					
-	        });
-	        
-	       
+	               
+        	      
 	  }
   }
 
