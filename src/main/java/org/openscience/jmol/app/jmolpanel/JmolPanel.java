@@ -118,6 +118,7 @@ import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 import javax.swing.text.NumberFormatter;
 
+import org.apache.commons.io.FilenameUtils;
 import org.broad.igv.feature.Chromosome;
 import org.jmol.api.Interface;
 import org.jmol.api.JmolAdapter;
@@ -171,6 +172,9 @@ import juicebox.windowui.HiCZoom;
 import juicebox.windowui.MatrixType;
 import juicebox.windowui.NormalizationType;
 import  edu.missouri.chenglab.compareTAD.TADComparison;
+
+//Panel extention background
+import  edu.missouri.chenglab.Panelext.*;
 //added -hcf
 
 /*import juicebox.data.Dataset;
@@ -291,9 +295,10 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static String msg = "It appears that your OS is not a Unix based OS. Please install Cygwin/MinGW to use this 1D-Function\n " + 
 			 "However, if you have installed Cygwin/MinGW, you are getting this error because you are currently working outside your Cygwin/MinGW directory.\n " +
 			 "Please make sure all your files and output folders are in the Cygwin/MinGW directory.\n" ;
-  private static String cygwin_user_msg = "It appears that you are a Cygwin/MinGW user. The available option for Cygwin/MinGW users is to manually execute the Indexer script(Indexer_script.sh) generated into the output directory.\n " +
-  		  		     "How To Execute Indexer Script: Open a Cygwin/MinGW terminal -> change directory to the Output Directory -> Execute the generated  Indexer_script.sh script." ;
-			
+  private static String cygwin_user_msg = "It appears that you are a Cygwin/MinGW user. The available option for Cygwin/MinGW users is to manually execute the shell script generated into the output directory.\n " +
+  		  		     "The instructions on how to execute shell script are available in the GenomeFlow manual." ;
+  
+   
   public String[] CompareTADInput = null; // Tosin added
   public static String createscriptfile = null; //Tosin added
   
@@ -5608,8 +5613,8 @@ public void showStatus(String message) {
 					 // confirm it is a directory or not
 					 
 					 if (!isDir(outputFileField.getText())) {
-						JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-						
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputFileField.setText("");
 					 }
 					
 				}
@@ -5641,7 +5646,17 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+					 if (isDir(binaryFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input file. A binary file is expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
+					 
+					 if (!stripExtension(binaryFileField.getText()).equals("bowtie2-build") && !stripExtension(binaryFileField.getText()).equals("bwa")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> bowtie tool indexer binary file name is <b>bowtie2-build</b>. <br /> bwa tool indexer binary file name is <b>bwa</b> </html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
+					 
+					 
 				}
 			});
 	        
@@ -5835,7 +5850,18 @@ public void showStatus(String message) {
 					
 					String script = "";
 					
-					
+					//check if right binary file is selected for each tool
+					 if (stripExtension(binaryFileField.getText()).equals("bowtie2-build") && BWA.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bowtie binary file: <b>bowtie2-build</b> </html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
+					 
+					 if (stripExtension(binaryFileField.getText()).equals("bwa") && Bowtie.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bwa binary file: <b>bwa</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
 					//check input or output is valid
 					if (input == null || input.trim().equals("") || output == null ||output.trim().equals("") || !isDir(output)) {
 						JOptionPane.showMessageDialog(null, "Input file, Reference genome file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
@@ -5908,13 +5934,10 @@ public void showStatus(String message) {
 					 
 						//Check OS before setting before script Execution
 					 if(isUnix() || isMac() || isSolaris()){ 	
-							    JOptionPane.showMessageDialog(null, "Indexing operation running in background","Indexing Started",JOptionPane.INFORMATION_MESSAGE);
-
-						 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
-						 		Map<Integer, String> map = new HashMap<>();
-							    map = execCommand(cmdScript);							    		
-								JOptionPane.showMessageDialog(null, "Indexing was started but returned exit code: " + map.get(0).toString() + "\n" +
-										"command result:\n" + map.get(1).toString(),"Indexing Started",JOptionPane.INFORMATION_MESSAGE);
+							    JOptionPane.showMessageDialog(null, "Indexing operation running in background. You will get a message once it is completed.","Indexing Started",JOptionPane.INFORMATION_MESSAGE);
+							    String Task = "Indexing";
+								Thread task =new Thread(new taskexecution(Output, Task));
+								task.start();
 							
 						   				       
 				    }else {
@@ -5930,61 +5953,21 @@ public void showStatus(String message) {
 	  }
   }
 
+  
   /**
-   * execute shell command
+   * Get the filename only without extension to verify binary file
    * @param str
    * @return
    */
-  public static Map execCommand(String... str) {
-	    Map<Integer, String> map = new HashMap<>();
-	    ProcessBuilder pb = new ProcessBuilder(str);
-	    pb.redirectErrorStream(true);
-	    Process process = null;
-	    try {
-	        process = pb.start();
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
+  static String stripExtension (String pathstr) {
+      // Handle null case specially.
+	  String str = FilenameUtils.getBaseName(pathstr);
+	  
+    
+      return str;
+  }
 
-	    BufferedReader reader = null;
-	    if (process != null) {
-	        reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-	    }
-
-	    String line;
-	    StringBuilder stringBuilder = new StringBuilder();
-	    try {
-	        if (reader != null) {
-	            while ((line = reader.readLine()) != null) {
-	                stringBuilder.append(line).append("\n");
-	            }
-	        }
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-
-	    try {
-	        if (process != null) {
-	            process.waitFor();
-	        }
-	    } catch (InterruptedException e) {
-	        e.printStackTrace();
-	    }
-
-	    if (process != null) {
-	        map.put(0, String.valueOf(process.exitValue()));
-	    }
-
-	    try {
-	        map.put(1, stringBuilder.toString());
-	    } catch (StringIndexOutOfBoundsException e) {
-	        if (stringBuilder.toString().length() == 0) {
-	            return map;
-	        }
-	    }
-	    return map;
-	}
-   	     
+       
   /**
    * get the file extension
    * @param file
@@ -6164,8 +6147,8 @@ public void showStatus(String message) {
 					 
 					 //Confirm if it is directory or not
 					 if (!isDir(inputContactFileField1.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-							
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							inputContactFileField1.setText("");
 					 }
 					 
 										
@@ -6200,8 +6183,8 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir( outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-							
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							outputFileField.setText("");
 					 }
 					 
 					 
@@ -6312,7 +6295,16 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+					 if (isDir(binaryFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input file. A binary file is expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
+					 
+					 
+					 if (!stripExtension(binaryFileField.getText()).equals("bowtie2") && !stripExtension(binaryFileField.getText()).equals("bwa")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> bowtie tool mapper binary file name is <b>bowtie2</b>. <br /> bwa tool mapper binary file name is <b>bwa</b> </html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
 				}
 			});
 	        
@@ -6345,7 +6337,10 @@ public void showStatus(String message) {
 					
 					////////////////////////////////////////////////////
 
-					
+					 if (isDir(binarysamtoolsField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input file. A binary samtools file is expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
 				}
 			});
 	        
@@ -6499,7 +6494,8 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 										
 				if(BWA.isSelected()) {
-					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);	
+					
 				}
 				else{
 					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
@@ -6623,6 +6619,17 @@ public void showStatus(String message) {
 					String threads = nthreads.getText();
 					String samtools = binarysamtoolsField.getText();
 					
+					 if (stripExtension(binaryFileField.getText()).equals("bowtie2") && BWA.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bowtie binary file: <b>bowtie2</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
+					 
+					 if (stripExtension(binaryFileField.getText()).equals("bwa") && Bowtie.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bwa binary file: <b>bwa</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
 					
 					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("") || !isDir(input1) || !isDir(output)) {
 						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
@@ -6698,7 +6705,6 @@ public void showStatus(String message) {
 						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
-						
 						createscriptfile = Output;
 						
 					} catch (IOException e2) {
@@ -6720,33 +6726,12 @@ public void showStatus(String message) {
 					 
 					 
 					 
-					//Check OS before setting before script Execution
-					/* if(isUnix() || isMac() || isSolaris()){ 						 
-						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
-						 try {
-							Process procScript = Runtime.getRuntime().exec(cmdScript);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Mapping operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
-							e1.printStackTrace();							
-						}
-
-							JOptionPane.showMessageDialog(null, "Mapping operation running in background","Mapping Started",JOptionPane.INFORMATION_MESSAGE);
-						    
-						   				       
-				    }else {
-				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Mapping script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
-				    	 
-				    }*/
-					 
+					//Check OS before setting before script Execution				 
 					 if(isUnix() || isMac() || isSolaris()){ 	
-							JOptionPane.showMessageDialog(null, "Mapping operation running in background","Mapping Started",JOptionPane.INFORMATION_MESSAGE);
-
-					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
-					 		Map<Integer, String> map = new HashMap<>();
-						    map = execCommand(cmdScript);							    		
-							JOptionPane.showMessageDialog(null, "Mapping was started but returned exit code: " + map.get(0).toString() + "\n" +
-									"command result:\n" + map.get(1).toString(),"Mapping Started",JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "Mapping operation running in background. You will get a message once it is completed.","Mapping Started",JOptionPane.INFORMATION_MESSAGE);
+							String Task = "Mapping";
+							Thread task =new Thread(new taskexecution(Output, Task));
+							task.start();
 						
 					   				       
 			    }else {
@@ -6853,7 +6838,7 @@ public void showStatus(String message) {
 					 //Confirm if it is directory or not
 					 if (!isDir(outputFileField.getText())) {
 							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-						
+							outputFileField.setText("");
 					 }
 					
 				}
@@ -6890,6 +6875,18 @@ public void showStatus(String message) {
 						 }
 					 }
 					
+					 //////////////////////////////////////////////////
+					 if (isDir(binarysamtoolsField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input file.</b> A samtools binary file is expected.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
+					 
+					 
+					 ////////////////////////////////////////////////////
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> samtools binary file name is <b>samtools</b>.</html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
 					
 				}
 			});
@@ -7087,7 +7084,7 @@ public void showStatus(String message) {
 					String script = "";				
 					String samtools = binarysamtoolsField.getText();
 					
-					
+			
 					if (input1 == null || input1.trim().equals("")|| output == null || output.trim().equals("") || !isDir(output))  {
 						JOptionPane.showMessageDialog(null, "Input or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -7151,7 +7148,6 @@ public void showStatus(String message) {
 						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
-						
 						createscriptfile = Output;
 						
 					} catch (IOException e2) {
@@ -7174,32 +7170,12 @@ public void showStatus(String message) {
 					 
 					
 					//Check OS before setting before script Execution
-					/* if(isUnix() || isMac() || isSolaris()){ 						 
-						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
-						 try {
-							Process procScript = Runtime.getRuntime().exec(cmdScript);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Filtering operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
-							e1.printStackTrace();							
-						}
-
-							JOptionPane.showMessageDialog(null, "Filtering operation running in background","Filtering Started",JOptionPane.INFORMATION_MESSAGE);
-						    
-						   				       
-				    }else {
-				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Filtering script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
-				    	 
-				    }*/
 					 if(isUnix() || isMac() || isSolaris()){ 	
-							JOptionPane.showMessageDialog(null, "Filtering operation running in background","Filtering Started",JOptionPane.INFORMATION_MESSAGE);
-
-					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
-					 		Map<Integer, String> map = new HashMap<>();
-						    map = execCommand(cmdScript);							    		
-							JOptionPane.showMessageDialog(null, "Filtering was started but returned exit code: " + map.get(0).toString() + "\n" +
-									"command result:\n" + map.get(1).toString(),"Filtering Started",JOptionPane.INFORMATION_MESSAGE);
-						
+							JOptionPane.showMessageDialog(null, "Filtering operation running in background. You will get a message once it is completed.","Filtering Started",JOptionPane.INFORMATION_MESSAGE);
+							String Task = "Filtering";
+							Thread task =new Thread(new taskexecution(Output, Task));
+							task.start();
+							
 					   				       
 			    }else {
 			    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Filtering script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
@@ -7216,6 +7192,7 @@ public void showStatus(String message) {
 	  }
   }
 
+  
   
   /**
    * To get a new file name
@@ -7316,8 +7293,8 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir(outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							outputFileField.setText("");
 					 }
 				
 				}
@@ -7354,7 +7331,19 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+					 ////////////////////////////////////////////////
+					 if (isDir(binarysamtoolsField.getText())) {
+							JOptionPane.showMessageDialog(null, "Incorrect input file. A binary samtools file is expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
+					 
+					 
+					 ////////////////////////////////////////////////////
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> samtools binary file name is <b>samtools</b>.</html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
+					 
 				}
 			});
 	        
@@ -7497,6 +7486,12 @@ public void showStatus(String message) {
 					String samtools = binarysamtoolsField.getText();
 					
 					
+					 if (stripExtension(binarysamtoolsField.getText()).equals("samtools") && sam.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select samtools binary file: <b>samtools</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+							return;
+						 }
+					
 					if (input1 == null || output == null ||  samtools ==null || !isDir(output)) {
 						JOptionPane.showMessageDialog(null, "Index folder, Read-1 file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -7538,6 +7533,7 @@ public void showStatus(String message) {
 						log_outputWriter.write(working_dir);
 						log_outputWriter.write(local_script);
 						log_outputWriter.write(script);
+
 						createscriptfile = Output;
 						
 					} catch (IOException e2) {
@@ -7561,31 +7557,12 @@ public void showStatus(String message) {
 					// editscriptButton.setEnabled(true);
 					
 					//Check OS before setting before script Execution
-					 /*if(isUnix() || isMac() || isSolaris()){ 						 
-						 String[] cmdScript = new String[]{"/bin/bash", Output}; 
-						 try {
-							Process procScript = Runtime.getRuntime().exec(cmdScript);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
-							e1.printStackTrace();							
-						}
-
-							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
-						    
-						   				       
-				    }else {
-				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
-				    	 
-				    }*/
 					 if(isUnix() || isMac() || isSolaris()){ 	
-							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
+							JOptionPane.showMessageDialog(null, "Formatting operation running in background. You will get a message once it is completed.","Formating Started",JOptionPane.INFORMATION_MESSAGE);
 
-					 		String[] cmdScript = new String[]{"/bin/bash", Output}; 
-					 		Map<Integer, String> map = new HashMap<>();
-						    map = execCommand(cmdScript);							    		
-							JOptionPane.showMessageDialog(null, "Formatting was started but returned exit code: " + map.get(0).toString() + "\n" +
-									"command result:\n" + map.get(1).toString(),"Formatting Started",JOptionPane.INFORMATION_MESSAGE);
+							String Task = "Formatting";
+							Thread task =new Thread(new taskexecution(Output, Task));
+							task.start();
 						
 					   				       
 			    }else {
@@ -7659,7 +7636,7 @@ public void showStatus(String message) {
 					 //Confirm if it is directory or not
 					 if (!isDir(inputContactFileField1.getText())) {
 							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
-						
+							inputContactFileField1.setText("");
 					 }
 					
 				}
@@ -7801,7 +7778,16 @@ public void showStatus(String message) {
 						 }
 					 }
 					
-					
+					 if (isDir(binaryFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input file.</b> A binary file is expected.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
+					 
+					 if (!stripExtension(binaryFileField.getText()).equals("bowtie2") && !stripExtension(binaryFileField.getText()).equals("bwa")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> bowtie tool mapper binary file name is <b>bowtie2</b>. <br /> bwa tool mapper binary file name is <b>bwa</b> </html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+						 }
+					 
 				}
 			});
 	        
@@ -7832,7 +7818,18 @@ public void showStatus(String message) {
 						 }
 					 }
 				
-					
+					 if (isDir(binarysamtoolsField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input file.</b> A binary samtools file is expected.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
+					 
+					 
+					 ////////////////////////////////////////////////////
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> samtools binary file name is <b>samtools</b>.</html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
+					 
 				}
 			});
 	        
@@ -8109,7 +8106,7 @@ public void showStatus(String message) {
 			////////////////////////////////////////////////
 			
 			y++;
-			JButton createscriptButton = new JButton("Generate Script");
+			JButton createscriptButton = new JButton("Execute");
 			JButton editscriptButton = new JButton("Edit Script");
 			
 			gbc.gridx = 1;	        
@@ -8157,6 +8154,18 @@ public void showStatus(String message) {
 					String globalscript = "";
 					
 					
+					 if (stripExtension(binaryFileField.getText()).equals("bowtie2") && BWA.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bowtie binary file: <b>bowtie2</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
+					 
+					 if (stripExtension(binaryFileField.getText()).equals("bwa") && Bowtie.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select bwa binary file: <b>bwa</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binaryFileField.setText("");
+							return;
+						 }
+					
 					if (input1 == null || output == null || !isDir(input1) || !isDir(output)) {
 						JOptionPane.showMessageDialog(null, "Index or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -8196,14 +8205,20 @@ public void showStatus(String message) {
 					
 					TADwriter wt = new TADwriter();
 					BufferedWriter log_outputWriter = null;
-					String Output = null;
+					
+					
+					String Ultimate = output + "/HiC-Express.sh";
+					
 					
 					// Mapping
-					String Ultimate = null;
-					try {
+					
+					try {						
 						//determine the algorithm to use
 						String local_script= "";
 						String working_dir = "cd " + output + "\n";
+						
+						String title_script =  "\necho 'Mapping started.................'\n" ;
+
 						if (BWA.isSelected()) {
 							local_script = "mkdir bwa_align\n";
 							if (!PairRead.isSelected()) {			
@@ -8215,8 +8230,7 @@ public void showStatus(String message) {
 										 samtools  + " view -Shb - > bwa_align/bwa_mapped.bam " ;; 
 								
 							}
-							Output = output + "/Mapper_script_bwa.sh";
-							globalscript +=  "echo 'Mapping started.................'\n" + "./Mapper_script_bwa.sh\n";
+							
 							
 							
 						} 
@@ -8231,32 +8245,19 @@ public void showStatus(String message) {
 								script =  binary + " -x " + input1 + "/ref_index" + " --threads " + String.valueOf(threads) +
 										" -1 " + Read1 + " -2 " + Read2 + " | "+ samtools  + " view -Shb - > bowtie2_align/bowtie2_mapped.bam " ;;
 							}
-							Output = output + "/Mapper_script_bowtie2.sh";
-							
-							globalscript +="\necho 'Mapping started.................'\n" +"./Mapper_script_bowtie2.sh\n";
+
 						
 						}
 					    
-						if (wt.isExist(Output)) {
-							try {
-								wt.delete_file(Output);
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
 						
 						
-						log_outputWriter = new BufferedWriter(new FileWriter( Output));
-						log_outputWriter.write(working_dir);
-						log_outputWriter.write(local_script);
-						log_outputWriter.write(script);
-						log_outputWriter.flush();
-						log_outputWriter.close();
-					 
+						
+						globalscript+= "\n" + local_script+ "\n" + title_script + script;
+				 
 						
 						// Filtering
-						Output = null;
+						title_script ="\necho 'Filtering started.................'\n";
+
 						String Map_out  = null;
 						String name = null;
 						
@@ -8278,7 +8279,6 @@ public void showStatus(String message) {
 						
 					
 						//determine the algorithm to use
-						local_script= "";
 						if (sam.isSelected()) {							
 							
 							if (flag ==null || flag.trim().equals("") ) {
@@ -8289,114 +8289,58 @@ public void showStatus(String message) {
 							{
 								script = samtools  + " view -b -F " + flag + " -q " + quality + " " + Map_out +" > " + name + ".filtered.bam " ; 
 							}
-							
-							Output = output + "/Filter_script_samtools.sh";
-							globalscript +="\necho 'Filtering started.................'\n" +"./Filter_script_samtools.sh\n";
+														
 							
 						} 
-					    
-						if (wt.isExist(Output)) {
-							try {
-								wt.delete_file(Output);
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
 						
-						log_outputWriter = new BufferedWriter(new FileWriter(Output));
-						log_outputWriter.write(local_script);
-						log_outputWriter.write(script);
-						log_outputWriter.flush();
-						log_outputWriter.close();
-						
+
+						globalscript+= "\n" + title_script + "\n" + script;
+					
 						
 						// Format
-						Output = null;
+						title_script ="\necho 'Formatting started.................'\n";
+
 						String Format_out = name +  ".filtered.bam " ; 
 						//determine the algorithm to use
-					    local_script= "";
-						if (sam.isSelected()) {							
+					  	if (sam.isSelected()) {							
 							
 							script = samtools + " view "  +  Format_out + " | " + 
 									"awk 'BEGIN {FS=\"\\t\"; OFS=\"\\t\"} {name1=$1; str1=and($2,16); chr1=substr($3, 4); pos1=$4; mapq1=$5; getline; name2=$1; str2=and($2,16); chr2=substr($3, 4); pos2=$4; mapq2=$5; if(name1==name2) { if (chr1>chr2){print name1, str2, chr2, pos2,1, str1, chr1, pos1, 0, mapq2, mapq1} else {print name1, str1, chr1, pos1, 0, str2, chr2, pos2 ,1, mapq1, mapq2}}}'  | sort -k3,3d -k7,7d > "+
 									 "GenomeFlow_HiC_Medium_Format.input" ; 
 						
-							Output = output + "/Format_script_samtools.sh";
-							globalscript +="\necho 'Formatting started.................'\n" +"./Format_script_samtools.sh\n";
+							
 						} 
 					    
-						if (wt.isExist(Output)) {
-							try {
-								wt.delete_file(Output);
-							} catch (Exception e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
+
 						
-						log_outputWriter = new BufferedWriter(new FileWriter( Output));
-						log_outputWriter.write(local_script);
-						log_outputWriter.write(script);
-						log_outputWriter.flush();
-						log_outputWriter.close();
+						globalscript+= "\n" + title_script + "\n" + script + "\n";
+						
+
 							
-						globalscript +="\n echo 'HiC-Express Processes Completed Succesfully.................'\n";
-						// Now Write the global script that Contains All
-						String change_dir = "cd " + output + "\n";
-						Ultimate = output + "/HiC-Express.sh";
+						String task_complete ="\n echo 'HiC-Express Processes Completed Succesfully.................'\n";
+						
 						log_outputWriter = new BufferedWriter(new FileWriter(Ultimate));
-						log_outputWriter.write(change_dir);
+						log_outputWriter.write(working_dir);
 						log_outputWriter.write(globalscript);
+						log_outputWriter.write(task_complete);
 						log_outputWriter.flush();
 						log_outputWriter.close();
 						
-						createscriptfile = Output;
+						//	createscriptfile = Output;
 						
 					} catch (IOException e2) {
 						// TODO Auto-generated catch block
 						e2.printStackTrace();
 					}
 					
-					
-					 try {
-							log_outputWriter.flush();
-							log_outputWriter.close();
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} 
 					 
 					// editscriptButton.setEnabled(true);
 					
-					// JOptionPane.showMessageDialog(null, "Script saved to output directory.");	
-						//Check OS before setting before script Execution
-					/* if(isUnix() || isMac() || isSolaris()){ 						 
-						 String[] cmdScript = new String[]{"/bin/bash", Ultimate}; 
-						 try {
-							Process procScript = Runtime.getRuntime().exec(cmdScript);
-						} catch (IOException e1) {
-							// TODO Auto-generated catch block
-							JOptionPane.showMessageDialog(null, "An error occured. Formating operation could not be run in Background!","Alert",JOptionPane.ERROR_MESSAGE);						
-							e1.printStackTrace();							
-						}
-
-							JOptionPane.showMessageDialog(null, "Formating operation running in background","Formating Started",JOptionPane.INFORMATION_MESSAGE);
-						    
-						   				       
-				    }else {
-				    	JOptionPane.showMessageDialog(null, cygwin_user_msg,"Formating script saved to output directory!",JOptionPane.INFORMATION_MESSAGE);
-				    	 
-				    }*/
-					 
+					//Check OS before setting before script Execution					 
 					 if(isUnix() || isMac() || isSolaris()){ 	
-							JOptionPane.showMessageDialog(null, "Hi-C Express operation running in background","Hi-C Express Started",JOptionPane.INFORMATION_MESSAGE);
-
-					 		String[] cmdScript = new String[]{"/bin/bash", }; 
-					 		Map<Integer, String> map = new HashMap<>();
-						    map = execCommand(cmdScript);							    		
-							JOptionPane.showMessageDialog(null, "Hi-C Express was started but returned exit code: " + map.get(0).toString() + "\n" +
-									"command result:\n" + map.get(1).toString(),"Formatting Started",JOptionPane.INFORMATION_MESSAGE);
+						 String Task = "Hi-C Express";
+							Thread task =new Thread(new taskexecution(Ultimate, Task));
+							task.start();
 						
 					   				       
 			    }else {
@@ -8943,3 +8887,5 @@ public void setBannerLabel(String label) {
   }
 
 }
+
+
