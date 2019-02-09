@@ -8317,7 +8317,7 @@ public void showStatus(String message) {
 						
 
 							
-						String task_complete ="\n echo 'HiC-Express Processes Completed Succesfully.................'\n";
+						String task_complete ="\n echo 'HiC-Express Processes Completed.................'\n";
 						
 						log_outputWriter = new BufferedWriter(new FileWriter(Ultimate));
 						log_outputWriter.write(working_dir);
