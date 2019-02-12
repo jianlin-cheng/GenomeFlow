@@ -2499,8 +2499,8 @@ public class Token {
       // Tosin added for 3D genome function
       "struct_3DMax",							new Token(struct_3DMax),
       // 2D visualization
-      "Heatmap2D",							new Token(Heatmap2D ),
-      "FindTAD2D",							new Token(FindTAD2D ),
+      "Heatmap2D",								new Token(Heatmap2D ),
+      "FindTAD2D",								new Token(FindTAD2D ),
       "CompareTAD2D",							new Token(CompareTAD2D ),
     };
 

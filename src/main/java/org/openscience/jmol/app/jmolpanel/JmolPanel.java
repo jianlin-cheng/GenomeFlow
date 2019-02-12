@@ -41,6 +41,8 @@ import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyAdapter;
@@ -1956,11 +1958,22 @@ public void showStatus(String message) {
 		  browserFileButton.addActionListener(new ActionListener() {				
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					
+					JOptionPane.showMessageDialog(null, "<html><b>Select a formated mapped read file in short/medium/long format as input</b>. For example, the \".input file in medium format\" generated from the 1D-Functions.</html>","Important information",JOptionPane.INFORMATION_MESSAGE);						
+
 					String fileName = (new Dialog()).getOpenFileNameFromDialog(viewerOptions,
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
+					
 					if (fileName == null) return;
-					inputField.setText(fileName);					
+					inputField.setText(fileName);	
+					
+					 //Tosin added: confirm it is a directory or not
+					 
+					 if (isDir(inputField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect input file.</b> A mapped read file is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						inputField.setText("");
+					 }
 				}
 			});
 		  gbc.gridx = 3;
@@ -1991,7 +2004,7 @@ public void showStatus(String message) {
 //		  String genomeIDs = prop.getProperty("genomeid");
 		  
 		  String genomeIDs = Constants.AVAILABLEGENOMEIDS;
-		  
+		
 		  String[] ids = genomeIDs.split(",");
 		  
 		  JComboBox<String> genomeIDList = new JComboBox<String>();
@@ -2004,9 +2017,27 @@ public void showStatus(String message) {
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
-		  gbc.gridwidth = 2;
+		 // gbc.gridwidth = 2;
 		  //panel.add(genomeIDField, gbc);
 		  panel.add(genomeIDList, gbc);
+		  
+		  
+		  //Tosin Added text box in case the Genomeid is not listed in combobox
+		  
+		  gbc.gridx = 2;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  panel.add(new JLabel("OR  Enter ID(if Not-listed)"), gbc);
+		  
+		  gbc.gridx = 3;
+		  gbc.gridy = y;
+		  gbc.gridwidth = 2;
+		  JTextField genomeIDField = new JTextField();
+		  genomeIDField.setPreferredSize(new Dimension(100,20));
+		  panel.add(genomeIDField, gbc);
+		  String text= "<html>To enter a Unique Genome ID not provided in the dropdown list. <br/> <b> Enter the ID here.</b></html>";
+		  genomeIDField.setToolTipText(text);
+		 
 		  
 //		  genomeIDList.setInputVerifier(new InputVerifier() {
 //			
@@ -2048,7 +2079,15 @@ public void showStatus(String message) {
 						JOptionPane.showMessageDialog(null, msgg,"Alert",JOptionPane.ERROR_MESSAGE);
 						// return;
 					}
-					outputField.setText(fileName);					
+					outputField.setText(fileName);	
+					
+					 //Tosin added: confirm it is a directory or not
+					 
+					 if (!isDir(outputField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputField.setText("");
+					 }
+					
 				}
 			});
 		  gbc.gridx = 3;
@@ -2259,7 +2298,7 @@ public void showStatus(String message) {
 				String inputFile = inputField.getText();
 				String outputFile = outputField.getText();
 				
-								
+				
 				if (inputFile == null ||inputFile.trim().equals("") || outputFile == null ||outputFile.trim().equals("")) {
 					JOptionPane.showMessageDialog(null, "Please specify the correct parameters. The Input File and the Output Directory are required fields.","Alert",JOptionPane.ERROR_MESSAGE);						
 					return;
@@ -2303,7 +2342,11 @@ public void showStatus(String message) {
 				String restrictionSiteFile = restrictionSiteField.getText();
 				
 				//String genomeId = genomeIDField.getText();
+				// Tosin edited here
 				String genomeId = genomeIDList.getItemAt(genomeIDList.getSelectedIndex());
+				if (!genomeIDField.getText().isEmpty()) {
+					genomeId = genomeIDField.getText();
+				}
 				long genomeLength = 0;
 				List<Chromosome> chromosomes = HiCFileTools.loadChromosomes(genomeId);
 		        for (Chromosome c : chromosomes) {
@@ -2456,7 +2499,15 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					if (fileName == null) return;
 					pathField.setText("");// tosin added
-					pathField.setText(pathField.getText() + fileName + ";");						
+					pathField.setText(pathField.getText() + fileName );	
+					
+					//Check the input extension::: .hic  - Tosin Added
+					String ext = getFileExtension(new File(pathField.getText()));						
+					if (!ext.equals("hic") ) {						
+						JOptionPane.showMessageDialog(null, "Incorrect file selected. File with extension .hic expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+						pathField.setText("");
+						return;
+					} 
 					
 				}
 			});
@@ -2602,6 +2653,8 @@ public void showStatus(String message) {
 		  JFormattedTextField chr1FromField = new JFormattedTextField();
 		  chr1FromField.setPreferredSize(new Dimension(100,20));
 		  chr1FromField.setEnabled(false);
+		  String textfrom= "<html>Enter a desired start position for the selected chromosome. Leave empty to select the entire chromosome</b></html>";
+		  chr1FromField.setToolTipText(textfrom);
 		  panel.add(chr1FromField, gbc);
 		  
 
@@ -2611,6 +2664,8 @@ public void showStatus(String message) {
 		  JFormattedTextField chr1ToField = new JFormattedTextField();
 		  chr1ToField.setPreferredSize(new Dimension(100,20));
 		  chr1ToField.setEnabled(false);
+		  String textto= "<html>Enter a desired end position for the selected chromosome. Leave empty to select the entire chromosome</b></html>";
+		  chr1FromField.setToolTipText(textto);
 		  panel.add(chr1ToField, gbc);
 		  
 		  JComboBox<String> resolutionList = new JComboBox<String>();
@@ -2802,6 +2857,13 @@ public void showStatus(String message) {
 						 }
 					}
 					outputFileField.setText(fileName);
+					
+					 //Tosin added: confirm it is a directory or not
+					 
+					 if (!isDir(outputFileField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputFileField.setText("");
+					 }
 				}
 		  });
 		    
@@ -5613,7 +5675,7 @@ public void showStatus(String message) {
 					 // confirm it is a directory or not
 					 
 					 if (!isDir(outputFileField.getText())) {
-						JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, and not a file.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
 						outputFileField.setText("");
 					 }
 					
@@ -6147,7 +6209,7 @@ public void showStatus(String message) {
 					 
 					 //Confirm if it is directory or not
 					 if (!isDir(inputContactFileField1.getText())) {
-							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here and not a file.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputContactFileField1.setText("");
 					 }
 					 
@@ -6183,7 +6245,7 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir( outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, but you selected a file</html>","Alert",JOptionPane.ERROR_MESSAGE);						
 							outputFileField.setText("");
 					 }
 					 
@@ -6341,6 +6403,12 @@ public void showStatus(String message) {
 							JOptionPane.showMessageDialog(null, "Incorrect input file. A binary samtools file is expected.","Alert",JOptionPane.ERROR_MESSAGE);						
 							binarysamtoolsField.setText("");
 						 }
+					 
+					 ////////////////////////////////////////////////////
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools")) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file selected. <br /> samtools binary file name is <b>samtools</b>.</html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+						 }
 				}
 			});
 	        
@@ -6494,11 +6562,11 @@ public void showStatus(String message) {
 				public void actionPerformed(ActionEvent e) {
 										
 				if(BWA.isSelected()) {
-					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);	
+					JOptionPane.showMessageDialog(null, "<html> <b> You must use the same tool used to create the reference genome index to perform the mapping operation.</b><br /> <br />You chose the <b>bwa</b> tool for alignment. This implies that the <b>bwa</b> tool was used to create the files in the <b>Index Directory</> you selected above.<br />The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);	
 					
 				}
 				else{
-					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+					JOptionPane.showMessageDialog(null, "<html><b> You must use the same tool used to create the reference genome index to perform the mapping operation.</b><br /> <br />You chose the <b>bowtie2</b> tool for alignment. This implies that the <b>bowtie2-build</b> tool was used to create the files in the <b>Index Directory</b> you selected above.<br />The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
 
 				}
 				}
@@ -6630,7 +6698,12 @@ public void showStatus(String message) {
 							binaryFileField.setText("");
 							return;
 						 }
-					
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools") && sam.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select samtools binary file: <b>samtools</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+							return;
+						 }
+					 
 					if (input1 == null || output == null || Read1 ==null || Read1.trim().equals("") || !isDir(input1) || !isDir(output)) {
 						JOptionPane.showMessageDialog(null, "Index folder, Read file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -6837,7 +6910,7 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir(outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, but you selected a file<html>","Alert",JOptionPane.ERROR_MESSAGE);						
 							outputFileField.setText("");
 					 }
 					
@@ -7084,6 +7157,12 @@ public void showStatus(String message) {
 					String script = "";				
 					String samtools = binarysamtoolsField.getText();
 					
+					
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools") && sam.isSelected()) {
+							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select samtools binary file: <b>samtools</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
+							binarysamtoolsField.setText("");
+							return;
+						 }
 			
 					if (input1 == null || input1.trim().equals("")|| output == null || output.trim().equals("") || !isDir(output))  {
 						JOptionPane.showMessageDialog(null, "Input or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
@@ -7293,7 +7372,7 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir(outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, but you selected a file<html>","Alert",JOptionPane.ERROR_MESSAGE);						
 							outputFileField.setText("");
 					 }
 				
@@ -7486,7 +7565,7 @@ public void showStatus(String message) {
 					String samtools = binarysamtoolsField.getText();
 					
 					
-					 if (stripExtension(binarysamtoolsField.getText()).equals("samtools") && sam.isSelected()) {
+					 if (!stripExtension(binarysamtoolsField.getText()).equals("samtools") && sam.isSelected()) {
 							JOptionPane.showMessageDialog(null, "<html> Wrong binary file is selected. <br /> Select samtools binary file: <b>samtools</b></html> ","Alert",JOptionPane.ERROR_MESSAGE);						
 							binarysamtoolsField.setText("");
 							return;
@@ -7635,7 +7714,7 @@ public void showStatus(String message) {
 					
 					 //Confirm if it is directory or not
 					 if (!isDir(inputContactFileField1.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input path.</b> A directory path is required here, but you selected a file.<html>","Alert",JOptionPane.ERROR_MESSAGE);						
 							inputContactFileField1.setText("");
 					 }
 					
@@ -7669,7 +7748,7 @@ public void showStatus(String message) {
 				
 					//Confirm if it is directory or not
 					 if (!isDir(outputFileField.getText())) {
-							JOptionPane.showMessageDialog(null, "Incorrect input path. A directory path is required here.","Alert",JOptionPane.ERROR_MESSAGE);						
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, but you selected a file<html>","Alert",JOptionPane.ERROR_MESSAGE);						
 						
 					 }
 
@@ -7981,13 +8060,14 @@ public void showStatus(String message) {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 										
-				if(BWA.isSelected()) {
-					JOptionPane.showMessageDialog(null, "<html>The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
-				}
-				else{
-					JOptionPane.showMessageDialog(null, "<html>The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+					if(BWA.isSelected()) {
+						JOptionPane.showMessageDialog(null, "<html> <b> You must use the same tool used to create the reference genome index to perform the mapping operation.</b><br /> <br />You chose the <b>bwa</b> tool for alignment. This implies that the <b>bwa</b> tool was used to create the files in the <b>Index Directory</> you selected above.<br />The bwa tool mapper binary file name is <b>bwa</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);	
+						
+					}
+					else{
+						JOptionPane.showMessageDialog(null, "<html><b> You must use the same tool used to create the reference genome index to perform the mapping operation.</b><br /><br />You chose the <b>bowtie2</b> tool for alignment. This implies that the <b>bowtie2-build</b> tool was used to create the files in the <b>Index Directory</b> you selected above.<br />The Bowtie tool mapper file name is <b>bowtie2</b>. Make sure the correct binary file is selected<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
 
-				}
+					}
 				}
 			});
 			////////////////////////////////////////////////

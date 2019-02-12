@@ -19,7 +19,7 @@ public class ConvertToHiCWorker extends SwingWorker<String,Void> {
 		try {
 			preprocess.getPreprocessor().preprocess(preprocess.getInputFile());
         
-			NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
+			//NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
 		}catch(Exception ex) {
 			return "Error: please check file format! " + ex.getMessage();
 		}

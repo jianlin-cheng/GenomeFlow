@@ -31,7 +31,7 @@ public class taskexecution implements Runnable {
 			    map = execCommand(cmdScript);	
 			    String status = null;
 			    if (map.get(1).toString().isEmpty()) {
-			    	status = "Process completed successfully";
+			    	status = "Process Completed successfully";
 			    }else {
 			    	status = "A process error or warning message was thrown by the script. Please address the message if it affects the expected output generation.";							    			
 			    }
