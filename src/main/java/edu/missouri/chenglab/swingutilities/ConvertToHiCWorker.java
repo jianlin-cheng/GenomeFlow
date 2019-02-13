@@ -5,6 +5,8 @@ import javax.swing.SwingWorker;
 import edu.missouri.chenglab.hicdata.PreProcessingHiC;
 import juicebox.tools.utils.original.NormalizationVectorUpdater;
 
+
+
 public class ConvertToHiCWorker extends SwingWorker<String,Void> {
 	
 	private PreProcessingHiC preprocess;
@@ -19,7 +21,7 @@ public class ConvertToHiCWorker extends SwingWorker<String,Void> {
 		try {
 			preprocess.getPreprocessor().preprocess(preprocess.getInputFile());
         
-			//NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
+			NormalizationVectorUpdater.updateHicFile(preprocess.getOutputFile()); 
 		}catch(Exception ex) {
 			return "Error: please check file format! " + ex.getMessage();
 		}

@@ -123,7 +123,6 @@ import edu.missouri.chenglab.Heatmap.HeatMapDemo;
 import edu.missouri.chenglab.gmol.Constants;
 import edu.missouri.chenglab.gmol.annotation.Annotator;
 import edu.missouri.chenglab.gmol.filemodification.ConvertPDB2GSS;
-import edu.missouri.chenglab.gmol.modelcomparison.Comparison;
 import edu.missouri.chenglab.loopdetection.Detector;
 import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import edu.missouri.chenglab.lordg.noisy_mds.StructureGeneratorLorentz_HierarchicalModeling;
@@ -142,11 +141,8 @@ import uk.ac.roslin.ensembl.model.core.Chromosome;
 
 //Tosin
 
-import edu.missouri.chenglab.Heatmap.HeatMapDemo;
 import edu.missouri.chenglab.Structure3DMax.algorithm.StructureGenerator3DMax;
 import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
-import edu.missouri.chenglab.ClusterTAD.*;
-import  edu.missouri.chenglab.compareTAD.TADComparison;
 
 public class ScriptEvaluator {
 

@@ -285,7 +285,7 @@ public class JmolPanel extends JPanel implements SplashInterface, JsonNioClient 
   private static final String compareModel = "Compare";
 
   private static final String structure3DMAXAction = "3DMax";//Tosin added
-  private static final String heatmap2DVisualizeAction = "VisualizeTosin"; //Tosin added
+  private static final String heatmap2DVisualizeAction = "Visualize"; //Tosin added
   private static final String findTadAction = "Find-TAD"; //Tosin added
   private static final String compareTadAction = "CompareTAD"; //Tosin added
   private static final String createindexAction = "CreateIndex"; //Tosin added
@@ -1738,12 +1738,13 @@ public void showStatus(String message) {
 		  gbc.gridwidth = 2;
 		  panel.add(outputField, gbc);
 		  
-		  JButton browserOutputFileButton = new JButton("Browse file");		  
+		 /*
+		 JButton browserOutputFileButton = new JButton("Browse file");		  
 		  gbc.gridx = 3;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 1;
 		  panel.add(browserOutputFileButton, gbc);
-		  
+		*/  
 		  
 		  y++;
 		  gbc.gridx = 0;
@@ -1787,7 +1788,7 @@ public void showStatus(String message) {
 					if (fileName.endsWith(".hic")){
 						outputField.setText(fileName);
 						outputField.setEnabled(false);
-						browserOutputFileButton.setEnabled(false);
+						//browserOutputFileButton.setEnabled(false);
 						
 						minResolutionLabel.setVisible(true);
 						minResolutionField.setVisible(true);
@@ -1796,12 +1797,20 @@ public void showStatus(String message) {
 					}else{
 						outputField.setText(fileName.replace(".", "_norm."));
 						outputField.setEnabled(true);
-						browserOutputFileButton.setEnabled(true); 
+						//browserOutputFileButton.setEnabled(true); 
 						
 						minResolutionLabel.setVisible(false);
 						minResolutionField.setVisible(false);
 						optionalResolutionLabel.setVisible(false);
 					}
+					
+					 //Tosin added: confirm it is a directory or not
+					 
+					 if (isDir(inputField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect input file specified.</b> A contact data file is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						inputField.setText("");
+					 }
+					
 				}
 		  });
 		  
@@ -2499,11 +2508,11 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					if (fileName == null) return;
 					pathField.setText("");// tosin added
-					pathField.setText(pathField.getText() + fileName );	
+					pathField.setText(pathField.getText() + fileName + ";");	
 					
 					//Check the input extension::: .hic  - Tosin Added
 					String ext = getFileExtension(new File(pathField.getText()));						
-					if (!ext.equals("hic") ) {						
+					if (!ext.equals("hic") && !ext.equals("hic;")  ) {						
 						JOptionPane.showMessageDialog(null, "Incorrect file selected. File with extension .hic expected.","Alert",JOptionPane.ERROR_MESSAGE);						
 						pathField.setText("");
 						return;
@@ -2674,7 +2683,7 @@ public void showStatus(String message) {
 		  panel.add(resolutionList, gbc);
 		  
 		  JComboBox<String> normalizationList = new JComboBox<String>();
-		  normalizationList.setPreferredSize(new Dimension(100,20));
+		  normalizationList.setPreferredSize(new Dimension(115,20));
 		  gbc.gridx = 5;
 		  panel.add(normalizationList, gbc);
 		  
@@ -2706,7 +2715,8 @@ public void showStatus(String message) {
 			
 			  @Override
 			  public void actionPerformed(ActionEvent e) {
-								  
+				  
+												  
 				  chrom1List.removeAllItems();
 				  chrom2List.removeAllItems();
 				  
@@ -2764,6 +2774,7 @@ public void showStatus(String message) {
 								}
 								
 								normalizationList.removeAllItems();
+								normalizationList.addItem("None");
 								for(NormalizationType norm : dataset.getNormalizationTypes()){									
 									normalizationList.addItem(norm.getLabel());
 								}
@@ -2805,7 +2816,13 @@ public void showStatus(String message) {
 			      dialog.setLocationRelativeTo(win);
 			      dialog.setVisible(true);
 			      
+			     JOptionPane.showMessageDialog(null, "<html> <b>Data Loading Completed</b>. <br />Select your desired configuration and Extract the Contact data.<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+			      
 			  }
+			  
+			  
+			  
 		  });
 		  
 		  
@@ -2901,8 +2918,17 @@ public void showStatus(String message) {
 					return;
 				}								
 				// Determine the input type tosin added
-				String newFile; String FileExt =  "txt";
-				newFile= "GenomeFlow_Extract_" + generateUniqueFileName() + "." + FileExt;		
+				String newFile = null; String FileExt =  "txt";
+				//newFile= "GenomeFlow_Extract_" + generateUniqueFileName() + "." + FileExt;	
+				if (!chr1FromField.getText().isEmpty() || !chr1ToField.getText().isEmpty()) {
+				newFile= "GenomeFlow_Extract_" + genomeField.getText()+ "_" + "chr_" + chrom1List.getSelectedItem().toString()+ "_" + 
+						"from_" + chr1FromField.getText()+ "_" + "to_" + chr1ToField.getText() + "_" + "res_" + resolutionList.getSelectedItem().toString() + "_" + 
+						"norm_" + normalizationList.getSelectedItem().toString() +"." + FileExt;	
+				}
+				else {
+					newFile= "GenomeFlow_Extract_" + genomeField.getText()+ "_" + "chr_" + chrom1List.getSelectedItem().toString()+ "_" + 
+							"res_" + resolutionList.getSelectedItem().toString() + "_" + "norm_" +	normalizationList.getSelectedItem().toString() +"." + FileExt;
+				}
 				String direct  = outputFileField.getText();
 				newFile = direct + '/' + newFile;
 				outputFileField.setText(newFile);
@@ -2997,7 +3023,14 @@ public void showStatus(String message) {
 								
 								try {
 									String msg = extractDataWorker.get();
-									JOptionPane.showMessageDialog(null, msg);
+									//Tosin Added
+									String status = null;
+									if (normalizationList.getSelectedItem().toString().equals("None")) {
+										status = "\nThe contact data is Un-Normalized";
+									}else {
+										status = "\nThe contact data is Normalized";
+									}
+									JOptionPane.showMessageDialog(null, msg + status);
 								} catch (InterruptedException e) {									
 									e.printStackTrace();
 									JOptionPane.showMessageDialog(null, "Error while extracting data");
@@ -4815,7 +4848,13 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					inputContactFileField.setText(fileName);
-					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+					
+					  if (isDir(inputContactFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input specified.</b> A contact data file is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							inputContactFileField.setText("");
+					}
+					    
+					
 				}
 			});
 	        
@@ -4830,7 +4869,12 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					outputGSSFileField.setText(fileName);
-					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					
+					// confirm it is a directory or not					 
+					 if (!isDir(outputGSSFileField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, and not a file.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputGSSFileField.setText("");
+					 }
 				}
 			});
 	        

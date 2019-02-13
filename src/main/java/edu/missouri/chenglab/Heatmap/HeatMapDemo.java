@@ -268,6 +268,8 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
                       }
                     ImageIO.write((RenderedImage) panel.Image, "PNG", f);
                     //ImageIo.
+   			     JOptionPane.showMessageDialog(null, "<html> <b>Imaged saved to direectory</b>.<html> ","Message",JOptionPane.INFORMATION_MESSAGE);						
+
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -307,7 +309,14 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         openContactFileButton = new JButton("Browse File & Load");
         openContactFileButton.setBackground(Color.YELLOW);
         openContactFileButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {          
+            public void actionPerformed(ActionEvent e) {     
+            	
+            if (isMatrix.isSelected() && textResolution.getText().toString().isEmpty()) {
+				JOptionPane.showMessageDialog(null, "Incomplete input. Specify the Resolution for the input Square matrix.","Alert",JOptionPane.ERROR_MESSAGE);						
+				return;
+            }
+            
+          
      
         	File workingDirectory = new File(System.getProperty("user.dir"));
         	JFileChooser fc = new JFileChooser();
@@ -386,6 +395,9 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 		    dialog.setLocationRelativeTo(win);
 		    dialog.setVisible(true);	
             
+		  
+		     JOptionPane.showMessageDialog(null, "<html> <b>To display a portion on the HeatMap:</b>. <br />Change the Matrix Index(<i>Xmin, Xmax, Ymin, Ymax</i>) to display to the area on the HeatMap <html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
           }
     });
         listPane.add(openContactFileButton, gbc);
@@ -684,6 +696,11 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
 				e1.printStackTrace();
 			} 
 		
+		     JOptionPane.showMessageDialog(null, "<html> <b>For TAD Annotation:</b>. <br />Click on the <i>Show TAD on Heatmap</i> <br /><br /> <b>To display multiple TADs on a HeatMap:</b>."
+		     		+ " <br /> Check the <i>Display Multiple TADs</i> <html>"
+		     		+ " <br /><br />  <b> To change TAD annotation line Colors: </b>"
+		     		+ "<br /> Choose one of the display <i>Colors</i>. ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
 		
         }
     });

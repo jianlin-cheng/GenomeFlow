@@ -45,6 +45,7 @@ public class PreProcessingHiC extends JuiceboxCLT {
     private String outputFile;
     private Preprocessor preprocessor;
 
+   
     public PreProcessingHiC() {
         super(getBasicUsage()+"\n"
                 + "           : -d only calculate intra chromosome (diagonal) [false]\n"
@@ -98,7 +99,9 @@ public class PreProcessingHiC extends JuiceboxCLT {
         preprocessor.setStatisticsFile(parser1.getStatsOption());
         preprocessor.setGraphFile(parser1.getGraphOption());
         preprocessor.setResolutions(parser1.getResolutionOption());
-
+        
+        
+        
     }
 
     @Override
