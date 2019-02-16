@@ -1518,7 +1518,7 @@ public void showStatus(String message) {
 				inputField1.setText(fileName);
 				
 				if (!fileName.endsWith(".gss")){
-					JOptionPane.showMessageDialog(null, "Please specify input file 1!");
+					JOptionPane.showMessageDialog(null, "Please specify input file 1! 3D Model in .gss file format expected");
 					return;
 				}
 					
@@ -1535,7 +1535,7 @@ public void showStatus(String message) {
 				inputField2.setText(fileName);
 				
 				if (!fileName.endsWith(".gss")){
-					JOptionPane.showMessageDialog(null, "Please specify input file 2!");
+					JOptionPane.showMessageDialog(null, "Please specify input file 2! 3D Model in .gss file format expected");
 					return;
 				}
 					
@@ -2164,6 +2164,21 @@ public void showStatus(String message) {
 		  contactThresholdField.setVisible(false);
 		  hiddenComponents.add(contactThresholdField);		  
 		  panel.add(contactThresholdField, gbc);
+		  contactThresholdField .addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt =   contactThresholdField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+						
+						contactThresholdField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
@@ -2173,6 +2188,22 @@ public void showStatus(String message) {
 		  mapqScoreThresholdField.setVisible(false);
 		  hiddenComponents.add(mapqScoreThresholdField);
 		  panel.add(mapqScoreThresholdField, gbc);
+		  
+		  mapqScoreThresholdField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt =    mapqScoreThresholdField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+						
+						 mapqScoreThresholdField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
 		  
 		  gbc.gridx = 2;
 		  gbc.gridy = y;
@@ -2666,6 +2697,21 @@ public void showStatus(String message) {
 		  chr1FromField.setToolTipText(textfrom);
 		  panel.add(chr1FromField, gbc);
 		  
+		  chr1FromField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt =    chr1FromField .getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+						
+						chr1FromField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
 
 		  gbc.gridx = 3;
 		  gbc.gridy = y;
@@ -2674,8 +2720,25 @@ public void showStatus(String message) {
 		  chr1ToField.setPreferredSize(new Dimension(100,20));
 		  chr1ToField.setEnabled(false);
 		  String textto= "<html>Enter a desired end position for the selected chromosome. Leave empty to select the entire chromosome</b></html>";
-		  chr1FromField.setToolTipText(textto);
+		  chr1ToField.setToolTipText(textto);
 		  panel.add(chr1ToField, gbc);
+		  
+		  chr1ToField.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt =    chr1ToField.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+						
+						chr1ToField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+		  
 		  
 		  JComboBox<String> resolutionList = new JComboBox<String>();
 		  resolutionList.setPreferredSize(new Dimension(100,20));
@@ -3142,7 +3205,7 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(750, 350);
+	                return new Dimension(800, 400);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -3153,7 +3216,7 @@ public void showStatus(String message) {
 	        scrollpane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	        
 	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(800, 400));
+	        subFrame.setSize(new Dimension(800, 500));
 	        subFrame.setLocation(400, 400);
 	        subFrame.setTitle("Annotate 3D Models");
 	        
@@ -3241,7 +3304,8 @@ public void showStatus(String message) {
 					
 					if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
 							|| viewer.getModelSetName().equals("GenomeFlow") ){
-			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		JOptionPane.showMessageDialog(null, "<html><b>Please load a 3D model first!.</b> <br /><br /> To Annotate a 3D model: <br /> <ol><li>Load a 3D model to the GenomeFlow 3D viewer GUI</li> <li>Select the Track file containing the positions to annotate on the 3D model</li><li>Check the  <b> Is domains or loops ?</b> box, if data contains domains or loops position. Necessary for effective annotation of domains or loops.</li><li>Choose the color you will like to use for the 3D model's Annotation.</li><li>Click on the <b>Annotate</b> button to show positions and their label on the 3D model.</li></ol></html>");
+
 			    		return;
 			    	}
 					
@@ -3439,7 +3503,49 @@ public void showStatus(String message) {
 				}
 			});
 	    	
-
+    	    gbc.gridx = 0;
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 4;
+	        JLabel labelx = new JLabel("To Annotate a 3D model:");
+	        labelx.setFont(new Font("Arial", Font.BOLD, 17));
+	        panel.add(labelx,  gbc);
+	       
+	        	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;		     
+	        panel.add(new JLabel("1)Load a 3D model to the GenomeFlow 3D viewer GUI.", JLabel.LEFT), gbc);
+        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;		       
+	        panel.add(new JLabel("2) Select the Track file containing the positions to annotate on the 3D model", JLabel.LEFT), gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	   
+	        panel.add(new JLabel("3)Check the  \" Is domains or loops\" box, if data contains domains or loops position.", JLabel.LEFT), gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	   
+	        panel.add(new JLabel("4)Choose the color you will like to use for the 3D model's Annotation.", JLabel.LEFT), gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	   
+	        panel.add(new JLabel("5)Click on the \"Annotate\" button to show positions and label on the 3D model.", JLabel.LEFT), gbc);
+	        
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	   
+	        panel.add(new JLabel("", JLabel.LEFT), gbc);
+	        
+	        y++;	      	         	    	
+	        /////////////////////////////////////////
+	    	
 	        gbc.gridx = 0;
 	        gbc.gridy = y;	
 	        gbc.gridwidth = 1;
@@ -3740,14 +3846,30 @@ public void showStatus(String message) {
 			    	if (viewer.getModelSetName() == null || viewer.getModelSetName().equals("Gmol")
 			    			|| viewer.getModelSetName().equals("GenomeFlow") ){
 			    		
-			    		JOptionPane.showMessageDialog(null, "Please load a model first!");
+			    		JOptionPane.showMessageDialog(null, "<html><b>Please load a 3D model first!.</b> <br /><br /> To identify loops in a 3D model: <br /> <ol><li>Load a 3D model to the GenomeFlow 3D viewer GUI</li> <li>(Optional)To save the loops position to file, select an output directlory</li><li>Click on the <b>Identify loops</b> button to show loops in the 3D model.</li></ol></html>");
 			    		return;
 			    	}
+			    	String filename = outputFileField.getText() + "/GenomeFlow_loops_" + generateUniqueFileName() + ".bed";
 			    	
-			    	viewer.setStringProperty(Constants.OUTPUTLOOPFILE, outputFileField.getText());
-			    	
+			    	if (outputFileField.getText().isEmpty()) {
+			    		viewer.setStringProperty(Constants.OUTPUTLOOPFILE, outputFileField.getText());
+			    	}
+			    	else {
+			    		viewer.setStringProperty(Constants.OUTPUTLOOPFILE, filename);
+			    	}
+			    					    	
 		        	script = "loopDetector";        	
 			    	viewer.script(script);
+			    	
+			    	if (outputFileField.getText().isEmpty()) {
+						JOptionPane.showMessageDialog(null, "<html>Loops Identified and Highlighted on the 3D models.<html> ","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+			    	}
+			    	else {
+						JOptionPane.showMessageDialog(null, "Loops Identified and Highlighted on the 3D models. \n The identified loops are saved into " + "GenomeFlow_loops_" + generateUniqueFileName() + ".bed file in the output directory","Important Information",JOptionPane.INFORMATION_MESSAGE);						
+
+			    	}
+
 					
 				}
 			});
@@ -3758,24 +3880,58 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(600, 120);
+	                return new Dimension(600, 140);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
 	        
+	        int y = 0;
 	        gbc.gridx = 0;
-	        gbc.gridy = 0;	                
-	        panel.add(new JLabel("Output File(optional)"), gbc);
+	        gbc.gridy = y;	 
+	        gbc.gridwidth = 5;
+	        JLabel labelx = new JLabel("To identify loops in a 3D model:");
+	        labelx.setFont(new Font("Arial", Font.BOLD, 17));
+	        panel.add(labelx,  gbc);
+	        	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 2;
+	        panel.add(new JLabel("1)Load a 3D model to the GenomeFlow 3D viewer GUI.", JLabel.LEFT), gbc);
+        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 4;
+	        panel.add(new JLabel("2)(Optional)To save the loops position to file, select an output directlory.", JLabel.LEFT), gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 2;
+	        panel.add(new JLabel("3)Click on the \"Identify loops\" button to show loops in the 3D model.", JLabel.LEFT), gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 2;
+	        panel.add(new JLabel("", JLabel.LEFT), gbc);
+	        
+	        y++;
+	        gbc.gridx = 0;
+	        gbc.gridy = y;	
+	        gbc.gridwidth = 1;
+	        panel.add(new JLabel("Output Folder(optional)",JLabel.LEFT), gbc);
 	        
 	        gbc.gridx = 1;
-	        gbc.gridy = 0;
+	        gbc.gridy = y;
 	        gbc.gridwidth = 2;
 	        outputFileField.setPreferredSize(new Dimension(300, 21));
 	        panel.add(outputFileField, gbc);
 	        
 	        
 	        gbc.gridx = 3;
-	        gbc.gridy = 0;
+	        gbc.gridy = y;
 	        gbc.gridwidth = 1;
 	        JButton openFileButton = new JButton("Browse File");	        
 	        openFileButton.addActionListener(new ActionListener() {				
@@ -3785,18 +3941,25 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					outputFileField.setText(fileName);
+					
+					 //Tosin added: confirm it is a directory or not
+					 
+					 if (!isDir(outputFileField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputFileField.setText("");
+					 }
 				}
 			});
 	        panel.add(openFileButton, gbc);
 	        
-	        
+	        y++;
 	        gbc.gridx = 1;
-	        gbc.gridy = 1;
+	        gbc.gridy = y;
 	        //gbc.gridwidth
 	        panel.add(runButton, gbc);
 	        
 	        Frame subFrame = new JFrame();
-	        subFrame.setSize(new Dimension(600, 200));
+	        subFrame.setSize(new Dimension(750, 200));
 	        subFrame.setLocation(400, 400);
 	        
 	        subFrame.add(panel);
@@ -3921,6 +4084,22 @@ public void showStatus(String message) {
 			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
 	        JTextField conversionFactorField = new JTextField();
 			conversionFactorField.setText("0.6");
+			///////////////////////////////////////////////	
+			conversionFactorField .addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   conversionFactorField .getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							conversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3944,7 +4123,22 @@ public void showStatus(String message) {
 	        
 	        JFormattedTextField learningRateField = new JFormattedTextField(learningRateFormatter);
 	        learningRateField.setText("1.0");
-	        
+			///////////////////////////////////////////////	
+	        learningRateField.addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   learningRateField.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							 learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
 	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -3969,7 +4163,22 @@ public void showStatus(String message) {
 	        //JTextField maxIterationField = new JTextField("1000");
 	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
 	        maxIterationField.setText("2000");
-	        
+			///////////////////////////////////////////////	
+	        maxIterationField.addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   maxIterationField.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
 	        	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -4457,7 +4666,24 @@ public void showStatus(String message) {
 			//JFormattedTextField conversionFactorField = new JFormattedTextField(doubleFormatter);
 	        JTextField conversionFactorField = new JTextField();
 			conversionFactorField.setText("0.5");
-	        
+	        ///////////////////////////////////////////////
+			conversionFactorField .addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   conversionFactorField.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							conversionFactorField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
+			
+			
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
 	        gbc.gridwidth = 2;	
@@ -4480,6 +4706,24 @@ public void showStatus(String message) {
 	        
 	        JFormattedTextField learningRateField = new JFormattedTextField(learningRateFormatter);
 	        learningRateField.setText("1.0");
+	        ///////////////////////////////////////////////
+	        learningRateField.addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   learningRateField.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							learningRateField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
+	        
+	        
 	        
 	        
 	        gbc.gridx = 1;
@@ -4505,7 +4749,22 @@ public void showStatus(String message) {
 	        //JTextField maxIterationField = new JTextField("1000");
 	        JFormattedTextField maxIterationField = new JFormattedTextField(intFormatter);
 	        maxIterationField.setText("2000");
-	        
+	        ///////////////////////////////////////////////
+	        maxIterationField.addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =    maxIterationField.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							 maxIterationField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
 	        	        
 	        gbc.gridx = 1;
 	        gbc.gridy = y;
@@ -5012,7 +5271,7 @@ public void showStatus(String message) {
 	        //////////////////////////////////////////////
 	        y++;
 	        JButton runButton = new JButton("Run");
-	        JButton stopButton = new JButton("Stop");
+	        
 	       	        	     
 	        gbc.gridx = 1;	        
 	        gbc.gridy = y;
@@ -5020,11 +5279,7 @@ public void showStatus(String message) {
 	        runButton.setHorizontalAlignment(JLabel.CENTER);
 	        panel.add(runButton, gbc);
 	        
-	        gbc.gridx = 2;	        
-	        gbc.gridy = y;
-	        gbc.gridwidth = 1;
-	        stopButton.setHorizontalAlignment(JLabel.CENTER);
-	        panel.add(stopButton, gbc);
+	        
 	        	        	        
 	        
 	        Frame Structure_3DMaxFrame = new JFrame("TAD Identification from Contact matrix");
@@ -5044,10 +5299,14 @@ public void showStatus(String message) {
 					String input = inputContactFileField.getText();
 					String output = outputGSSFileField.getText();		
 					int resolution = Integer.parseInt(IFResolutionField.getText());
+					String chrom=chromosomeFileField.getText();
 					String inputdata_type = Parameter.inputtype_Tuple;
 					String res = "";
 					String algorithm= "";
 					String startlocation = "0";
+					
+					
+					
 					if (input == null || input.trim().equals("") || output == null || output.trim().equals("") ) {
 						JOptionPane.showMessageDialog(null, "Input file or Output path Unspecified or Incorrect, Please make sure these fields are filled correctly !","Alert",JOptionPane.ERROR_MESSAGE);						
 						return;
@@ -5061,10 +5320,18 @@ public void showStatus(String message) {
 						}
 					}
 					
+					if (!IFResolutionField.getText().matches("\\d+")) {
+						JOptionPane.showMessageDialog(null, "<html>Incorrect input for <b>Data Resolution</b>. Only numbers are permitted for the Resolution (e.g 20000) !</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+
+					}
+					/*if (chrom.isEmpty() ) {
+						JOptionPane.showMessageDialog(null, "Enter a the chromosome number!","Alert",JOptionPane.ERROR_MESSAGE);						
+						return;
+					}*/
+					
 					if (isMatrix.isSelected()){
 						inputdata_type = Input.inputtype_Matrix; // 1	
-						viewer.setStringProperty(Constants.IFRESOLUTION,  IFResolutionField.getText());
-						viewer.setStringProperty(Constants.STARTLOCATION,  startlocation);
+					
 					} else {
 						try {
 							int Res = LoadHeatmap.Resolution(input);
@@ -5076,8 +5343,7 @@ public void showStatus(String message) {
 							// TODO Auto-generated catch block
 							e1.printStackTrace();
 						}
-						viewer.setStringProperty(Constants.IFRESOLUTION, res);
-						viewer.setStringProperty(Constants.STARTLOCATION,  startlocation);
+						
 						
 						resolution = Integer.parseInt(res);
 						if ( resolution > 250000 ) {
@@ -5087,10 +5353,7 @@ public void showStatus(String message) {
 					}
 					
 					
-					viewer.setStringProperty(Constants.INPUTCONTACTFILE, inputContactFileField.getText());
-		        	viewer.setStringProperty(Constants.OUTPUT3DFILE, outputGSSFileField.getText());			        	
-		        	viewer.setStringProperty(Constants.ISMATRIX, inputdata_type);
-		        	viewer.setStringProperty(Constants.CHROMOSOME, chromosomeFileField.getText());
+				
 		        	
 		        if (!clusterTAD.isSelected()) {
 		        		JOptionPane.showMessageDialog(null, "Please select atleast one algorithm");
@@ -5102,23 +5365,85 @@ public void showStatus(String message) {
 		        }
 		       
 		        	
-		        script = algorithm;
-			    viewer.script(script);	 
-			    	
+		       
+			    
+			    Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
+	            final JDialog dialog = new JDialog(win, "Extracting TAD... please wait !. This might take some time", ModalityType.APPLICATION_MODAL);
+	    		dialog.setPreferredSize(new Dimension(450,80));
+			    
+			    
+			    String[] Input = new String[6];
+				 Input[0] = input;		
+				 Input[1] = output;			
+				 Input[2] = String.valueOf(resolution);	
+				 Input[3] = (String)inputdata_type;	
+				 Input[4] = (String)startlocation;	
+				 Input[5] = (String) chromosomeFileField.getText();	
+			    
+				 ExtractTAD tadfinder = new ExtractTAD(Input);
+				 tadfinder.addPropertyChangeListener(new PropertyChangeListener() {
+						
+						@Override
+						public void propertyChange(PropertyChangeEvent evt) {
+							switch (evt.getPropertyName()){
+							case "progress":
+								break;
+							case "state":
+								switch ((StateValue)evt.getNewValue()){
+								case DONE:
+									
+									win.setEnabled(true);
+									dialog.dispose();
+									
+									try {
+										String msg = tadfinder.get();
+										if (msg==null){
+											msg = " Error while extracting TAD. TAD extraction unsucessful";
+										}
+										JOptionPane.showMessageDialog(null, msg,"Alert",JOptionPane.INFORMATION_MESSAGE);
+
+									} catch (InterruptedException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while extracting TAD");
+									} catch (ExecutionException e) {									
+										e.printStackTrace();
+										JOptionPane.showMessageDialog(null, "Error while extracting TAD");
+									}
+									
+									
+									break;
+								case PENDING:								
+									break;
+								case STARTED:
+									dialog.setVisible(true);
+									win.setEnabled(false);								
+									break;
+								default:								
+									break;
+								}
+							}
+							
+						}
+					  });				  
+					  
+				 tadfinder.execute();
+				 JProgressBar progressBar = new JProgressBar();
+			      progressBar.setIndeterminate(true);
+			      JPanel panel = new JPanel(new BorderLayout());
+			      
+			      panel.add(progressBar, BorderLayout.CENTER);
+			      panel.add(new JLabel(""), BorderLayout.PAGE_START);
+			      dialog.add(panel);
+			      dialog.pack();
+			      dialog.setLocationRelativeTo(win);
+			      dialog.setVisible(true);
+			    
 			    	
 			    	
 				}
 			});
 	        
-	        stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				// set stop running to true					
-				Parameter.stoprunning = true;
-				JOptionPane.showMessageDialog(null, "TAD Identification Stopped");
-				}
-			});
+	     
 	        
 	  }
   }
@@ -5158,6 +5483,12 @@ public void showStatus(String message) {
 					
 					inputContactFileField1.setText(fileName);
 					
+					String ext = getFileExtension(new File(inputContactFileField1.getText()));						
+					if (!ext.equals("bed") ) {						
+						JOptionPane.showMessageDialog(null, "Incorrect TAD file. TAD file with extension .bed expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+						inputContactFileField1.setText("");
+						return;
+					} 
 				}
 			});
 	        
@@ -5168,7 +5499,12 @@ public void showStatus(String message) {
 					        viewer, null, historyFile, FILE_OPEN_WINDOW_NAME, true);
 					
 					inputContactFileField2.setText(fileName);
-					
+					String ext = getFileExtension(new File(inputContactFileField2.getText()));						
+					if (!ext.equals("bed") ) {						
+						JOptionPane.showMessageDialog(null, "Incorrect TAD file. TAD file with extension .bed expected.","Alert",JOptionPane.ERROR_MESSAGE);						
+						inputContactFileField2.setText("");
+						return;
+					} 
 				}
 			});
 	        
@@ -5183,6 +5519,12 @@ public void showStatus(String message) {
 					
 					outputFileField.setText(fileName);
 					//viewerOptions.remove(Constants.ISCHOOSINGFOLDER);
+					 // confirm it is a directory or not
+					 
+					 if (!isDir(outputFileField.getText())) {
+						JOptionPane.showMessageDialog(null, "<html><b>Incorrect output path specified.</b> A directory path is required here, and not a file.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+						outputFileField.setText("");
+					 }
 				}
 			});
 	        
@@ -5515,6 +5857,10 @@ public void showStatus(String message) {
 						return;
 					}
 					
+					if (!IFResolutionField.getText().matches("\\d+")) {
+						JOptionPane.showMessageDialog(null, "<html>Incorrect input for <b>Data Resolution</b>. Only numbers are permitted for the Resolution (e.g 20000) !</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+
+					}
 					
 					Window win = SwingUtilities.getWindowAncestor((AbstractButton)e.getSource());
 					final JDialog dialog = new JDialog(win, "Checking consistency ... please wait !", ModalityType.APPLICATION_MODAL);
@@ -5911,7 +6257,22 @@ public void showStatus(String message) {
 			nthreads.setText("3");
 			nthreads.setVisible(false);
 			panel.add(nthreads, gbc);
-
+			//////////////////////////////////////////////
+			nthreads.addKeyListener(new KeyAdapter(){
+		        	@Override
+					public void keyReleased(KeyEvent e) {
+		        		String currentTxt =   nthreads.getText();
+						if (currentTxt.length() == 0) return;
+						
+		        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+						
+						if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+							JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+							
+							nthreads.setText(currentTxt.substring(0, currentTxt.length() - 1));
+						}
+					}	
+		        });
 			        	        
 			//////////////////////////////////////////////
 			y++;
@@ -6649,6 +7010,22 @@ public void showStatus(String message) {
 			nthreads.setText("3");			
 			panel.add(nthreads, gbc);
 			////////////////////////////////////////////////
+			nthreads.addKeyListener(new KeyAdapter(){
+	        	@Override
+				public void keyReleased(KeyEvent e) {
+	        		String currentTxt =   nthreads.getText();
+					if (currentTxt.length() == 0) return;
+					
+	        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+					
+					if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+						JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+						
+						nthreads.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+	        });
+			////////////////////////////////////////////////
 			y++;
 			gbc.gridx = 0;
 			gbc.gridy = y;	 
@@ -7132,6 +7509,24 @@ public void showStatus(String message) {
 			inputQualityField.setPreferredSize(new Dimension(300, 21));
 			inputQualityField.setText("1");
 			panel.add(inputQualityField, gbc);
+			
+			//////////////////////////////////////////////
+			inputQualityField.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+			String currentTxt =   inputQualityField.getText();
+			if (currentTxt.length() == 0) return;
+			
+			char chr = currentTxt.charAt(currentTxt.length() - 1);
+			
+			if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+				JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+				
+				inputQualityField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+					}
+				}	
+			});
+
 			
 			gbc.gridx = 3;
 	        gbc.gridy = y;	
@@ -8146,6 +8541,22 @@ public void showStatus(String message) {
 			nthreads.setPreferredSize(new Dimension(300, 21));
 			nthreads.setText("3");			
 			panel.add(nthreads, gbc);
+			//////////////////////////////////////////////
+			nthreads.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+			String currentTxt =   nthreads.getText();
+			if (currentTxt.length() == 0) return;
+			
+			char chr = currentTxt.charAt(currentTxt.length() - 1);
+			
+			if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+				JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+			
+				nthreads.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+				}	
+			});
 			////////////////////////////////////////////////
 			y++;
 			gbc.gridx = 0;
@@ -8220,6 +8631,23 @@ public void showStatus(String message) {
 			inputQualityField.setPreferredSize(new Dimension(300, 21));
 			inputQualityField.setText("1");
 			panel.add(inputQualityField, gbc);
+			
+			//////////////////////////////////////////////
+			inputQualityField.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+			String currentTxt =   inputQualityField.getText();
+			if (currentTxt.length() == 0) return;
+			
+			char chr = currentTxt.charAt(currentTxt.length() - 1);
+			
+			if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+			JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+			
+			inputQualityField.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+				}	
+			});
 			
 			gbc.gridx = 3;
 			gbc.gridy = y;	

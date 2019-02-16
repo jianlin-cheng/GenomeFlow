@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 import org.jmol.api.JmolViewer;
 
 public class Parameter {
@@ -33,6 +35,7 @@ public class Parameter {
 				{
 					String [] line = null;
 					String rowdata = input.nextLine();
+					rowdata=rowdata.trim();
 					line = rowdata.split(sep);						
 					 for (int k = 0; k < cols; k++) {							  
 		                	a[linesCounter][k] = Double.parseDouble(line[k]);
@@ -71,6 +74,7 @@ public class Parameter {
 				{	String [] line = null;
 					String rowdata = input.nextLine();
 					if(!rowdata.isEmpty()) {
+					rowdata=rowdata.trim();
 					line = rowdata.split(sep);
 					for (int i= 0; i<2;i++) {
 						int key = Integer.parseInt(line[i]);
@@ -110,6 +114,7 @@ public class Parameter {
 					String [] line = null;
 					String rowdata = input.nextLine();
 					if(!rowdata.isEmpty()) {
+						rowdata=rowdata.trim();
 						line = rowdata.split(sep);						
 						// Find the key value from map
 						int indexkey0 = Integer.parseInt(line[0]); int indexvalue0 = map.get(indexkey0);
@@ -159,36 +164,58 @@ public class Parameter {
 		double [][] matrix= null;			
 		 
 		 System.out.println(String.format("Number of rows = %d", rows));
+		
+		 try {
+			 Scanner input = new Scanner (new File( Filename));
+		 
+				while(input.hasNextLine())
+				{	String [] line = null;
+					String rowdata = input.nextLine();					
+					//System.out.println(rowdata);
+					rowdata=rowdata.trim();
+					line = rowdata.split(sep);						
+					//System.out.println(String.format("col = %d", line.length));
+					++rows;		
+					cols = line.length;
+				}			
+				input.close();
+		 	} catch (FileNotFoundException e) {
+	         e.printStackTrace();
+		 	}			
+		 System.out.println(String.format("Number of row/col = %d", rows));
+		 
+		 
 		 //===================================
 		 // Read in Matrix input directly
-		 //===================================		 
-		 if (ismatrix == 1) {
-			 try {
-				 Scanner input = new Scanner (new File( Filename));
-			 
-					while(input.hasNextLine())
-					{	String [] line = null;
-						String rowdata = input.nextLine();					
-						//System.out.println(rowdata);
-						line = rowdata.split(sep);						
-						//System.out.println(String.format("col = %d", line.length));
-						++rows;		
-						cols = line.length;
-					}			
-					input.close();
-			 	} catch (FileNotFoundException e) {
-		         e.printStackTrace();
-			 	}			
-			 System.out.println(String.format("Number of row/col = %d", rows));
+		 //===================================	
+		 
+		 if (ismatrix == 1 && cols > 3) {
+		
 			 matrix = readMatrix( rows, cols, Filename,  sep);
+			 			 
 		 }				
 		 //===================================
 		 // Convert Tuple to a Matrix
 		 //===================================	
-		 else {
+		 else if(ismatrix == 0 && cols == 3) {
 			
 			 matrix =  readTupleFile(Filename,sep);
 		 }
+		 else if(ismatrix == 0 && cols > 3) {
+			 
+			 JOptionPane.showMessageDialog(null, "<html> Incorrect input file format. The number of columns in the matrix is greater than 3. Check the <b>Input is SquareMatrix?</b> box  if the matrix is a square matrix and try again. <br /> If the input matrix is a 3-column tuple format, please check to make sure the input file has just 3-columns. </html>","Alert",JOptionPane.ERROR_MESSAGE);							
+			
+			 
+		 }
+		 
+		 else if(ismatrix == 1 && cols <= 3 ) {
+			 
+			 JOptionPane.showMessageDialog(null, "<html> Matrix size is too small. The number of columns in the matrix is less than or equal to 3.  Load a new input and try again. <br /> <b>Note:</b> <br /> If your data is in the 3-column tuple format, you do not need to check the <b>Input is SquareMatrix?</b> box.</html>","Alert",JOptionPane.ERROR_MESSAGE);							
+			
+			 
+		 }
+		 
+		 
 		 
 		 
 		 return matrix;

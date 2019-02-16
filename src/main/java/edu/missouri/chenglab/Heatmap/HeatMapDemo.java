@@ -297,6 +297,23 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textResolution.setVisible(false);
         listPane.add(textResolution, gbc);
         
+       	      
+        textResolution .addKeyListener(new KeyAdapter(){
+        	@Override
+			public void keyReleased(KeyEvent e) {
+        		String currentTxt =  textResolution .getText();
+				if (currentTxt.length() == 0) return;
+				
+        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+				
+				if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+					JOptionPane.showMessageDialog(null, "Please key in numbers only, 1000000 = 1MB, 10000 = 10KB","Alert",JOptionPane.ERROR_MESSAGE);
+					
+					 textResolution.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+			}	
+        });
+        
        
         JLabel labelx = new JLabel("Input contact file:");
         listPane.add(labelx, gbc);
@@ -442,6 +459,23 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textXMin.addFocusListener(this);
         gbc.gridy = 27;
         listPane.add(textXMin, gbc);
+        textXMin .addKeyListener(new KeyAdapter(){
+        	@Override
+			public void keyReleased(KeyEvent e) {
+        		String currentTxt =   textXMin .getText();
+				if (currentTxt.length() == 0) return;
+				
+        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+				
+				if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+					JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+					
+					 textXMin.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+			}	
+        });
+        
+               
         
         label = new JLabel("X max:");
         gbc.gridx = 1;
@@ -451,6 +485,21 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textXMax.addFocusListener(this);
         gbc.gridy = 27;
         listPane.add(textXMax, gbc);
+        textXMax .addKeyListener(new KeyAdapter(){
+        	@Override
+			public void keyReleased(KeyEvent e) {
+        		String currentTxt =   textXMax .getText();
+				if (currentTxt.length() == 0) return;
+				
+        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+				
+				if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+					JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+					
+					 textXMax.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+			}	
+        });
         
         label = new JLabel("Y min:");
         gbc.gridx = 2;
@@ -460,6 +509,21 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textYMin.addFocusListener(this);
         gbc.gridy = 27;
         listPane.add(textYMin, gbc);
+        textYMin .addKeyListener(new KeyAdapter(){
+        	@Override
+			public void keyReleased(KeyEvent e) {
+        		String currentTxt =   textYMin .getText();
+				if (currentTxt.length() == 0) return;
+				
+        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+				
+				if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+					JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+					
+					 textYMin.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+			}	
+        });
         
         label = new JLabel("Y max:");
         gbc.gridx = 3;
@@ -469,6 +533,22 @@ public class HeatMapDemo extends JFrame implements ItemListener, FocusListener
         textYMax.addFocusListener(this);
         gbc.gridy = 27;
         listPane.add(textYMax, gbc);
+        textYMax .addKeyListener(new KeyAdapter(){
+        	@Override
+			public void keyReleased(KeyEvent e) {
+        		String currentTxt =   textYMax .getText();
+				if (currentTxt.length() == 0) return;
+				
+        		char chr = currentTxt.charAt(currentTxt.length() - 1);
+				
+				if ((!Character.isDigit(chr) && chr != '.') || (chr == '.' && currentTxt.substring(0, currentTxt.length() - 1).contains("."))){
+					JOptionPane.showMessageDialog(null, "Please key in numbers only.","Alert",JOptionPane.ERROR_MESSAGE);
+					
+					 textYMax.setText(currentTxt.substring(0, currentTxt.length() - 1));
+				}
+			}	
+        });
+        
         
         //line 27        
         gbc.gridx = 0;

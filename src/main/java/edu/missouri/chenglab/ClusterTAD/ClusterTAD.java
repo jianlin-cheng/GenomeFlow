@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 import org.jmol.api.JmolViewer;
 
@@ -35,7 +36,7 @@ import weka.core.SparseInstance;
 import weka.core.converters.CSVLoader;
 import edu.missouri.chenglab.ClusterTAD.Parameter;
 
-public class ClusterTAD {
+public class ClusterTAD{
 	
 	public static int nRegion; // number of region
 	public static List<Double> list ;
@@ -47,6 +48,8 @@ public class ClusterTAD {
 	public static int ismatrix = 1;
 	public static int startloc = 0;
 	public static String chromosome  = null; //  specify the Chromosome number
+	
+	JmolViewer viewer;
 	
 	public static String Outputpath;
 	public static String Clusterpath = "Clusters/";
@@ -900,99 +903,42 @@ public class ClusterTAD {
 	    return b;
 	  }
 	
-	  /**
-	   * Calls the progress bar
-	   */
-	  public static void progress() {
-	        
-	        pb.setMinimum(0);
-	        pb.setMaximum(MAX);
-	        pb.setStringPainted(true);
-	 
-	        // add progress bar
-	        frame.setLayout(new FlowLayout());
-	        frame.getContentPane().add(pb);
-	 
-	        frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-	        frame.pack();
-	        frame.setLocationRelativeTo(null);
-	        frame.setSize(400, 100);
-	        frame.setVisible(true);
-	 
-	      
-	  }
-	  	
 	
-	  /**
-	   * continues progressbar update
-	   */
-	  public static void progresscontinue() {
-		//===================================================================
-		  limit = (MAX/10) + current;
-		    for (int i = current; i <=limit ; i++) {
-	            final int currentValue = i;
-	            current = i;
-	            try {
-	                SwingUtilities.invokeLater(new Runnable() {
-	                    public void run() {
-	                        pb.setValue(currentValue);
-	                    }
-	                });
-	                java.lang.Thread.sleep(100);
-	            } catch (InterruptedException e) {
-	                JOptionPane.showMessageDialog(frame, e.getMessage());
-	            }
-	        }	
-		//===================================================================   
-		    
-	  }
+	  
+	  
 	  
 	  
 	  /**
-	   * continues progressbar update and Ends it 
+	   * Constructor for clusterTAD
+	   * @param args
+	   * @param Viewer
+	   * @throws Exception
 	   */
-	  public static void progressEnd() {
-		//===================================================================
-		    for (int i = current; i <= MAX; i++) {
-	            final int currentValue = i;
-	            current = i;
-	            try {
-	                SwingUtilities.invokeLater(new Runnable() {
-	                    public void run() {
-	                        pb.setValue(currentValue);
-	                    }
-	                });
-	                java.lang.Thread.sleep(100);
-	            } catch (InterruptedException e) {
-	                JOptionPane.showMessageDialog(frame, e.getMessage());
-	            }
-	        }	
-		//===================================================================   
-		    
-	  }
 	  
+	  public ClusterTAD(String[] args ) throws Exception{
+		// ==========PARAMETERS==================		 
+			inputfile = args[0];
+			outpath = args[1];		
+			Resolution = Integer.parseInt(args[2]);
+			ismatrix = Integer.parseInt(args[3]);
+		    startloc = Integer.parseInt(args[4]);
+		    chromosome = args[5];	  
+		    
+		  
+		   
+	  }
+	
 	/**
 	 * 
 	 * @param args
-	 * @throws Exception 
+	 * @return 
 	 */
-	public ClusterTAD(String[] args, JmolViewer viewer ) throws Exception{	
+	public String Perform_operation(){	
+		String msg = null;
 		System.out.println("Welcome to TAD identification from contact Matrix.");
 	     System.out.println("INSTRUCTION:\n (1)Input is a Normalized Matrix. \n"
 	     		+ " (2) Specify the Data sperator for input data");
-	     
-	     
-	     progress();	// Call the progressbar function     
-	     current = 0;
 	   
-	  // ==========PARAMETERS==================		 
-		inputfile = args[0];
-		outpath = args[1];		
-		Resolution = Integer.parseInt(args[2]);
-		ismatrix = Integer.parseInt(args[3]);
-	    startloc = Integer.parseInt(args[4]);
-	    chromosome = args[5];	    
-	    
 		String[] tmp = inputfile.split("[\\/ \\. \\\\]");
 		 if (inputfile.contains(".")){
 			name = tmp[tmp.length - 2];
@@ -1027,8 +973,8 @@ public class ClusterTAD {
 				e.printStackTrace();
 			}
 		//===================================================================
-		    progresscontinue();  //1
 		
+		if (RealData!=null) {
 		//===================================================================
 		    
 		//STAGE 2: New data creation	   
@@ -1044,7 +990,7 @@ public class ClusterTAD {
 		    wt.make_folder(Outputpath);
 		    log_outputWriter = new BufferedWriter(new FileWriter( Outputpath + filename));
 		 //===================================================================
-		    progresscontinue(); //2
+		
 		//===================================================================   		  
 		    
 		//STAGE 3: Estimate number of Clusters
@@ -1059,8 +1005,7 @@ public class ClusterTAD {
 		    	Kmax = size_Feat - 1;   }
 		    
 		//===================================================================
-		    progresscontinue(); //3
-		    frame.setTitle("Clustering Iteration 1..... Please wait");
+		  
 		//===================================================================  
 		    //STAGE 4: Perform Clustering and Save
 		    //============Perform Clustering and Save Cluster assignment========
@@ -1074,22 +1019,20 @@ public class ClusterTAD {
 		    wt.writeClusterMatrix(Clusterfile, labels); //write matrix to file
 		   
 		   
-		    //STAGE 5: Extract TAD
-		    frame.setTitle("Extracting TAD..... Please wait");
+		   
 		    //============================================================
 		    ClusterTAD_algorithm(labels,Kmin,Kmax,RealData);   //Return this TAD, and find out if there are more interesting TADs
 		    
-		    progresscontinue(); //4
+		
 		    //=============================================================    
 		    // Perform Re-clustering
 		    //----------------------------------------------------------------------		    
 		    //STAGE 5: Extract  Re-clustering and Extract
-		    frame.setTitle("Clustering Iteration 2..... Please wait");
+		  
 		    
 		     ClusterTAD_Iteration(labels,Kmin,Kmax); //Only enabled for 
 		     
-		     progresscontinue(); //5
-		     
+		    		     
 		    //======================Quality Assessment=======================   
 		    
 		    System.out.println(String.format("Best Quality Score for TAD identified at K = %d ",Best_K));
@@ -1097,30 +1040,52 @@ public class ClusterTAD {
 		    System.out.println("TAD identified written to file");
 		  
 		    		    
-		    progressEnd(); //6
+		   
 		    TADfile =TADFolder  + "Best" + Bestname ;  //file to hold TAD written to file	 	   
 		    wt.delete_file(TADfile);
 		    wt.writeTAD(TADfile,Best_TAD,chromosome); //write matrix to file
 		    
 		    System.out.println("=========== Quality Assessment Completed =========");
 		    
-		    frame.setTitle("Extracting TAD..... Please wait");
+		    
 		    
 		    //write Quality score to file
 		    String Qscorefile =TADFolder + name + "_TAD_QualityScore_List.txt"; //file to hold Quality score of TAD written to file		   
 			wt.delete_file( Qscorefile);
 		    wt.writeList(Qscorefile, Quality); 
-		    JOptionPane.showMessageDialog(null, "Successfully Completed, Check output directory for output files");
 		    
-		  
+		    
+		    JOptionPane.showMessageDialog(null, "<html><b>Successfully Completed</b>. Check the output directory for output files. <br /> The best TAD identified is saved in the <i>TADs</i> directory with Prefix =  <b>BestTAD </b> </html>","Information",JOptionPane.INFORMATION_MESSAGE);
+		    
+		    msg = "TAD extraction completed";
+		}
+		
 		    
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			msg = "An error occured. File Not Found ";
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			msg = "TAD extraction failed";
 		}
-	        log_outputWriter.flush();  
-			log_outputWriter.close();
-			frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	        try {
+				log_outputWriter.flush();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				msg = "An error occured. Failed to write file to output directory";
+				e.printStackTrace();
+			}  
+			try {
+				log_outputWriter.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				msg = "An error occured. Failed to write file to output directory";
+				e.printStackTrace();
+			}
+			
+			return msg;
 	}
 }
 

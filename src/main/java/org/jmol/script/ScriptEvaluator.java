@@ -48,6 +48,7 @@ import java.util.regex.Pattern;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.vecmath.AxisAngle4f;
 import javax.vecmath.Matrix3f;
 import javax.vecmath.Matrix4f;
@@ -5941,10 +5942,7 @@ public class ScriptEvaluator {
 					break;
 				case Token.Heatmap2D:
 					Heatmap_Visualization();
-					break;
-				case Token.FindTAD2D:
-					Find_TAD();
-					break;				
+					break;						
 				default:
 					error(ERROR_unrecognizedCommand);
 				}
@@ -6235,34 +6233,7 @@ public class ScriptEvaluator {
 		
 	}
 	
-	/**
-	 * @author-Tosin
-	 * To Find the TAD
-	 */
-	private void Find_TAD() {
-		String[] Input = new String[6];
-		 Input[0] = (String) viewer.getParameter(Constants.INPUTCONTACTFILE);		
-		 Input[1] = (String) viewer.getParameter(Constants.OUTPUT3DFILE);			
-		 Input[2] = (String)viewer.getParameter(Constants.IFRESOLUTION);	
-		 Input[3] = (String)viewer.getParameter(Constants.ISMATRIX);	
-		 Input[4] = (String)viewer.getParameter(Constants.STARTLOCATION);	
-		 Input[5] = (String) viewer.getParameter(Constants.CHROMOSOME);	
-		 
-		// Call the ClusteTAD
-		 
-		try{
-						
-			@SuppressWarnings("unused")
-			ClusterTAD ctad = new ClusterTAD(Input,viewer);			
-			
-		}catch(Exception ex){
-		    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output","Alert!",JOptionPane.ERROR_MESSAGE);
-			viewer.displayMessage(new String[]{ex.getMessage()});
-			ex.printStackTrace();
-		}
-		
-	}
-	
+
 	
 	
 	/**

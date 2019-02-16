@@ -293,7 +293,7 @@ public class TADFrame {
 		        try{
 					
 					@SuppressWarnings("unused")
-					ClusterTAD ctad = new ClusterTAD(Input,viewer);			
+					ClusterTAD ctad = new ClusterTAD(Input);			
 					
 				}catch(Exception ex){
 				    JOptionPane.showMessageDialog(null, "An error Occured!, Check File for Output");				
