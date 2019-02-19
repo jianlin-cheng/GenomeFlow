@@ -3205,7 +3205,7 @@ public void showStatus(String message) {
 	        JPanel panel = new JPanel(){
 	        	@Override
 	            public Dimension getPreferredSize() {
-	                return new Dimension(800, 400);
+	                return new Dimension(850, 400);
 	            }	       
 	        };
 	        panel.setLayout(new GridBagLayout());  
@@ -4002,6 +4002,10 @@ public void showStatus(String message) {
 					
 					inputContactFileField.setText(fileName);
 					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+					  if (isDir(inputContactFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input specified.</b> A contact data file is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							inputContactFileField.setText("");
+					}
 				}
 			});
 	        
@@ -4582,6 +4586,11 @@ public void showStatus(String message) {
 					
 					inputContactFileField.setText(fileName);
 					//outputGSSFileField.setText(fileName.replace(".txt", ".gss"));
+					  if (isDir(inputContactFileField.getText())) {
+							JOptionPane.showMessageDialog(null, "<html><b>Incorrect input specified.</b> A contact data file is required here.</html>","Alert",JOptionPane.ERROR_MESSAGE);						
+							inputContactFileField.setText("");
+					}
+					
 				}
 			});
 	        
@@ -4921,7 +4930,7 @@ public void showStatus(String message) {
 	        
 	        Structure_3DMaxFrame.add(panel);
 	        Structure_3DMaxFrame.setVisible(true);
-	        Structure_3DMaxFrame.setTitle("Reconstruct 3D Models from Contact Matrices");
+	        Structure_3DMaxFrame.setTitle("3DMax-Reconstruct 3D Models from Contact Matrices");
 	        
 	        
 	        

@@ -7,8 +7,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import  edu.missouri.chenglab.Structure3DMax.optimization.GradientAscent;
@@ -21,6 +23,7 @@ import  edu.missouri.chenglab.Structure3DMax.utility.Helper;
 import  edu.missouri.chenglab.Structure3DMax.valueObject.Constants;
 import  edu.missouri.chenglab.Structure3DMax.valueObject.Constraint;
 import edu.missouri.chenglab.Structure3DMax.valueObject.InputParameters_3DMax;
+import edu.missouri.chenglab.loopdetection.utility.CommonFunctions;
 import  edu.missouri.chenglab.Structure3DMax.evaluation.CalRMSD;
 
 public class StructureGenerator3DMax implements OptimizedObject{
@@ -424,7 +427,7 @@ public class StructureGenerator3DMax implements OptimizedObject{
 
 	}
 
-	public void generateStructure() throws Exception{
+	public Pair generateStructure() throws Exception{
 		
 		if (parameterFile != null) readParameters(parameterFile);
 		
@@ -435,23 +438,29 @@ public class StructureGenerator3DMax implements OptimizedObject{
 			convertFactor = inputParameters.getMinConversionFactor();
 			double cor, minCor = 1.0;
 			double bestConvertFactor = Constants.DEFAULT_CONVERT_FACTOR;//default
+			String bestModel = "";
+			Pair pair;
+			
 			
 			inputParameters.setSearchingConversionFactor(true);
-			
+			Set<String> allModels = new HashSet<String>();
 			for(; convertFactor <= inputParameters.getMaxConversionFactor(); convertFactor += 0.1){
 				try {
 					inputParameters.setNumber_threads(1);
 					inputParameters.setConvert_factor(convertFactor);
-					cor = run();  
+					pair = run(); 
+					
+					allModels.add(pair.modelFile);
 					
 				} catch (Exception e) {					
 					e.printStackTrace();
 					continue;
 				}
-				System.out.println("Result--------------------" + convertFactor + "\t" + cor);
-				if (minCor > cor){
-					minCor = cor;
+				System.out.println("Result--------------------" + convertFactor + "\t" + pair.cor);
+				if (minCor > pair.cor){
+					minCor = pair.cor;
 					bestConvertFactor = convertFactor;
+					bestModel = pair.modelFile;
 				}
 				
 				if (inputParameters.isStopRunning()){
@@ -465,26 +474,38 @@ public class StructureGenerator3DMax implements OptimizedObject{
 			
 			
 			PrintWriter pw = new PrintWriter(inputParameters.getOutput_folder()+ "/" + "best_alpha_log.txt");
-			pw.printf("\n\nBest convert factor: %.2f, pick models generated using this convert factor as your final models \n", bestConvertFactor);
+			//pw.printf("\n\nBest convert factor: %.2f, pick models generated using this convert factor as your final models \n", bestConvertFactor);
+			pw.printf("\n\nBest convert factor: %.2f, with avg. correlation: %.2f, pick models generated using this convert factor as your final models \n", bestConvertFactor, minCor);
+
 			System.out.printf("\n\nBest convert factor: %.2f, pick models generated using this convert factor as your final models \n", bestConvertFactor);
 			pw.close();
 			
 			//generate models after searching for best factor
-			convertFactor = bestConvertFactor;
+			//convertFactor = bestConvertFactor;			
+			//inputParameters.setConvert_factor(convertFactor);
+			//inputParameters.setSearchingConversionFactor(false);
+			//run();
 			
-			inputParameters.setConvert_factor(convertFactor);
-			inputParameters.setSearchingConversionFactor(false);
+			for(String file: allModels) {
+				if (!file.equals(bestModel)) {
+					CommonFunctions.delete_file(file);
+				}
+			};
 			
-			run();
+			inputParameters.getViewer().loadNewModel(bestModel, new String[]{"Best Conversion Factor: " + String.format("%.2f", bestConvertFactor), 
+					"Correlation: " + String.format("%.2f", -1 * minCor)});
 			
+			return new Pair(minCor, bestModel);
 			
 		}else{
 			inputParameters.setSearchingConversionFactor(false);
-			run();
+			return run();
 		}
+		
+		
 	}
 	
-	public double run(String... cFactor) throws Exception{
+	public Pair run(String... cFactor) throws Exception{
 		String fileName;
 		
 		readInput(); //it includes conversion from IF2Distance
@@ -507,89 +528,93 @@ public class StructureGenerator3DMax implements OptimizedObject{
 		int run_nbr = inputParameters.getNum();
 		
 				
-		for(int i = 0; i < run_nbr; i++) {		
-			initializeStructure();
+		initializeStructure();
+		
+		GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder(),idToChr);
+		if (inputParameters.getLearning_rate()  != 0){
+			gradientAscent.setInitialLearingRate(inputParameters.getLearning_rate());
+		}
+		
+		gradientAscent.performGradientAscent(inputParameters);
+		
+		String currentTimeMillis = System.currentTimeMillis() + "";
+		
+		fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis ;		
+		
+		rmsd = CalRMSD.rmse(str, lstCons);
+		interval = 0;
+		try{
 			
-			GradientAscent gradientAscent = new GradientAscent(this, str, inputParameters.isVerbose(), inputParameters.getTmpFolder(),idToChr);
-			if (inputParameters.getLearning_rate()  != 0){
-				gradientAscent.setInitialLearingRate(inputParameters.getLearning_rate());
+			cor = CalRMSD.correlationIFvsDist(str, lstCons, interval);
+			corDist = CalRMSD.correlationWishDistvsDist(str, lstCons, interval);
+			pcorDist = CalRMSD.PearsoncorrelationWishDistvsDist(str, lstCons, interval);
+		}catch(Exception ex){
+			cor = 1.0;// convertFactor fails the reconstruction so make cor = maximum (1)
+		}
+		
+		avgRMSD += rmsd;
+		avgCor += cor;			
+		avgCorDist += corDist;
+		avgPearsonCorDist+=pcorDist;
+		
+		//print out log		
+		String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
+		String outputFileGSS = outputFile + ".gss";
+		if (inputParameters.isPrintOutStr()){				
+
+			//String outputFilePDB = outputFile + ".pdb";
+			//helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
+			helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
+			
+			
+			if (inputParameters.getViewer() != null){
+				inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
+						"Correlation: " + String.format("%.2f", corDist)});
 			}
 			
-			gradientAscent.performGradientAscent(inputParameters);
 			
-			String currentTimeMillis = System.currentTimeMillis() + "";
 			
-			fileName = inputParameters.getFile_prefix() + "_" + currentTimeMillis ;		
-			
-			rmsd = CalRMSD.rmse(str, lstCons);
-			interval = 0;
-			try{
-				
-				cor = CalRMSD.correlationIFvsDist(str, lstCons, interval);
-				corDist = CalRMSD.correlationWishDistvsDist(str, lstCons, interval);
-				pcorDist = CalRMSD.PearsoncorrelationWishDistvsDist(str, lstCons, interval);
-			}catch(Exception ex){
-				cor = 1.0;// convertFactor fails the reconstruction so make cor = maximum (1)
+			logFileName =  inputParameters.getFile_prefix() + "_log_" + currentTimeMillis + ".txt";
+			logPW = new PrintWriter(inputParameters.getOutput_folder() + "/" + logFileName);
+			logPW.println("Input file: " + inputParameters.getInput_file());
+			logPW.println("Convert factor: " + inputParameters.getConvert_factor());
+			logPW.println("Learning rate: " + inputParameters.getLearning_rate());
+			if (inputParameters.getChr_lens() != null){
+				logPW.print("Chromosome lengths:");
+				for(int k = 0; k < inputParameters.getChr_lens().length; k++){
+					logPW.print(inputParameters.getChr_lens()[k] + " ");
+				}
+				logPW.println();
 			}
-			
-			avgRMSD += rmsd;
-			avgCor += cor;			
-			avgCorDist += corDist;
-			avgPearsonCorDist+=pcorDist;
-			
-			//print out log			
-			if (inputParameters.isPrintOutStr()){
-				
-				String outputFile = inputParameters.getOutput_folder() + "/" + fileName;
-				String outputFileGSS = outputFile + ".gss";
-				String outputFilePDB = outputFile + ".pdb";
-				helper.writeStructure(outputFilePDB,helper.zoomStructure(str, str_scale), idToChr, Constants.HEADER_STR_FILE);				
-				helper.writeStructureGSS(outputFileGSS, helper.zoomStructure(str, str_scale), lstPos, idToChr, inputParameters.getChrom(), inputParameters.getGenomeID());
-				
-				
-				if (inputParameters.getViewer() != null){
-					inputParameters.getViewer().loadNewModel(outputFileGSS, new String[]{"Conversion Factor: " + String.format("%.2f", inputParameters.getConvert_factor()), 
-							"Correlation: " + String.format("%.2f", corDist)});
-				}
-				
-				
-				
-				logFileName =  inputParameters.getFile_prefix() + "_log_" + currentTimeMillis + ".txt";
-				logPW = new PrintWriter(inputParameters.getOutput_folder() + "/" + logFileName);
-				logPW.println("Input file: " + inputParameters.getInput_file());
-				logPW.println("Convert factor: " + inputParameters.getConvert_factor());
-				logPW.println("Learning rate: " + inputParameters.getLearning_rate());
-				if (inputParameters.getChr_lens() != null){
-					logPW.print("Chromosome lengths:");
-					for(int k = 0; k < inputParameters.getChr_lens().length; k++){
-						logPW.print(inputParameters.getChr_lens()[k] + " ");
-					}
-					logPW.println();
-				}
+
+			logPW.flush();
+		
+		}
 	
-				logPW.flush();
+		if (inputParameters.isPrintOutStr()){
+			logPW.println("RMSE: " + rmsd);
+			logPW.println("Spearman correlation IFs vs. Reconstructed Dist: " + cor);
+			logPW.println("Spearman correlation WishDist vs. Reconstructed Dist: " + corDist);
+			logPW.flush();
+			logPW.close();
 			
-			}
-			
-			
-			
-						
-			
-			
-			if (isOutput){
-				logPW.println("RMSE: " + rmsd);
-				logPW.println("Spearman correlation IFs vs. Reconstructed Dist: " + cor);
-				logPW.println("Spearman correlation WishDist vs. Reconstructed Dist: " + corDist);
-				logPW.println("Pearson correlation WishDist vs. Reconstructed Dist: " + pcorDist);
-				logPW.flush();
-				logPW.close();
-				
-			}
+		}
+		
+		
+		
+		if (isOutput){
+			logPW.println("RMSE: " + rmsd);
+			logPW.println("Spearman correlation IFs vs. Reconstructed Dist: " + cor);
+			logPW.println("Spearman correlation WishDist vs. Reconstructed Dist: " + corDist);
+			logPW.println("Pearson correlation WishDist vs. Reconstructed Dist: " + pcorDist);
+			logPW.flush();
+			logPW.close();			
+		}
 			
 //			System.out.println("RMSE: " + rmsd);
 //			System.out.println("Spearman correlation IFs vs. Reconstructed Dist: " + cor);
 //			System.out.println("Spearman correlation WishDist vs. Reconstructed Dist: " + corDist);
-		}
+
 				
 		avgRMSD /= run_nbr;
 		avgCor /= run_nbr;
@@ -621,9 +646,19 @@ public class StructureGenerator3DMax implements OptimizedObject{
 		System.out.println("AVG Spearman correlation WishDist vs. Reconstructed Dist: " + avgCorDist);
 		System.out.println("AVG Pearson correlation WishDist vs. Reconstructed Dist: " + avgPearsonCorDist);
 		
-		return avgCor;
+		//return avgCor;
+		return new Pair(avgCor, outputFileGSS);
 	}
 	
+	
+	class Pair{
+		double cor;
+		String modelFile;
+		public Pair(double c, String m) {
+			this.cor = c;
+			this.modelFile = m;
+		}
+	}
 	
 	
 	/**
