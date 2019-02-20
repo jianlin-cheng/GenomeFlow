@@ -19,7 +19,7 @@ Please see [the wiki](https://github.com/jianlin-cheng/GenomeFlow/wiki) for an e
 # Distribution
 
 In this repository, we include the folowing:
-* **executable**: contains the GenomeFlow .jar executable file and sample datasets. [Download latest version from here](https://github.com/jianlin-cheng/GenomeFlow/releases)
+* **executable**: contains sample datasets.  [Download latest version of the GenomeFlow executable from here](https://github.com/jianlin-cheng/GenomeFlow/releases)
 * src: contains the GenomeFlow source codes
 * user_guide: contains user guide
 * lib: contains the external libraries used in source code
