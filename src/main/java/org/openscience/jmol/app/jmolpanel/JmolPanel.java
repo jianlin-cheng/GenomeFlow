@@ -2026,19 +2026,20 @@ public void showStatus(String message) {
 		  
 		  gbc.gridx = 1;
 		  gbc.gridy = y;
-		 // gbc.gridwidth = 2;
+		  gbc.gridwidth = 2;
 		  //panel.add(genomeIDField, gbc);
 		  panel.add(genomeIDList, gbc);
 		  
 		  
 		  //Tosin Added text box in case the Genomeid is not listed in combobox
 		  
-		  gbc.gridx = 2;
+		  y++;
+		  gbc.gridx = 0;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 2;
-		  panel.add(new JLabel("OR  Enter ID(if Not-listed)"), gbc);
+		  panel.add(new JLabel ("Genome ID(If Not listed above)"), gbc);
 		  
-		  gbc.gridx = 3;
+		  gbc.gridx = 2;
 		  gbc.gridy = y;
 		  gbc.gridwidth = 2;
 		  JTextField genomeIDField = new JTextField();
