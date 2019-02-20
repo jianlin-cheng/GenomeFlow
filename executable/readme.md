@@ -1,7 +1,7 @@
 Flow with GenomeFlow!
 ===================
 
-
+DOWNLOAD LATEST VERSION FROM THE RELEASE
 ----------
 
 UNIX/Linux/Mac OS X
