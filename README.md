@@ -74,12 +74,5 @@ If using Eclipse, there is no need to install Maven. Otherwise, Maven needs to b
 ## Compiling source code
 Requires Java JDK 1.8 (not JRE but JDK, set JAVA_HOME to JDK folder)
 
-## Todo list
-To further improve GenomeFlow, the following will soon be done:
-* More detailed error messages
-* 1D-Function Automated execution of scripts 
-* 1D-Function un-normalized data creation
-* Parameters reduction
-* Bugs Fix
 
 --------------------------------------------------------------------	
